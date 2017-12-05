@@ -1,2 +1,4 @@
 # Practica2
-Bitáora de mi Paractica II  @NICChile
+Bitácora de mi Práctica II  @NICChile
+
+**Comienzo:** Lunes 4 de Diciembre 2017
