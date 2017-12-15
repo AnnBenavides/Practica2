@@ -1,22 +1,7 @@
 # Requerimientos e Instalación
 
-## Ambiente
-### Resumen
-- Processor: 2x Intel(R) Core(TM)2 Duo CPU E7300  @ 2.66GHz
-- Memory: 2047MB (1600MB used)
-- Operating System: Ubuntu 16.04.3 LTS
-
-
-### Sistema Operativo
-- Kernel: Linux 4.4.0-103-generic (x86_64)
-- Compiled: #126-Ubuntu SMP Mon Dec 4 16:23:28 UTC 2017
-- C Library: Unknown
-- Default C Compiler: GNU C Compiler version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.5) 
-- Distribution		: Ubuntu 16.04.3 LTS
-- Desktop Environment		: Unity (ubuntu)
-
 ## JMeter
-### Verficación de Java
+### Entorno y requerimientos
 El número en negrita debe ser mayor a 1.7
 ```
  $ java -version
@@ -49,3 +34,39 @@ Entramos a la carpeta ``apache-jmeter-x.x/bin/`` y abrimos JMeter
  $ ./jmeter
 ```
 
+## Selenium
+### Entorno y requerimientos
+- ***Sistema operativo:*** Ubuntu 16.04.3 LTS (tambien está soportado Windows, OS X, Solaris, en verdad lo importante es el browser)
+- ***Versión de Firefox:***Firefox Quantum 57.0.1 (64-bit) , aunque basta con Firefox 2 o 3
+- ***Lenguaje de programación*** : Java, con opciones de C#, Perl, PHP, Python y Ruby
+
+
+### Instalación de Selenium HQ
+en este caso se usó la [última versión](http://selenium-release.storage.googleapis.com/index.html) disponible de SeleniumHQ
+ - ACTUAL: selenium-server-standalone-3.8.1.jar
+
+```
+$ sudo apt-get update
+
+# Make a directory for Selenium
+$ mkdir ~/selenium
+$ cd ~/selenium
+
+#Get selenium
+$ sudo wget http://selenium-release.storage.googleapis.com/3.8/selenium-server-standalone-3.8.1.jar
+
+# Install headless Java runtime
+$ sudo apt-get install openjdk-7-jre-headless -y
+
+# Install Firefox
+$ sudo apt-get install firefox -y
+
+# Install headless GUI for firefox.  'Xvfb is a display server that performs graphical operations in memory'
+sudo apt-get install xvfb -y
+
+# Finally, starting up Selenium server
+#
+echo "\r\nStarting up Selenium server ...\r\n"
+DISPLAY=:1 xvfb-run java -jar ~/selenium/selenium-server-standalone-3.8.1.jar
+
+``` 
