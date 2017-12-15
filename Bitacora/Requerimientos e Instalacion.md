@@ -3,7 +3,7 @@
 ## JMeter
 ### Entorno y requerimientos
 El número en negrita debe ser mayor a 1.7
-```
+```sh
  $ java -version
  openjdk version "**1.8**.0_151"
  OpenJDK Runtime Environment (build 1.8.0_151-8u151-b12-0ubuntu0.16.04.2-b12)
@@ -11,7 +11,7 @@ El número en negrita debe ser mayor a 1.7
 ```
 
 Si no, podemos actualizar Java con los siguientes comandos
-``` 
+```sh
 $ sudo apt-get update
 $ sudo apt-get install default-jdk
 ```
@@ -21,15 +21,17 @@ Buscar la última versión de *Binario* de JMeter comprimido como .tgz [aquí](h
 
 Luego, en terminal descargamos el binario
 
-``` $ wget http://www-eu.apache.org/dist//jmeter/binaries/apache-jmeter-3.3.tgz ```
+```sh
+ $ wget http://www-eu.apache.org/dist//jmeter/binaries/apache-jmeter-3.3.tgz ```
 
 Descomprimimos el directorio
 
-``` $ tar -xf apache-jmeter-3.3.tgz ```
+```sh
+ $ tar -xf apache-jmeter-3.3.tgz ```
 
 Entramos a la carpeta ``apache-jmeter-x.x/bin/`` y abrimos JMeter
 
-```
+```sh
  $ cd apache-jmeter-3.3/bin/
  $ ./jmeter
 ```
@@ -37,7 +39,7 @@ Entramos a la carpeta ``apache-jmeter-x.x/bin/`` y abrimos JMeter
 ## Selenium
 ### Entorno y requerimientos
 - ***Sistema operativo:*** Ubuntu 16.04.3 LTS (tambien está soportado Windows, OS X, Solaris, en verdad lo importante es el browser)
-- ***Versión de Firefox:***Firefox Quantum 57.0.1 (64-bit) , aunque basta con Firefox 2 o 3
+- ***Versión de Firefox:*** Firefox Quantum 57.0.1 (64-bit) , aunque basta con Firefox 2 o 3
 - ***Lenguaje de programación*** : Java, con opciones de C#, Perl, PHP, Python y Ruby
 
 
@@ -45,7 +47,7 @@ Entramos a la carpeta ``apache-jmeter-x.x/bin/`` y abrimos JMeter
 en este caso se usó la [última versión](http://selenium-release.storage.googleapis.com/index.html) disponible de SeleniumHQ
  - ACTUAL: selenium-server-standalone-3.8.1.jar
 
-```
+```sh
 $ sudo apt-get update
 
 # Make a directory for Selenium
@@ -56,7 +58,7 @@ $ cd ~/selenium
 $ sudo wget http://selenium-release.storage.googleapis.com/3.8/selenium-server-standalone-3.8.1.jar
 
 # Install headless Java runtime
-$ sudo apt-get install openjdk-7-jre-headless -y
+$ sudo apt-get install openjdk-8-jre-headless -y
 
 # Install Firefox
 $ sudo apt-get install firefox -y
