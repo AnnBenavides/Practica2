@@ -22,12 +22,14 @@ Buscar la última versión de *Binario* de JMeter comprimido como .tgz [aquí](h
 Luego, en terminal descargamos el binario
 
 ```sh
- $ wget http://www-eu.apache.org/dist//jmeter/binaries/apache-jmeter-3.3.tgz ```
+ $ wget http://www-eu.apache.org/dist//jmeter/binaries/apache-jmeter-3.3.tgz 
+ ```
 
 Descomprimimos el directorio
 
 ```sh
- $ tar -xf apache-jmeter-3.3.tgz ```
+ $ tar -xf apache-jmeter-3.3.tgz 
+ ```
 
 Entramos a la carpeta ``apache-jmeter-x.x/bin/`` y abrimos JMeter
 
