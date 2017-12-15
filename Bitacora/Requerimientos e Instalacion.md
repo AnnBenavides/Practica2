@@ -23,11 +23,8 @@ Luego, en terminal descargamos el binario
 
 ```sh
  $ wget http://www-eu.apache.org/dist//jmeter/binaries/apache-jmeter-3.3.tgz 
- ```
 
-Descomprimimos el directorio
-
-```sh
+# Descomprimimos el directorio
  $ tar -xf apache-jmeter-3.3.tgz 
  ```
 
