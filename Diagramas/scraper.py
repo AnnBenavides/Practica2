@@ -1,6 +1,7 @@
+# This Python file uses the following encoding: utf-8
 #library used to query a website
 import urllib2
-import sys
+import os, sys
 #import the Beautiful soup functions to parse the data returned from the website
 from bs4 import BeautifulSoup
 
@@ -21,7 +22,14 @@ def getAllLinks(pages):
 	print "-------ALL LINKS --------"
 	all_urls = []
 	for links in pages:
-		all_urls.append(links.get("href"))
+		urls = links.get("href")
+		if "registrar" in urls:
+			if "clientes.nic.cl" not in urls:
+				urls = "https://clientes.nic.cl"+urls
+
+		if "nic.cl" not in urls:
+			urls = "http://www.nic.cl"+urls
+		all_urls.append(urls)
 	return all_urls
 
 def getRegistry(list_of_links):
@@ -84,11 +92,11 @@ def scraper(main_url):
 	#printList(forms_in_page)
 	printUnique(forms_in_page)
 
-	if yesOrNo("¿Seguir?"):
+	if yesOrNo("¿Seguir por este thread?"):
 		stepIn(main_url)
 
 def yesOrNo(question):
-	reply = str(raw_input(question+" (s/n): ")).lower().strip()
+	reply = str(input(question+" (s/n): ")).lower().strip()
 	if reply[0] =='s':
 		return True
 	else:
@@ -97,12 +105,16 @@ def yesOrNo(question):
 
 def stepIn(main_url):
 	print "\n --------------------------- \n"
-	print "\t FATHER URL : ["+main_url+"]"
+	print "\t >> ["+main_url+"]"
 	print "\n ---------------------------"
 	#print "Obteniendo links..."
 	all_links = getURLs(main_url, "a")
 	all_urls = getAllLinks(all_links)
 	uniUrls = uniqueURLS(all_urls)
+	print "Se abrirán los siguientes "+str(len(uniUrls))+" threads:"
+	printList(uniUrls)
+	print "\n --------------------------- \n"
+
 
 	for links in uniUrls:
 		scraper(links)
