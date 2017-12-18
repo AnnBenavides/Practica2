@@ -84,29 +84,29 @@ def scraper(main_url):
 	#printList(forms_in_page)
 	printUnique(forms_in_page)
 
+	if yesOrNo("¿Seguir?"):
+		stepIn(main_url)
 
-def registryScraper(main_url):
+def yesOrNo(question):
+	reply = str(raw_input(question+" (s/n): ")).lower().strip()
+	if reply[0] =='s':
+		return True
+	else:
+		return False
+
+
+def stepIn(main_url):
 	print "\n --------------------------- \n"
-	print "\t SCRAPPING ON : ["+main_url+"]"
+	print "\t FATHER URL : ["+main_url+"]"
 	print "\n ---------------------------"
 	#print "Obteniendo links..."
 	all_links = getURLs(main_url, "a")
-	#print "Categorizando ..."
-	registry = getRegistry(all_links)
-	#printList(registry)
-	printUnique(registry)
-	registrar = getRegistrar(all_links)
-	#printList(registrar)
-	printUnique(registrar)
-	#print "Escaneando formularios ..."
-	all_forms = getURLs(main_url, "form")
-	forms_in_page = getForms(all_forms)
-	#printList(forms_in_page)
-	printUnique(forms_in_page)
-	for links in registry:
-		if "www.nic.cl" not in links:
-			links = "https://www.nic.cl"+links
+	all_urls = getAllLinks(all_links)
+	uniUrls = uniqueURLS(all_urls)
+
+	for links in uniUrls:
 		scraper(links)
+	
 
 main_url = input("URL:") #al input hay que escribirlo entre ""
 #main_url = "https://"+rawIn
@@ -114,4 +114,7 @@ main_url = input("URL:") #al input hay que escribirlo entre ""
 #main_url = "https://clientes.nic.cl/"
 scraper(main_url)
 #registryScraper(main_url)
+
+
+
 
