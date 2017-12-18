@@ -21,57 +21,69 @@ def getURLs(main_url, tag):
 def getAllLinks(pages):
 	print "-------ALL LINKS --------"
 	all_urls = []
-	for links in pages:
-		urls = links.get("href")
-		if "registrar" in urls:
-			if "clientes.nic.cl" not in urls:
-				urls = "https://clientes.nic.cl"+urls
+	if len(pages)>0:
+		for links in pages:
+			urls = links.get("href")
+			if "registrar" in urls:
+				if "clientes.nic.cl" not in urls:
+					urls = cliente+urls
 
-		if "nic.cl" not in urls:
-			urls = "http://www.nic.cl"+urls
-		all_urls.append(urls)
+			if "nic.cl" not in urls:
+				if "http" not in urls:
+					urls = "http://www.nic.cl"+urls
+
+			if "nic.cl" in urls:
+				all_urls.append(urls)
 	return all_urls
 
 def getRegistry(list_of_links):
 	print "------- REGISTRY LINKS --------"
 	registry_urls = []
-	for links in list_of_links:
-		urls = links.get("href")
-		if "registry" in urls:
-			if "nic.cl" not in urls:
-				urls = "http://www.nic.cl"+urls
-			#print urls
-			registry_urls.append(urls)
+	if len(list_of_links)>0:
+		for links in list_of_links:
+			urls = links.get("href")
+			if "registry" in urls:
+				if "nic.cl" not in urls:
+					urls = nic+urls
+				#print urls
+				registry_urls.append(urls)
 	return registry_urls
 
 def getRegistrar(list_of_links):
 	print "------- REGISTRAR LINKS --------"
 	registrar_urls = []
-	for links in list_of_links:
-		urls = links.get("href")
-		if "registrar" in urls:
-			if "clientes.nic.cl" not in urls:
-				urls = "https://clientes.nic.cl"+urls
-			#print urls
-			registrar_urls.append(urls)
+	if len(list_of_links)>0:
+		for links in list_of_links:
+			urls = links.get("href")
+			if "registrar" in urls:
+				if "clientes.nic.cl" not in urls:
+					urls = cliente+urls
+				#print urls
+				registrar_urls.append(urls)
 	return registrar_urls
 
 def getForms(list_of_links):
 	print "-------- FORMS ---------"
 	form_urls = []
-	for form in list_of_links:
-		#print form.get("action")
-		form_urls.append(form.get("action"))
+	if len(list_of_links)>0:
+		for form in list_of_links:
+			#print form.get("action")
+			form_urls.append(form.get("action"))
 	return form_urls
 
 def uniqueURLS(list_of_urls):
 	diff_links = []
-	for links in list_of_urls:
-		if links not in diff_links:
-			diff_links.append(links)
+	if len(list_of_urls)>0:
+		for links in list_of_urls:
+			if links not in diff_links:
+				diff_links.append(links)
+		for delUrl in already_scrapped:
+			if delUrl in diff_links:
+				diff_links.remove(delUrl)	
 	return diff_links
 
 def scraper(main_url):
+	already_scrapped.append(main_url)
 	print "\n --------------------------- \n"
 	print "\t SCRAPPING ON : ["+main_url+"]"
 	print "\n ---------------------------"
@@ -92,8 +104,11 @@ def scraper(main_url):
 	#printList(forms_in_page)
 	printUnique(forms_in_page)
 
-	if yesOrNo("¿Seguir por este thread?"):
-		stepIn(main_url)
+	all_urls = getAllLinks(all_links)
+	uniUrls = uniqueURLS(all_urls)
+	if len(uniUrls)>0:
+		if yesOrNo("¿Seguir por este thread?"):
+			stepIn(main_url)
 
 def yesOrNo(question):
 	reply = str(input(question+" (s/n): ")).lower().strip()
@@ -111,21 +126,24 @@ def stepIn(main_url):
 	all_links = getURLs(main_url, "a")
 	all_urls = getAllLinks(all_links)
 	uniUrls = uniqueURLS(all_urls)
-	print "Se abrirán los siguientes "+str(len(uniUrls))+" threads:"
+	print "Se abrirán los siguientes "+str(len(uniUrls))+" threads no explorados:"
 	printList(uniUrls)
 	print "\n --------------------------- \n"
 
-
-	for links in uniUrls:
-		scraper(links)
+	if len(uniUrls)>0:
+		for links in uniUrls:
+			scraper(links)
+	else:
+		print "(!) No hay links nuevos para explorar"
 	
-
+already_scrapped = []
 main_url = input("URL:") #al input hay que escribirlo entre ""
-#main_url = "https://"+rawIn
-#main_url = "https://nic.cl/"
-#main_url = "https://clientes.nic.cl/"
+nic = "http://nic.cl"
+cliente = "https://clientes.nic.cl"
 scraper(main_url)
-#registryScraper(main_url)
+
+
+
 
 
 
