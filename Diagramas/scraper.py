@@ -18,13 +18,15 @@ all_links = soup.find_all("a")
 
 print "------- REGISTRY LINKS --------"
 for links in all_links:
-	if "registry" in links:
-		print link.get("href")
+	urls = links.get("href")
+	if "registry" in urls:
+		print urls
 
 print "------- REGISTRAR LINKS --------"
 for links in all_links:
-	if "registrar" in links:
-		print link.get("href")
+	urls = links.get("href")
+	if "registrar" in urls:
+		print urls
 
 all_forms = soup.find_all("form")
 print "-------- FORMS ---------"
