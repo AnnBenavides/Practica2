@@ -19,7 +19,6 @@ def getURLs(main_url, tag):
 	return soup.find_all(tag)
 
 def getAllLinks(pages):
-	print "-------ALL LINKS --------"
 	all_urls = []
 	if len(pages)>0:
 		for links in pages:
@@ -103,11 +102,13 @@ def scraper(main_url):
 	forms_in_page = getForms(all_forms)
 	#printList(forms_in_page)
 	printUnique(forms_in_page)
-
+	print "-------ALL LINKS --------"
 	all_urls = getAllLinks(all_links)
 	uniUrls = uniqueURLS(all_urls)
+	print "Se abrirán los siguientes "+str(len(uniUrls))+" threads no explorados:"
+	printList(uniUrls)
 	if len(uniUrls)>0:
-		if yesOrNo("¿Seguir por este thread?"):
+		if yesOrNo("\n ¿Seguir por este thread?"):
 			stepIn(main_url)
 
 def yesOrNo(question):
@@ -126,9 +127,6 @@ def stepIn(main_url):
 	all_links = getURLs(main_url, "a")
 	all_urls = getAllLinks(all_links)
 	uniUrls = uniqueURLS(all_urls)
-	print "Se abrirán los siguientes "+str(len(uniUrls))+" threads no explorados:"
-	printList(uniUrls)
-	print "\n --------------------------- \n"
 
 	if len(uniUrls)>0:
 		for links in uniUrls:
