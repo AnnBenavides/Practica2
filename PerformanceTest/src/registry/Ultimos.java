@@ -28,7 +28,8 @@ public class Ultimos {
 	    }
 	}
 	
-	@Test
+	/**@Test
+	 * Por alguna razon este test demora mucho**/
 	public void openMonth() throws Exception{
 		try (final WebClient webClient = new WebClient()) {
 	        webClient.getPage("http://www.nic.cl/registry/Ultimos.do?t=1m");
