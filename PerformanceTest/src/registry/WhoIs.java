@@ -15,10 +15,12 @@ import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlRadioButtonInput;
 import com.gargoylesoftware.htmlunit.html.HtmlSubmitInput;
+import com.gargoylesoftware.htmlunit.html.HtmlTable;
+import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 
 public class WhoIs {
-	private String[] testSimpleSites = {"horrible","defensa","emision",
+	private String[] testSimpleSites = {"test","horrible","defensa","emision",
 			"antigua","farmacia","azucar","abajo","bolso",
 			"cama","casa","vendedor","raton","fruta",
 			"triangulo","flor","bota","ruta","jardin"};
@@ -54,7 +56,13 @@ public class WhoIs {
 	        return button.click();
 		}
 	}
-		
+	
+	/**Respuesta a un dominio no inscrito
+	 * 
+	 * Aparece un boton para inscribir el dominio
+	 * redireccionando a /registrar/agregarDominio.do?...
+	 * con una llave al final
+	 * **/
 	private void verifyDomNotFound(HtmlPage page){
 		final DomElement button = page.getElementById("submitButton");
 		String btn = button.getTextContent();
@@ -67,6 +75,9 @@ public class WhoIs {
 		}
 	}
 	
+	/** Verifica por contenido
+	 * si se ha encontrado el dominio o no
+	 * **/
 	private boolean domNotFound(HtmlPage page){
 		final List<HtmlElement> inTable= page.getByXPath("//table[@class='tablabusqueda']/tbody/tr/td[1]");
 		final HtmlElement elem = inTable.get(0);
@@ -83,9 +94,24 @@ public class WhoIs {
 	 * 
 	 * word es la palabra buscada
 	 * **/
-	private void verifyExactaResults(HtmlPage page, String word){// TODO
+	private void verifyExactaResults(HtmlPage page, String word){
 		if (!domNotFound(page)){
-			// TODO verificar dato mostrado con word.cl
+			//verificar dato mostrado con word.cl
+			final List<HtmlElement> results= page.getByXPath("//table[@class='tablabusqueda']/tbody/tr[2]/td[1]");
+			final HtmlElement row = results.get(0);
+			String rowText = row.asText();
+			String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
+			String dom = word+".cl";
+			final HtmlElement link =  row.getElementsByTagName("a").get(0);
+			final String href = link.getAttribute("href");
+			//System.out.println(href);
+			String url = "Whois.do?=";
+			if (dom.equals(columns[0]) && !columns[1].isEmpty()){
+				assertTrue(true);
+			} else {
+				assertTrue(false);
+			}
+			
 			
 		} else {
 			// dominio no encontrado
@@ -96,15 +122,113 @@ public class WhoIs {
 	@Test
 	public void exactaSimpleTest(){
 		HtmlPage page;
-		int limit = 1;
 		for (int i = 0 ; i < simpleLimit; i++){
 			try {
 				page = submitForm(testSimpleSites[i],filterValues[0]);
-				System.out.println("Verificando contenido...");
+				//System.out.println("Verificando contenido...");
 				verifyExactaResults(page, testSimpleSites[i]);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}		
+	}
+	
+	@Test
+	public void exactaNumberTest(){
+		HtmlPage page;
+		for (int i = 0 ; i < numberLimit; i++){
+			try {
+				page = submitForm(testNumberSites[i],filterValues[0]);
+				//System.out.println("Verificando contenido...");
+				verifyExactaResults(page, testNumberSites[i]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}		
+	}
+	@Test
+	public void exactaSpecialTest(){
+		HtmlPage page;
+		for (int i = 0 ; i < specialLimit; i++){
+			try {
+				page = submitForm(testSpecialSites[i],filterValues[0]);
+				//System.out.println("Verificando contenido...");
+				verifyExactaResults(page, testSpecialSites[i]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}		
+	}
+		
+	////////////////TEST con filtro "contenga" ////////////////////
+	/**Metodo para verificar el resultado de una busqueda
+	* 
+	* page es la pagina generada post submit
+	* 
+	* word es la palabra buscada
+	* **/
+	private void verifyContengaResults(HtmlPage page, String word){
+		if (!domNotFound(page)){
+			//verificar dato mostrado con word.cl
+			final HtmlTable table = (HtmlTable) page.getByXPath("//table[@class='tablabusqueda']").get(0);
+			final List<HtmlTableRow> rows = table.getRows();
+			for (int i = 1 ; i< table.getRowCount()-1 ; i++){
+				HtmlElement row = rows.get(i);
+				String rowText = row.asText();
+				//System.out.println(rowText);
+				String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
+				final HtmlElement link =  row.getElementsByTagName("a").get(0);
+				final String href = link.getAttribute("href");
+				//System.out.println(href);
+				String url = "Whois.do?="+columns[0];
+				if (columns[0].contains(word) && !columns[1].isEmpty()){
+					assertTrue(true);
+				} else {
+					assertTrue(false);
+				}
+			}
+		} else {
+		// dominio no encontrado
+		verifyDomNotFound(page);
+		}
+	}
+	
+	@Test
+	public void contengaSimpleTest(){
+		HtmlPage page;
+		for (int i = 0 ; i < simpleLimit; i++){
+			try {
+				page = submitForm(testSimpleSites[i],filterValues[1]);
+				verifyContengaResults(page, testSimpleSites[i]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}		
+	}
+
+	@Test
+	public void contegaNumberTest(){
+		HtmlPage page;
+		for (int i = 0 ; i < numberLimit; i++){
+			try {
+				page = submitForm(testNumberSites[i],filterValues[1]);
+				verifyContengaResults(page, testNumberSites[i]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}	
+	}
+	
+	@Test
+	public void contengaSpecialTest(){
+		HtmlPage page;
+		for (int i = 0 ; i < specialLimit; i++){
+			try {
+				page = submitForm(testSpecialSites[i],filterValues[1]);
+				verifyContengaResults(page, testSpecialSites[i]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}	
 	}
 }
