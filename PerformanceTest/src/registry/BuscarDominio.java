@@ -101,17 +101,17 @@ public class BuscarDominio {
 			String rowText = row.asText();
 			String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
 			String dom = word+".cl";
-			boolean matches = dom.startsWith(columns[0]);
+			assertTrue(dom.equals(columns[0]));
+			assertTrue(!columns[1].isEmpty());
 			
-			final HtmlElement link =  row.getElementsByTagName("a").get(0);
-			final String href = link.getAttribute("href");
-			//System.out.println(href);
-			String url = "Whois.do?=";
-			if (matches && !columns[1].isEmpty()){
-				assertTrue(true);
-			} else {
-				assertTrue(false);
-			}		
+			List<HtmlElement> links = table.getElementsByTagName("a");
+			boolean hasLink = false;
+			for (HtmlElement link : links){
+				String aHref = link.getAttribute("href");
+				hasLink = hasLink || aHref.contains("Whois.do?="+columns[0]+".cl");
+			}
+			//assertTrue(hasLink);
+			
 		} else {
 			// dominio no encontrado
 			verifyDomNotFound(page);
@@ -176,18 +176,16 @@ public class BuscarDominio {
 				String rowText = row.asText();
 				//System.out.println(rowText);
 				String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
-				boolean matches = columns[0].contains(word);
+				assertTrue(columns[0].contains(word));
+				assertTrue(!columns[1].isEmpty());
 				
-				final HtmlElement link =  row.getElementsByTagName("a").get(0);
-				final String href = link.getAttribute("href");
-				//System.out.println(href);
-				
-				String url = "Whois.do?="+columns[0];
-				if (matches && !columns[1].isEmpty()){
-					assertTrue(true);
-				} else {
-					assertTrue(false);
+				List<HtmlElement> links = table.getElementsByTagName("a");
+				boolean hasLink = false;
+				for (HtmlElement link : links){
+					String aHref = link.getAttribute("href");
+					hasLink = hasLink || aHref.contains("Whois.do?="+columns[0]+".cl");
 				}
+				//assertTrue(hasLink);
 			}
 		} else {
 		// dominio no encontrado
@@ -251,19 +249,16 @@ public class BuscarDominio {
 				String rowText = row.asText();
 				//System.out.println(rowText);
 				String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
-				boolean matches = columns[0].startsWith(word);
+				assertTrue(columns[0].startsWith(word));
+				assertTrue(!columns[1].isEmpty());
 				
-				final HtmlElement link =  row.getElementsByTagName("a").get(0);
-				final String href = link.getAttribute("href");
-				//System.out.println(href);
-				String url = "Whois.do?=";
-				boolean sameLink = href.contains(url);
-
-				if (matches && !columns[1].isEmpty()){
-					assertTrue(true);
-				} else {
-					assertTrue(false);
+				List<HtmlElement> links = table.getElementsByTagName("a");
+				boolean hasLink = false;
+				for (HtmlElement link : links){
+					String aHref = link.getAttribute("href");
+					hasLink = hasLink || aHref.contains("Whois.do?="+columns[0]+".cl");
 				}
+				//assertTrue(hasLink);
 			}
 		} else {
 			// dominio no encontrado
@@ -327,19 +322,16 @@ public class BuscarDominio {
 				String rowText = row.asText();
 				//System.out.println(rowText);
 				String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
-				boolean matches = columns[0].endsWith(word+".cl");
+				assertTrue(columns[0].endsWith(word+".cl"));
+				assertTrue(!columns[1].isEmpty());
 				
-				final HtmlElement link =  row.getElementsByTagName("a").get(0);
-				final String href = link.getAttribute("href");
-				//System.out.println(href);
-				String url = "Whois.do?=";
-				boolean sameLink = href.contains(url);
-
-				if (matches && !columns[1].isEmpty()){
-					assertTrue(true);
-				} else {
-					assertTrue(false);
+				List<HtmlElement> links = table.getElementsByTagName("a");
+				boolean hasLink = false;
+				for (HtmlElement link : links){
+					String aHref = link.getAttribute("href");
+					hasLink = hasLink || aHref.contains("Whois.do?="+columns[0]+".cl");
 				}
+				//assertTrue(hasLink);
 			}
 		} else {
 			// dominio no encontrado

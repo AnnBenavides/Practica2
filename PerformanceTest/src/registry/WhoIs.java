@@ -96,7 +96,7 @@ public class WhoIs {
 	
 	private void verifyBasic(List<HtmlTableRow> rows, String word){
 		String tittle = rows.get(0).asText();
-		boolean matches = tittle.equals(word+".cl");
+		assertTrue(tittle.equals(word+".cl"));
 		
 		//Titular
 		assertTrue(this.verifyRowElement(rows, "Titular:"));
