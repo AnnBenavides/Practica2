@@ -63,8 +63,9 @@ public class WhoIs {
 	 * 
 	 * verificamos segun el contenido de la pagina**/
 	private boolean domFound(HtmlPage page){
-		final List<HtmlElement> inTable= page.getByXPath("//table[@class='tablabusqueda']/tbody/tr/td");
-		final HtmlElement elem = inTable.get(0);
+		final HtmlTable table = (HtmlTable) page.getByXPath("//table[@class='tablabusqueda']").get(0);
+		final List<HtmlTableRow> rows = table.getRows();
+		final HtmlElement elem = rows.get(0);
 		String response = elem.asText();
 		if (response.contains("dominio no existe")){
 			System.out.println("Dominio no inscrito");
@@ -72,73 +73,61 @@ public class WhoIs {
 		} else {return true;}
 	}
 	
-	private boolean verifyBasic(List<HtmlTableRow> rows, String word){
-		String tittle = rows.get(0).asText();
-		boolean matches = tittle.equals(word+".cl");
-		
-		//Titular
-		String titular = rows.get(1).asText();
-		String[] cTitular = titular.split("\n");
-		boolean titularMatches = cTitular[0].equals("Titular:");
-		boolean titularNotEmpty = !cTitular[1].isEmpty();
-		
-		//Agente Registrador
-		String agente = rows.get(2).asText();
-		String[] cAgente = agente.split("\n");
-		boolean agenteMatches = cAgente[0].equals("Agente Registrador:");
-		boolean agenteNotEmpty = !cAgente[1].isEmpty();
-		
-		//Fecha de creacion
-		String creacion = rows.get(3).asText();
-		String[] cCreacion = creacion.split("\n");
-		boolean creacionMatches = cCreacion[0].equals("Fecha de creación:");
-		boolean creacionNotEmpty = !cCreacion[1].isEmpty();
-		
-		//Fecha de expiracion + boton de renovar
-		HtmlElement exp = rows.get(4);
-		String expiracion = exp.asText();
-		String[] cExpiracion = expiracion.split("\n");
-		HtmlElement button = exp.getElementsByTagName("button").get(0);
-		String href = button.getAttribute("onclick");
-		String renovar = "https://clientes.nic.cl/registrar/renovar.do?d="+word+".cl";
-		boolean hasRenovar = href.contains(renovar);
-		boolean expiracionMatches = cExpiracion[0].equals("Fecha de expiración:");
-		boolean expiracionNotEmpty = !cExpiracion[1].isEmpty();
-		
-		return matches && titularMatches && titularNotEmpty && agenteMatches && agenteNotEmpty 
-				&& creacionMatches && creacionNotEmpty && expiracionMatches && expiracionNotEmpty
-				&& hasRenovar;
-	}
-	
-	private boolean verifyContact(List<HtmlTableRow> rows, String word){
+	private boolean verifyRowElement(List<HtmlTableRow> rows, String elementName){
 		try{
-			//Nombre Contacto Administrativo
-			String admin = rows.get(5).asText();
-			String[] cAdmin = admin.split("\n");
-			boolean adminMatches = cAdmin[0].equals("Nombre Contacto Administrativo:");
-			boolean adminNotEmpty = !cAdmin[1].isEmpty();
-			
-			//Nombre Contacto Comercial
-			String comercial = rows.get(6).asText();
-			String[] cComercial = comercial.split("\n");
-			boolean comercialMatches = cComercial[0].equals("Nombre Contacto Comercial:");
-			boolean comercialNotEmpty = !cComercial[1].isEmpty();
-			
-			//Nombre Contacto Técnico
-			String tecnico = rows.get(7).asText();
-			String[] cTecnico = tecnico.split("\n");
-			boolean tecnicoMatches = cTecnico[0].equals("Nombre Contacto Técnico:");
-			boolean tecnicoNotEmpty = !cTecnico[1].isEmpty();
-			
-			return adminMatches && adminNotEmpty && comercialMatches && comercialNotEmpty 
-					&& tecnicoMatches && tecnicoNotEmpty; 
-		} catch (Exception e){ 
-			System.out.println(word+".cl : No contacts info");
+			boolean matches = false;
+			boolean hasData = false;
+			for (HtmlElement row : rows){
+				String allRow = row.asText();
+				String[] columns = allRow.split("\n"); //elementName = [0], data = [1]
+				if(columns[0].equals(elementName)){
+					matches = true;
+					hasData = !columns[1].isEmpty();
+				} else {
+					hasData = hasData || false;
+				}
+			}
+			return matches && hasData;
+		} catch (Exception e){
+			System.out.println("Problemas al evaluar "+elementName);
 			return true;
 		}
 	}
 	
-	private boolean verifyServers(List<HtmlTableRow> rows, String word){ //TODO
+	private void verifyBasic(List<HtmlTableRow> rows, String word){
+		String tittle = rows.get(0).asText();
+		boolean matches = tittle.equals(word+".cl");
+		
+		//Titular
+		assertTrue(this.verifyRowElement(rows, "Titular:"));
+		
+		//Agente Registrador
+		assertTrue(this.verifyRowElement(rows,"Agente Registrador:"));
+		
+		//Fecha de creacion
+		assertTrue(this.verifyRowElement(rows,"Fecha de creación:"));
+		
+		//Fecha de expiracion
+		assertTrue(this.verifyRowElement(rows,"Fecha de expiración:"));
+	}
+	
+	private void verifyContact(List<HtmlTableRow> rows, String word){
+		try{
+			//Nombre Contacto Administrativo
+			assertTrue(this.verifyRowElement(rows,"Nombre Contacto Administrativo:"));
+			
+			//Nombre Contacto Comercial
+			assertTrue(this.verifyRowElement(rows,"Nombre Contacto Comercial:"));
+
+			//Nombre Contacto Técnico
+			assertTrue(this.verifyRowElement(rows,"Nombre Contacto Técnico:"));
+
+		} catch (Exception e){ 
+			System.out.println(word+".cl : No contacts info");
+		}
+	}
+	
+	private void verifyServers(List<HtmlTableRow> rows, String word){ //TODO
 		try{
 			boolean servMatches = false;
 			boolean servNotEmpty = false;
@@ -154,10 +143,9 @@ public class WhoIs {
 					servMatches = false || servMatches;
 				}
 			}
-			return servMatches && servNotEmpty;
+			assertTrue(servMatches && servNotEmpty);
 		} catch (Exception e){
 			System.out.println(word+".cl : No servers info");
-			return true;
 		}
 	}
 	
@@ -173,8 +161,26 @@ public class WhoIs {
 			hasLink = hasLink || aHref.contains(word+".cl");
 		}
 		
-		assertTrue(hasLink && this.verifyBasic(rows, word) && 
-				this.verifyContact(rows, word));
+		this.verifyBasic(rows, word);
+		this.verifyContact(rows, word);
+		this.verifyServers(rows, word);
+		assertTrue(hasLink);
+		
+		//boton de renovar
+		List<DomElement> buttons = page.getElementsByTagName("button");
+		System.out.println(buttons.toString());
+		boolean hasRenovar = false;
+		for (DomElement btn : buttons){
+			try{
+				String href = btn.getAttribute("onckick");
+				String renovar = "https://clientes.nic.cl/registrar/renovar.do?d="+word+".cl";
+				hasRenovar = hasRenovar || href.contains(renovar);
+				
+			} catch (Exception e){
+				System.out.println("'Renovar' button not found");
+			}
+		}
+		assertTrue(hasRenovar);
 
 	}
 	
