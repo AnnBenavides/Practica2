@@ -43,7 +43,7 @@ public class BuscarDominio {
 	 * retorna la pagina luego de la busqueda**/
 	private HtmlPage submitForm(String testCase,String methodValue) throws Exception{
 		try (final WebClient webClient = new WebClient()) {
-			final HtmlPage page = webClient.getPage("http://www.nic.cl/registry/Whois.do");
+			final HtmlPage page = webClient.getPage("https://nic.cl/registry/BuscarDominio.do");
 	        final HtmlForm form = page.getFormByName("buscarDominioForm");
 	        
 	        final HtmlSubmitInput button = form.getInputByName("buscar");
@@ -103,14 +103,6 @@ public class BuscarDominio {
 			String dom = word+".cl";
 			assertTrue(dom.equals(columns[0]));
 			assertTrue(!columns[1].isEmpty());
-			
-			List<HtmlElement> links = table.getElementsByTagName("a");
-			boolean hasLink = false;
-			for (HtmlElement link : links){
-				String aHref = link.getAttribute("href");
-				hasLink = hasLink || aHref.contains("Whois.do?="+columns[0]+".cl");
-			}
-			//assertTrue(hasLink);
 			
 		} else {
 			// dominio no encontrado
@@ -178,14 +170,6 @@ public class BuscarDominio {
 				String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
 				assertTrue(columns[0].contains(word));
 				assertTrue(!columns[1].isEmpty());
-				
-				List<HtmlElement> links = table.getElementsByTagName("a");
-				boolean hasLink = false;
-				for (HtmlElement link : links){
-					String aHref = link.getAttribute("href");
-					hasLink = hasLink || aHref.contains("Whois.do?="+columns[0]+".cl");
-				}
-				//assertTrue(hasLink);
 			}
 		} else {
 		// dominio no encontrado
@@ -251,14 +235,6 @@ public class BuscarDominio {
 				String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
 				assertTrue(columns[0].startsWith(word));
 				assertTrue(!columns[1].isEmpty());
-				
-				List<HtmlElement> links = table.getElementsByTagName("a");
-				boolean hasLink = false;
-				for (HtmlElement link : links){
-					String aHref = link.getAttribute("href");
-					hasLink = hasLink || aHref.contains("Whois.do?="+columns[0]+".cl");
-				}
-				//assertTrue(hasLink);
 			}
 		} else {
 			// dominio no encontrado

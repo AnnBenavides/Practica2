@@ -87,9 +87,15 @@ public class WhoIs {
 					hasData = hasData || false;
 				}
 			}
-			return matches && hasData;
+			if (!matches){
+				throw new Exception("No se encontró el campo -> "+elementName);
+			} else {
+				assertTrue(hasData);
+				return matches && hasData;
+			}
+			
 		} catch (Exception e){
-			System.out.println("Problemas al evaluar "+elementName);
+			System.out.println(e);
 			return true;
 		}
 	}
@@ -143,9 +149,16 @@ public class WhoIs {
 					servMatches = false || servMatches;
 				}
 			}
-			assertTrue(servMatches && servNotEmpty);
+			if (!servMatches){
+				throw new Exception(word+".cl : No servers info");
+			} else {
+				assertTrue(servMatches);
+				assertTrue(servNotEmpty);
+				assertTrue(servMatches && servNotEmpty);
+			}
+			
 		} catch (Exception e){
-			System.out.println(word+".cl : No servers info");
+			System.out.println(e);
 		}
 	}
 	
@@ -163,14 +176,19 @@ public class WhoIs {
 		
 		this.verifyBasic(rows, word);
 		this.verifyContact(rows, word);
-		this.verifyServers(rows, word);
+		//this.verifyServers(rows, word);
 		assertTrue(hasLink);
 		
 		//boton de renovar
-		List<DomElement> buttons = page.getElementsByTagName("button");
+		HtmlElement exp = rows.get(4);
+		HtmlElement button = exp.getElementsByTagName("button").get(0);
+		String href = button.getAttribute("onclick");
+		String renovar = "https://clientes.nic.cl/registrar/renovar.do?d="+word+".cl";
+		boolean hasRenovar = href.contains(renovar);
+		/**List<HtmlElement> buttons = rows.get().getElementsByTagName("button");
 		System.out.println(buttons.toString());
 		boolean hasRenovar = false;
-		for (DomElement btn : buttons){
+		for (HtmlElement btn : buttons){
 			try{
 				String href = btn.getAttribute("onckick");
 				String renovar = "https://clientes.nic.cl/registrar/renovar.do?d="+word+".cl";
@@ -179,7 +197,7 @@ public class WhoIs {
 			} catch (Exception e){
 				System.out.println("'Renovar' button not found");
 			}
-		}
+		}**/
 		assertTrue(hasRenovar);
 
 	}
@@ -196,21 +214,33 @@ public class WhoIs {
 	@Test
 	public void simpleTest() throws Exception{
 		for (int i = 0 ; i < simpleLimit; i++){
-			verify(simpleSites[i]);
+			try{
+				verify(simpleSites[i]);
+			} catch (Exception e){
+				assertTrue(false);
+			}
 		}
 	}
 	
 	@Test
 	public void specialTest() throws Exception{
 		for (int i = 0 ; i < specialLimit; i++){
-			verify(specialSites[i]);
+			try{
+				verify(specialSites[i]);
+			} catch (Exception e){
+				assertTrue(false);
+			}
 		}
 	}
 	
 	@Test
 	public void numberTest() throws Exception{
 		for (int i = 0 ; i < numberLimit; i++){
-			verify(numberSites[i]);
+			try{
+				verify(numberSites[i]);
+			} catch (Exception e){
+				assertTrue(false);
+			}
 		}
 	}
 }
