@@ -6,53 +6,38 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.HtmlRadioButtonInput;
-import com.gargoylesoftware.htmlunit.html.HtmlSubmitInput;
 import com.gargoylesoftware.htmlunit.html.HtmlTable;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
-import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 
 public class WhoIs {
-	private String[] testSimpleSites = {"test","horrible","defensa","emision",
+	private String[] simpleSites = {"test","horrible","defensa","emision",
 			"antigua","farmacia","azucar","abajo","bolso",
 			"cama","casa","vendedor","raton","fruta",
 			"triangulo","flor","bota","ruta","jardin"};
-	private int simpleLimit = 1;
-	private String[] testNumberSites = {"1","2","34","5","01"};
-	private int numberLimit = 1;
-	private String[] testSpecialSites = {"ñandú", "jardín", 
+	private int simpleLimit = 5;
+	private String[] numberSites = {"1","2","34","5","01"};
+	private int numberLimit = 5;
+	private String[] specialSites = {"ñandú", "jardín", 
 			"corazón", "sillón", "rápido", "teléfono"};
-	private int specialLimit = 1;
-	private String[] filterValues = {"exacta",
-			"contenga","comience","termine"};
+	private int specialLimit = 5;
 	
-	/**Metodo generalizado de testeo
+	/** Cargar la pagina de la forma
+	 * nic.cl/regisstry/Whois.do?d=word.cl
 	 * 
-	 * testCase es la palabra a buscar,
-	 * sacada de las listas :testSimpleSites, testNumberSites y testSpecialSites
+	 * word es el nombre del dominio buscado
 	 * 
-	 * methodValue es el filtro de busqueda, 
-	 * dados por la lista filterValues
-	 * 
-	 * retorna la pagina luego de la busqueda**/
-	private HtmlPage submitForm(String testCase,String methodValue) throws Exception{
+	 * IMPORTANTE
+	 * se accede a esta página luego de una busqueda con BusquedaDominio.do
+	 * **/
+	private HtmlPage getPage(String word) throws Exception{
 		try (final WebClient webClient = new WebClient()) {
-			final HtmlPage page = webClient.getPage("http://www.nic.cl/registry/Whois.do");
-	        final HtmlForm form = page.getFormByName("buscarDominioForm");
-	        
-	        final HtmlSubmitInput button = form.getInputByName("buscar");
-	        final HtmlTextInput textField = form.getInputByName("patron");
-	        final HtmlRadioButtonInput radioInput = form.getInputByValue(methodValue);
-			
-	        radioInput.setChecked(true);
-	        textField.setValueAttribute(testCase);
-	        return button.click();
+			System.out.print("\n Procesando "+word+".cl \n");
+			String url = "http://www.nic.cl/registry/Whois.do?d="+word+".cl";
+			return webClient.getPage(url);
 		}
 	}
 	
@@ -74,315 +59,152 @@ public class WhoIs {
 		}
 	}
 	
-	/** Verifica por contenido
-	 * si se ha encontrado el dominio o no
-	 * **/
-	private boolean domNotFound(HtmlPage page){
-		final List<HtmlElement> inTable= page.getByXPath("//table[@class='tablabusqueda']/tbody/tr/td[1]");
+	/** el dominio buscado esta inscrito
+	 * 
+	 * verificamos segun el contenido de la pagina**/
+	private boolean domFound(HtmlPage page){
+		final List<HtmlElement> inTable= page.getByXPath("//table[@class='tablabusqueda']/tbody/tr/td");
 		final HtmlElement elem = inTable.get(0);
 		String response = elem.asText();
-		if (response.contains("no arrojó resultados")){
-			return true;
-		} else {return false;}
+		if (response.contains("dominio no existe")){
+			System.out.println("Dominio no inscrito");
+			return false;
+		} else {return true;}
 	}
 	
-//////////////// TEST con filtro "exacta" ////////////////////
-	/**Metodo para verificar el resultado de una busqueda
-	 * 
-	 * page es la pagina generada post submit
-	 * 
-	 * word es la palabra buscada
-	 * **/
-	private void verifyExactaResults(HtmlPage page, String word){
-		if (!domNotFound(page)){
-			//verificar dato mostrado con word.cl
-			final List<HtmlElement> results= page.getByXPath("//table[@class='tablabusqueda']/tbody/tr[2]/td[1]");
-			final HtmlElement row = results.get(0);
-			String rowText = row.asText();
-			String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
-			String dom = word+".cl";
-			boolean matches = dom.startsWith(columns[0]);
-			
-			final HtmlElement link =  row.getElementsByTagName("a").get(0);
-			final String href = link.getAttribute("href");
-			//System.out.println(href);
-			String url = "Whois.do?=";
-			if (matches && !columns[1].isEmpty()){
-				assertTrue(true);
-			} else {
-				assertTrue(false);
-			}		
-		} else {
-			// dominio no encontrado
-			verifyDomNotFound(page);
-		}
-	}
-	
-	@Test
-	public void exactaSimpleTest(){
-		HtmlPage page;
-		for (int i = 0 ; i < simpleLimit; i++){
-			try {
-				page = submitForm(testSimpleSites[i],filterValues[0]);
-				//System.out.println("Verificando contenido...");
-				verifyExactaResults(page, testSimpleSites[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}		
-	}
-	
-	@Test
-	public void exactaNumberTest(){
-		HtmlPage page;
-		for (int i = 0 ; i < numberLimit; i++){
-			try {
-				page = submitForm(testNumberSites[i],filterValues[0]);
-				//System.out.println("Verificando contenido...");
-				verifyExactaResults(page, testNumberSites[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}		
-	}
-	@Test
-	public void exactaSpecialTest(){
-		HtmlPage page;
-		for (int i = 0 ; i < specialLimit; i++){
-			try {
-				page = submitForm(testSpecialSites[i],filterValues[0]);
-				//System.out.println("Verificando contenido...");
-				verifyExactaResults(page, testSpecialSites[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}		
-	}
+	private boolean verifyBasic(List<HtmlTableRow> rows, String word){
+		String tittle = rows.get(0).asText();
+		boolean matches = tittle.equals(word+".cl");
 		
-	////////////////TEST con filtro "contenga" ////////////////////
-	/**Metodo para verificar el resultado de una busqueda
-	* 
-	* page es la pagina generada post submit
-	* 
-	* word es la palabra buscada
-	* **/
-	private void verifyContengaResults(HtmlPage page, String word){
-		if (!domNotFound(page)){
-			//verificar dato mostrado con word.cl
-			final HtmlTable table = (HtmlTable) page.getByXPath("//table[@class='tablabusqueda']").get(0);
-			final List<HtmlTableRow> rows = table.getRows();
-			for (int i = 1 ; i< table.getRowCount()-1 ; i++){
-				HtmlElement row = rows.get(i);
-				String rowText = row.asText();
-				//System.out.println(rowText);
-				String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
-				boolean matches = columns[0].contains(word);
-				
-				final HtmlElement link =  row.getElementsByTagName("a").get(0);
-				final String href = link.getAttribute("href");
-				//System.out.println(href);
-				
-				String url = "Whois.do?="+columns[0];
-				if (matches && !columns[1].isEmpty()){
-					assertTrue(true);
-				} else {
-					assertTrue(false);
-				}
-			}
-		} else {
-		// dominio no encontrado
-		verifyDomNotFound(page);
+		//Titular
+		String titular = rows.get(1).asText();
+		String[] cTitular = titular.split("\n");
+		boolean titularMatches = cTitular[0].equals("Titular:");
+		boolean titularNotEmpty = !cTitular[1].isEmpty();
+		
+		//Agente Registrador
+		String agente = rows.get(2).asText();
+		String[] cAgente = agente.split("\n");
+		boolean agenteMatches = cAgente[0].equals("Agente Registrador:");
+		boolean agenteNotEmpty = !cAgente[1].isEmpty();
+		
+		//Fecha de creacion
+		String creacion = rows.get(3).asText();
+		String[] cCreacion = creacion.split("\n");
+		boolean creacionMatches = cCreacion[0].equals("Fecha de creación:");
+		boolean creacionNotEmpty = !cCreacion[1].isEmpty();
+		
+		//Fecha de expiracion + boton de renovar
+		HtmlElement exp = rows.get(4);
+		String expiracion = exp.asText();
+		String[] cExpiracion = expiracion.split("\n");
+		HtmlElement button = exp.getElementsByTagName("button").get(0);
+		String href = button.getAttribute("onclick");
+		String renovar = "https://clientes.nic.cl/registrar/renovar.do?d="+word+".cl";
+		boolean hasRenovar = href.contains(renovar);
+		boolean expiracionMatches = cExpiracion[0].equals("Fecha de expiración:");
+		boolean expiracionNotEmpty = !cExpiracion[1].isEmpty();
+		
+		return matches && titularMatches && titularNotEmpty && agenteMatches && agenteNotEmpty 
+				&& creacionMatches && creacionNotEmpty && expiracionMatches && expiracionNotEmpty
+				&& hasRenovar;
+	}
+	
+	private boolean verifyContact(List<HtmlTableRow> rows, String word){
+		try{
+			//Nombre Contacto Administrativo
+			String admin = rows.get(5).asText();
+			String[] cAdmin = admin.split("\n");
+			boolean adminMatches = cAdmin[0].equals("Nombre Contacto Administrativo:");
+			boolean adminNotEmpty = !cAdmin[1].isEmpty();
+			
+			//Nombre Contacto Comercial
+			String comercial = rows.get(6).asText();
+			String[] cComercial = comercial.split("\n");
+			boolean comercialMatches = cComercial[0].equals("Nombre Contacto Comercial:");
+			boolean comercialNotEmpty = !cComercial[1].isEmpty();
+			
+			//Nombre Contacto Técnico
+			String tecnico = rows.get(7).asText();
+			String[] cTecnico = tecnico.split("\n");
+			boolean tecnicoMatches = cTecnico[0].equals("Nombre Contacto Técnico:");
+			boolean tecnicoNotEmpty = !cTecnico[1].isEmpty();
+			
+			return adminMatches && adminNotEmpty && comercialMatches && comercialNotEmpty 
+					&& tecnicoMatches && tecnicoNotEmpty; 
+		} catch (Exception e){ 
+			System.out.println(word+".cl : No contacts info");
+			return true;
 		}
 	}
 	
-	@Test
-	public void contengaSimpleTest(){
-		HtmlPage page;
-		for (int i = 0 ; i < simpleLimit; i++){
-			try {
-				page = submitForm(testSimpleSites[i],filterValues[1]);
-				verifyContengaResults(page, testSimpleSites[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}		
-	}
-
-	@Test
-	public void contegaNumberTest(){
-		HtmlPage page;
-		for (int i = 0 ; i < numberLimit; i++){
-			try {
-				page = submitForm(testNumberSites[i],filterValues[1]);
-				verifyContengaResults(page, testNumberSites[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}	
-	}
-	
-	@Test
-	public void contengaSpecialTest(){
-		HtmlPage page;
-		for (int i = 0 ; i < specialLimit; i++){
-			try {
-				page = submitForm(testSpecialSites[i],filterValues[1]);
-				verifyContengaResults(page, testSpecialSites[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}	
-	}
-	
-	////////////////TEST con filtro "comience" ////////////////////
-	/**Metodo para verificar el resultado de una busqueda
-	* 
-	* page es la pagina generada post submit
-	* 
-	* word es la palabra buscada
-	* **/
-	private void verifyComienceResults(HtmlPage page, String word){
-		if (!domNotFound(page)){
-			//verificar dato mostrado con word.cl
-			final HtmlTable table = (HtmlTable) page.getByXPath("//table[@class='tablabusqueda']").get(0);
-			final List<HtmlTableRow> rows = table.getRows();
-			for (int i = 1 ; i< table.getRowCount()-1 ; i++){
-				HtmlElement row = rows.get(i);
-				String rowText = row.asText();
-				//System.out.println(rowText);
-				String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
-				boolean matches = columns[0].startsWith(word);
-				
-				final HtmlElement link =  row.getElementsByTagName("a").get(0);
-				final String href = link.getAttribute("href");
-				//System.out.println(href);
-				String url = "Whois.do?=";
-				boolean sameLink = href.contains(url);
-
-				if (matches && !columns[1].isEmpty()){
-					assertTrue(true);
+	private boolean verifyServers(List<HtmlTableRow> rows, String word){ //TODO
+		try{
+			boolean servMatches = false;
+			boolean servNotEmpty = false;
+			for (HtmlElement row : rows){
+				String serv = row.asText();
+				String[] cServ = serv.split("\n");
+				System.out.println(cServ[0]+" , "+cServ[1]);
+				if (cServ[0].equals("Servidor de Nombre:")){
+					servMatches = true;
+					servNotEmpty = !cServ[1].isEmpty();
+					
 				} else {
-					assertTrue(false);
+					servMatches = false || servMatches;
 				}
 			}
+			return servMatches && servNotEmpty;
+		} catch (Exception e){
+			System.out.println(word+".cl : No servers info");
+			return true;
+		}
+	}
+	
+	private void verifyResults(HtmlPage page, String word){
+		final HtmlTable table = (HtmlTable) page.getByXPath("//table[@class='tablabusqueda']").get(0);
+		final List<HtmlTableRow> rows = table.getRows();
+
+		//Sitio web
+		List<HtmlElement> links = table.getElementsByTagName("a");
+		boolean hasLink = false;
+		for (HtmlElement link : links){
+			String aHref = link.getAttribute("href");
+			hasLink = hasLink || aHref.contains(word+".cl");
+		}
+		
+		assertTrue(hasLink && this.verifyBasic(rows, word) && 
+				this.verifyContact(rows, word));
+
+	}
+	
+	private void verify(String word) throws Exception{
+		HtmlPage page = this.getPage(word);
+		if (domFound(page)){
+			verifyResults(page,word);
 		} else {
-			// dominio no encontrado
 			verifyDomNotFound(page);
 		}
 	}
 	
 	@Test
-	public void comienceSimpleTest(){
-		HtmlPage page;
+	public void simpleTest() throws Exception{
 		for (int i = 0 ; i < simpleLimit; i++){
-			try {
-				page = submitForm(testSimpleSites[i],filterValues[2]);
-				verifyComienceResults(page, testSimpleSites[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			verify(simpleSites[i]);
 		}
 	}
 	
 	@Test
-	public void comienceNumberTest(){
-		HtmlPage page;
-		for (int i = 0 ; i < numberLimit; i++){
-			try {
-				page = submitForm(testNumberSites[i],filterValues[2]);
-				verifyComienceResults(page, testNumberSites[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	@Test
-	public void comienceSpecialTest(){
-		HtmlPage page;
+	public void specialTest() throws Exception{
 		for (int i = 0 ; i < specialLimit; i++){
-			try {
-				page = submitForm(testSpecialSites[i],filterValues[2]);
-				verifyComienceResults(page, testSpecialSites[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	////////////////TEST con filtro "termine" ////////////////////
-	/**Metodo para verificar el resultado de una busqueda
-	* 
-	* page es la pagina generada post submit
-	* 
-	* word es la palabra buscada
-	* **/
-	private void verifyTermineResults(HtmlPage page, String word){
-		if (!domNotFound(page)){
-			//verificar dato mostrado con word.cl
-			final HtmlTable table = (HtmlTable) page.getByXPath("//table[@class='tablabusqueda']").get(0);
-			final List<HtmlTableRow> rows = table.getRows();
-			for (int i = 1 ; i< table.getRowCount()-1 ; i++){
-				HtmlElement row = rows.get(i);
-				String rowText = row.asText();
-				//System.out.println(rowText);
-				String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
-				boolean matches = columns[0].endsWith(word+".cl");
-				
-				final HtmlElement link =  row.getElementsByTagName("a").get(0);
-				final String href = link.getAttribute("href");
-				//System.out.println(href);
-				String url = "Whois.do?=";
-				boolean sameLink = href.contains(url);
-
-				if (matches && !columns[1].isEmpty()){
-					assertTrue(true);
-				} else {
-					assertTrue(false);
-				}
-			}
-		} else {
-			// dominio no encontrado
-			verifyDomNotFound(page);
+			verify(specialSites[i]);
 		}
 	}
 	
 	@Test
-	public void termineSimpleTest(){
-		HtmlPage page;
-		for (int i = 0 ; i < simpleLimit; i++){
-			try {
-				page = submitForm(testSimpleSites[i],filterValues[3]);
-				verifyTermineResults(page, testSimpleSites[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	@Test
-	public void termineNumberTest(){
-		HtmlPage page;
+	public void numberTest() throws Exception{
 		for (int i = 0 ; i < numberLimit; i++){
-			try {
-				page = submitForm(testNumberSites[i],filterValues[3]);
-				verifyTermineResults(page, testNumberSites[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	@Test
-	public void termineSpecialTest(){
-		HtmlPage page;
-		for (int i = 0 ; i < specialLimit; i++){
-			try {
-				page = submitForm(testSpecialSites[i],filterValues[3]);
-				verifyTermineResults(page, testSpecialSites[i]);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			verify(numberSites[i]);
 		}
 	}
 }
