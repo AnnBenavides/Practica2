@@ -143,7 +143,7 @@ public class BuscarDominio {
 		for (int i = 0 ; i < specialLimit; i++){
 			try {
 				page = submitForm(testSpecialSites[i],filterValues[0]);
-				//System.out.println("Verificando contenido...");
+				System.out.println("Verificando contenido...");
 				verifyExactaResults(page, testSpecialSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
