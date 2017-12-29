@@ -2,10 +2,7 @@ package registry;
 
 import static org.junit.Assert.*;
 
-import java.util.Date;
 import java.util.List;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import org.junit.Test;
 

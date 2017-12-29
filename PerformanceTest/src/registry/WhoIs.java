@@ -24,6 +24,7 @@ public class WhoIs {
 	private String[] specialSites = {"ñandú", "jardín", 
 			"corazón", "sillón", "rápido", "teléfono"};
 	private int specialLimit = 5;
+	private boolean nic = false;
 	
 	/** Cargar la pagina de la forma
 	 * nic.cl/regisstry/Whois.do?d=word.cl
@@ -83,6 +84,11 @@ public class WhoIs {
 				if(columns[0].equals(elementName)){
 					matches = true;
 					hasData = !columns[1].isEmpty();
+					if (columns[0].equals("Agente Registrador:") && columns[1].equals("NIC Chile")){
+						nic = true;
+					} else if (columns[0].equals("Agente Registrador:") && !columns[1].equals("NIC Chile")){
+						nic = false;
+					}
 				} else {
 					hasData = hasData || false;
 				}
@@ -119,15 +125,18 @@ public class WhoIs {
 	
 	private void verifyContact(List<HtmlTableRow> rows, String word){
 		try{
-			//Nombre Contacto Administrativo
-			assertTrue(this.verifyRowElement(rows,"Nombre Contacto Administrativo:"));
-			
-			//Nombre Contacto Comercial
-			assertTrue(this.verifyRowElement(rows,"Nombre Contacto Comercial:"));
+			if (!nic){
+				//Nombre Contacto Administrativo
+				assertTrue(this.verifyRowElement(rows,"Nombre Contacto Administrativo:"));
+				
+				//Nombre Contacto Comercial
+				assertTrue(this.verifyRowElement(rows,"Nombre Contacto Comercial:"));
 
-			//Nombre Contacto Técnico
-			assertTrue(this.verifyRowElement(rows,"Nombre Contacto Técnico:"));
-
+				//Nombre Contacto Técnico
+				assertTrue(this.verifyRowElement(rows,"Nombre Contacto Técnico:"));
+			} else {
+				assertTrue(true);
+			}
 		} catch (Exception e){ 
 			System.out.println(word+".cl : No contacts info");
 		}
@@ -176,15 +185,16 @@ public class WhoIs {
 		
 		this.verifyBasic(rows, word);
 		this.verifyContact(rows, word);
-		//this.verifyServers(rows, word);
+		this.verifyServers(rows, word);
 		assertTrue(hasLink);
 		
 		//boton de renovar
 		HtmlElement exp = rows.get(4);
 		HtmlElement button = exp.getElementsByTagName("button").get(0);
 		String href = button.getAttribute("onclick");
-		String renovar = "https://clientes.nic.cl/registrar/renovar.do?d="+word+".cl";
-		boolean hasRenovar = href.contains(renovar);
+		String renovar = "registrar/renovar.do?d="+word+".cl";
+		String autoatencion = "autoatencion?d="+word+".cl";
+		boolean hasRenovar = href.contains(renovar) || href.contains(autoatencion);
 		/**List<HtmlElement> buttons = rows.get().getElementsByTagName("button");
 		System.out.println(buttons.toString());
 		boolean hasRenovar = false;
