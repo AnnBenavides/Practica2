@@ -63,7 +63,7 @@ public class Eliminados {
 	
 	/**Validar URL**/
 	@Test
-	public void lastDay() throws Exception{
+	public void lastDayTest() throws Exception{
 		try (final WebClient webClient = new WebClient()) {
 			HtmlPage page = this.openPage("d");
 			this.verifyResults(page);
@@ -72,7 +72,7 @@ public class Eliminados {
 	
 	/**Validar URL**/
 	@Test
-	public void lastWeek() throws Exception{
+	public void lastWeekTest() throws Exception{
 		try (final WebClient webClient = new WebClient()) {
 			HtmlPage page = this.openPage("w");
 			this.verifyResults(page);
