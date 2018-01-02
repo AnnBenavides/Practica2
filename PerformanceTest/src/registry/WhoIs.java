@@ -36,7 +36,7 @@ public class WhoIs {
 	 * **/
 	private HtmlPage getPage(String word) throws Exception{
 		try (final WebClient webClient = new WebClient()) {
-			System.out.print("\n Procesando "+word+".cl \n");
+			//System.out.print("\n Procesando "+word+".cl \n");
 			String url = "http://www.nic.cl/registry/Whois.do?d="+word+".cl";
 			return webClient.getPage(url);
 		}
@@ -232,7 +232,7 @@ public class WhoIs {
 		}
 	}
 	
-	@Test
+	// TODO convertir caracteres especiales @Test
 	public void specialTest() throws Exception{
 		for (int i = 0 ; i < specialLimit; i++){
 			try{

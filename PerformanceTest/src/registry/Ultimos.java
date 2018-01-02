@@ -87,7 +87,7 @@ public class Ultimos {
 		}
 	}
 	@Test
-	public void openHour() throws Exception{
+	public void hourTest() throws Exception{
 		try (final WebClient webClient = new WebClient()) {
 	        HtmlPage page = this.openPage("h");
 	        verifyResults(page);
@@ -95,7 +95,7 @@ public class Ultimos {
 	}
 	
 	@Test
-	public void openDay() throws Exception{
+	public void dayTest() throws Exception{
 		try (final WebClient webClient = new WebClient()) {
 			HtmlPage page = this.openPage("d");
 			verifyResults(page);
@@ -103,7 +103,7 @@ public class Ultimos {
 	}
 	
 	@Test
-	public void openWeek() throws Exception{
+	public void weekTest() throws Exception{
 		try (final WebClient webClient = new WebClient()) {
 			HtmlPage page = this.openPage("w");
 			verifyResults(page);
@@ -112,7 +112,7 @@ public class Ultimos {
 	
 	@Test
 	 /** Por alguna razon este test demora mucho**/
-	public void openMonth() throws Exception{
+	public void monthTest() throws Exception{
 		try (final WebClient webClient = new WebClient()) {
 			HtmlPage page = this.openPage("m");
 			verifyResults(page);
