@@ -3,7 +3,10 @@ package registrar;
 import static org.junit.Assert.assertTrue;
 
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.HtmlSubmitInput;
+import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 
 public class login {
 	
@@ -14,6 +17,30 @@ public class login {
 	        assertTrue(page.isHtmlPage());
 	        return page;
 	    }
+	}
+	private String getUser(){ //TODO
+		return "";
+	}
+	private String getPass(){ //TODO
+		return "";
+	}
+	
+	private HtmlPage fillFormAndPost(HtmlPage page){
+		try{
+			final HtmlForm form = page.getFormByName("buscarDominioForm");
+	        
+	        final HtmlSubmitInput button = form.getInputByValue("Ingresar");
+	        final HtmlTextInput user = form.getInputByName("j_username");
+	        final HtmlTextInput pass = form.getInputByName("j_password");
+	
+	        user.setValueAttribute(this.getUser());
+	        pass.setValueAttribute(this.getPass());
+	        return button.click();
+		} catch (Exception e){
+			System.out.println(e);
+			assertTrue(false);
+		}
+		return page;
 	}
 
 }
