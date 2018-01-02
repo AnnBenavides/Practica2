@@ -1,0 +1,47 @@
+s5012018
+# 02-05012018
+
+# Plan de acción
+1. :check:
+2. Mapear y crear test funcionales para *Registrar*
+	- Para la creación de cuentar usar el truco de gmail: ```ejemplo+n@gmail.com```
+
+# Definición de test funcionales para Registry
+La idea macro es hacer esto escalable, por ejemplo, si deseo testear el sistema Registry hago correr los test de acceso, los que asu vez llaman a los test unitarios.
+## Acceso
+Test que verifican que la página es accesible para el usuario mediante navegación por el sitio
+- [ ] Eliminados
+- [ ] Búsqueda
+- [ ] Whois
+- [ ] Últimos registrados
+
+# Definición de test funcionales para Registrar
+La idea macro es hacer esto escalable, por ejemplo, si deseo testear el sistema Registrar hago correr los test de acceso, los que asu vez llaman a los test unitarios.
+
+## Unitarios
+- Vista visita (clientes)
+
+	- [ ] Logon (Inicio clientes)
+		- [ ] Login
+		- [ ] Home Sesion
+		- [ ] Recuperación de clave https://clientes.nic.cl/registrar/recuperaPassword.do
+		- [ ] Cambiar password
+	- [ ] Nuevos usuarios https://clientes.nic.cl/registrar/agregarUsuario.do
+	  	- [ ] Crear usuario
+	  	- [ ] Activar cuenta
+
+- Vista Usuario (Home Sesion)
+	- [ ] Salir
+	- [ ] Editar usuario
+		- [ ] Grabar Usuario
+	- [ ] Agregar Dominio
+		- [ ] Crear Dominio
+	- [ ] Mis Dominios
+	- [ ] Comprobantes
+	- [ ] Avisos
+	- [ ] Carro
+
+# :exclamation: New branche unlocked : Vigencia de test tras actualización del sistema Registry
+ft. @ncaracci
+
+- TODO
