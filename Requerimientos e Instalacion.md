@@ -44,8 +44,60 @@ public class Test {
 	donde si todo esta bien deberíamos tener la siguiente respuesta:
 ```java
 Querying
-Success
+Four
+java.lang.RuntimeException: com.gargoylesoftware.htmlunit.javascript.TimeoutError: Javascript execution takes too long (allowed: 1, already elapsed: 42)
+    at com.gargoylesoftware.htmlunit.javascript.JavaScriptEngine$HtmlUnitContextAction.run(JavaScriptEngine.java:916)
+    at net.sourceforge.htmlunit.corejs.javascript.Context.call(Context.java:599)
+    at net.sourceforge.htmlunit.corejs.javascript.ContextFactory.call(ContextFactory.java:527)
+    at com.gargoylesoftware.htmlunit.javascript.JavaScriptEngine.execute(JavaScriptEngine.java:790)
+    at com.gargoylesoftware.htmlunit.javascript.JavaScriptEngine.execute(JavaScriptEngine.java:766)
+    at com.gargoylesoftware.htmlunit.javascript.JavaScriptEngine.execute(JavaScriptEngine.java:757)
+    at com.gargoylesoftware.htmlunit.html.HtmlPage.executeJavaScript(HtmlPage.java:920)
+    at com.gargoylesoftware.htmlunit.html.HtmlScript.executeInlineScriptIfNeeded(HtmlScript.java:316)
+    at com.gargoylesoftware.htmlunit.html.HtmlScript.executeScriptIfNeeded(HtmlScript.java:396)
+    at com.gargoylesoftware.htmlunit.html.HtmlScript$2.execute(HtmlScript.java:246)
+    at com.gargoylesoftware.htmlunit.html.HtmlScript.onAllChildrenAddedToPage(HtmlScript.java:267)
+    at com.gargoylesoftware.htmlunit.html.HTMLParser$HtmlUnitDOMBuilder.endElement(HTMLParser.java:805)
+    at org.apache.xerces.parsers.AbstractSAXParser.endElement(Unknown Source)
+    at com.gargoylesoftware.htmlunit.html.HTMLParser$HtmlUnitDOMBuilder.endElement(HTMLParser.java:761)
+    at net.sourceforge.htmlunit.cyberneko.HTMLTagBalancer.callEndElement(HTMLTagBalancer.java:1236)
+    at net.sourceforge.htmlunit.cyberneko.HTMLTagBalancer.endElement(HTMLTagBalancer.java:1136)
+    at net.sourceforge.htmlunit.cyberneko.filters.DefaultFilter.endElement(DefaultFilter.java:226)
+    at net.sourceforge.htmlunit.cyberneko.filters.NamespaceBinder.endElement(NamespaceBinder.java:345)
+    at net.sourceforge.htmlunit.cyberneko.HTMLScanner$ContentScanner.scanEndElement(HTMLScanner.java:3178)
+    at net.sourceforge.htmlunit.cyberneko.HTMLScanner$ContentScanner.scan(HTMLScanner.java:2141)
+    at net.sourceforge.htmlunit.cyberneko.HTMLScanner.scanDocument(HTMLScanner.java:945)
+    at net.sourceforge.htmlunit.cyberneko.HTMLConfiguration.parse(HTMLConfiguration.java:521)
+    at net.sourceforge.htmlunit.cyberneko.HTMLConfiguration.parse(HTMLConfiguration.java:472)
+    at org.apache.xerces.parsers.XMLParser.parse(Unknown Source)
+    at com.gargoylesoftware.htmlunit.html.HTMLParser$HtmlUnitDOMBuilder.parse(HTMLParser.java:1004)
+    at com.gargoylesoftware.htmlunit.html.HTMLParser.parse(HTMLParser.java:253)
+    at com.gargoylesoftware.htmlunit.html.HTMLParser.parseHtml(HTMLParser.java:195)
+    at com.gargoylesoftware.htmlunit.DefaultPageCreator.createHtmlPage(DefaultPageCreator.java:267)
+    at com.gargoylesoftware.htmlunit.DefaultPageCreator.createPage(DefaultPageCreator.java:158)
+    at com.gargoylesoftware.htmlunit.WebClient.loadWebResponseInto(WebClient.java:524)
+    at com.gargoylesoftware.htmlunit.WebClient.getPage(WebClient.java:398)
+    at com.gargoylesoftware.htmlunit.WebClient.getPage(WebClient.java:315)
+    at com.gargoylesoftware.htmlunit.WebClient.getPage(WebClient.java:463)
+    at com.gargoylesoftware.htmlunit.WebClient.getPage(WebClient.java:448)
+    at Test.main(Test.java:25)
+Caused by: com.gargoylesoftware.htmlunit.javascript.TimeoutError: Javascript execution takes too long (allowed: 1, already elapsed: 42)
+    at com.gargoylesoftware.htmlunit.javascript.HtmlUnitContextFactory$TimeoutContext.terminateScriptIfNecessary(HtmlUnitContextFactory.java:153)
+    at com.gargoylesoftware.htmlunit.javascript.HtmlUnitContextFactory.observeInstructionCount(HtmlUnitContextFactory.java:312)
+    at net.sourceforge.htmlunit.corejs.javascript.Context.observeInstructionCount(Context.java:2469)
+    at net.sourceforge.htmlunit.corejs.javascript.Interpreter.addInstructionCount(Interpreter.java:3209)
+    at net.sourceforge.htmlunit.corejs.javascript.Interpreter.interpretLoop(Interpreter.java:2002)
+    at net.sourceforge.htmlunit.corejs.javascript.Interpreter.interpret(Interpreter.java:815)
+    at net.sourceforge.htmlunit.corejs.javascript.InterpretedFunction.call(InterpretedFunction.java:111)
+    at net.sourceforge.htmlunit.corejs.javascript.ContextFactory.doTopCall(ContextFactory.java:417)
+    at com.gargoylesoftware.htmlunit.javascript.HtmlUnitContextFactory.doTopCall(HtmlUnitContextFactory.java:325)
+    at net.sourceforge.htmlunit.corejs.javascript.ScriptRuntime.doTopCall(ScriptRuntime.java:3424)
+    at net.sourceforge.htmlunit.corejs.javascript.InterpretedFunction.exec(InterpretedFunction.java:122)
+    at com.gargoylesoftware.htmlunit.javascript.JavaScriptEngine$3.doRun(JavaScriptEngine.java:781)
+    at com.gargoylesoftware.htmlunit.javascript.JavaScriptEngine$HtmlUnitContextAction.run(JavaScriptEngine.java:895)
+    ... 34 more
 Finished
+
 ```
 ## JMeter
 ### Entorno y requerimientos

@@ -4,6 +4,7 @@ import org.junit.Test;
 
 public class UnitRegistryTest {
 	
+	
 	@Test
 	public void buscarDomino(){
 		System.out.println("Starting registry/BuscarDominio tests");
@@ -47,7 +48,7 @@ public class UnitRegistryTest {
 		test.hourTest();
 		test.dayTest();
 		test.weekTest();
-		//test.monthTest();
+		test.monthTest();
         
         System.out.println("Success");
 	}
