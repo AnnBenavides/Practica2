@@ -11,14 +11,19 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HTMLParserListener;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
+import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlSubmitInput;
 import com.gargoylesoftware.htmlunit.html.HtmlTable;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
+import com.gargoylesoftware.htmlunit.javascript.JavaScriptEngine;
 
 public class Email {
 	private String mailUser = "nic3chile";
@@ -43,39 +48,51 @@ public class Email {
 		return generator;
 	}
 	
-	private HtmlPage loginGmail(String mail) throws Exception{
-		try (final WebClient webClient = new WebClient()) {
-			System.out.println("Openging gmail(dot)com");
-			String url ="http://gmail.com";
-	        HtmlPage page = webClient.getPage(url);
-	        assertTrue(page.isHtmlPage());
-	        
-	        System.out.println("Setting account");
-	        HtmlForm form = page.getForms().get(0);
-	        final HtmlTextInput inputMail = form.getInputByName("identifier");
-	        inputMail.setValueAttribute(mail);
-	        HtmlElement buttonNext = (HtmlElement) page.getElementById("identifierNext");
-	        //System.out.println(buttonNext.asText());
-	        
-	        
-	        HtmlPage page2 = buttonNext.click();
-	        assertTrue(page2.isHtmlPage());
-	        System.out.println("Setting password");
-	        HtmlForm form2 = page.getForms().get(0);
-	        final HtmlTextInput inputPass = form2.getInputByName("password");
-	        inputPass.setValueAttribute(mailPass);
-	        HtmlElement buttonNext2 = (HtmlElement) page.getElementById("passwordNext");
-	        System.out.println(buttonNext2.asText());
-	        
-	        HtmlPage page3 = buttonNext2.click();
-	        assertTrue(page3.isHtmlPage());
-	        System.out.println("Getting mails");
-	        List<HtmlTable> bandejas = page3.getByXPath("//table[@id=':2v']");
-	        assertTrue(!bandejas.isEmpty());
-	        HtmlTable bandeja = bandejas.get(0);
-	        System.out.println(bandeja.asText());
-	        
-	        return page3;
+	private HtmlPage loginGmail(String emailAddress) throws Exception{
+		try (final WebClient client = new WebClient(BrowserVersion.F);) {
+	        client.setHTMLParserListener(HTMLParserListener.LOG_REPORTER);
+	        client.setJavaScriptEngine(new JavaScriptEngine(client));
+	        client.getOptions().setJavaScriptEnabled(true);
+	        client.getCookieManager().setCookiesEnabled(true);
+	        client.getOptions().setThrowExceptionOnScriptError(false);
+	        client.getOptions().setThrowExceptionOnFailingStatusCode(false);
+	        client.setAjaxController(new NicelyResynchronizingAjaxController());
+	        client.getCache().setMaxSize(0);
+	        client.getOptions().setRedirectEnabled(true);
+
+	        String url = "https://accounts.google.com/login?hl=en#identifier";
+	        HtmlPage loginPage = client.getPage(url);
+	        client.waitForBackgroundJavaScript(1000000);
+
+	        HtmlForm loginForm = loginPage.getFirstByXPath("//form[@id='gaia_loginform']");
+	        List<HtmlInput> buttonInputs = loginForm.getInputsByName("signIn");
+	        HtmlInput nextButton = buttonInputs.get(0);
+	        HtmlInput loginButton = nextButton;
+	        Thread.sleep(2000);
+
+	        //setup email
+	        HtmlInput emailInput = loginForm.getInputByName("Email");
+	        emailInput.setValueAttribute(emailAddress);
+	        Thread.sleep(2000);
+
+	        //click next button
+	        nextButton.click();
+	        client.waitForBackgroundJavaScript(1000000);
+	        Thread.sleep(2000);
+
+	        //setup password
+	        HtmlInput passwordInput = loginForm.getInputByName("Passwd");
+	        passwordInput.setValueAttribute(mailPass);
+
+	        //click login button
+	        loginButton.click();
+	        client.waitForBackgroundJavaScript(1000000);
+	        Thread.sleep(2000);
+
+	        HtmlPage gmailPage = client.getPage("https://mail.google.com/mail/u/0/#inbox");
+	        //log.info(gmailPage.asText());
+	        System.out.println(gmailPage.asText());
+	        return gmailPage;
 	        
 	    }
 	}
