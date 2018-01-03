@@ -41,8 +41,10 @@ public class Test {
     }
 }
 ```
-	donde si todo esta bien deberíamos tener la siguiente respuesta:
-```java
+	
+    donde si todo esta bien deberíamos tener la siguiente respuesta:
+    
+```sh
 Querying
 Four
 java.lang.RuntimeException: com.gargoylesoftware.htmlunit.javascript.TimeoutError: Javascript execution takes too long (allowed: 1, already elapsed: 42)
