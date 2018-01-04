@@ -9,6 +9,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlSubmitInput;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 
 public class login {
+	private Email mail = new Email();
 	
 	private HtmlPage openPage() throws Exception{
 		try (final WebClient webClient = new WebClient()) {
@@ -18,11 +19,11 @@ public class login {
 	        return page;
 	    }
 	}
-	private String getUser(){ //TODO
-		return "";
+	private String getUser(){
+		return mail.getMainMail();
 	}
-	private String getPass(){ //TODO
-		return "";
+	private String getPass(){
+		return mail.getNicPass();
 	}
 	
 	private HtmlPage fillFormAndPost(HtmlPage page){
