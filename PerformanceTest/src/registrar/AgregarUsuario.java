@@ -8,8 +8,10 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlButtonInput;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
@@ -21,34 +23,44 @@ import com.gargoylesoftware.htmlunit.html.HtmlSubmitInput;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 
 public class AgregarUsuario {
-	private Email mailObj = new Email();
-	private String newMail = mailObj.getNewMail();
-	private String nicPass = mailObj.getNicPass();
-	
-	private HtmlPage openPage() throws Exception{
-		try (final WebClient webClient = new WebClient()) {
-			String url ="https://clientes.nic.cl/registrar/agregarUsuario.do";
-	        HtmlPage page = webClient.getPage(url);
-	        assertTrue(page.isHtmlPage());
-	        return page;
-	    }
-	}
-	
-	private HtmlPage fillFormAndPost(HtmlPage page){
-		try{
-			List<HtmlForm> forms = page.getForms();
+		
+	private HtmlPage fillFormAndPost(){
+		Email mailObj = new Email();
+		String username = mailObj.getNewMail();
+		String password = mailObj.getNicPass();
+		
+		System.out.println("Starting registrer with "+username+" account");
+		String url ="https://clientes.nic.cl/registrar/agregarUsuario.do";
+		
+		
+
+	    // create the HTMLUnit WebClient instance
+	    WebClient wclient = new WebClient();
+	    
+	    // configure WebClient based on your desired
+		wclient.getOptions().setPrintContentOnFailingStatusCode(false);
+		wclient.getOptions().setCssEnabled(false);
+		wclient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+		wclient.getOptions().setThrowExceptionOnScriptError(false);
+	    
+	    try {
+	    	System.out.println("c('.')o-- Opening page...");
+	    	final HtmlPage page = wclient.getPage(url);
+	    	assertTrue(page.isHtmlPage());
+	      
+	      	List<HtmlForm> forms = page.getForms();
 			final HtmlForm form = forms.get(0);
-			//System.out.println(form.asText());
-			//assertTrue(form != null);
+			
+			System.out.println("c(*.')o-- Filling form...");
 			
 			//Datos de acceso
 			final HtmlTextInput email = form.getInputByName("username");
 			final HtmlPasswordInput clave = form.getInputByName("password");
 			final HtmlPasswordInput claveRep = form.getInputByName("passwordVerification");
 			assertTrue(true);
-			email.setValueAttribute(newMail);
-			clave.setValueAttribute(nicPass);
-			claveRep.setValueAttribute(nicPass);  
+			email.setValueAttribute(username);
+			clave.setValueAttribute(password);
+			claveRep.setValueAttribute(password);  
 			System.out.println("Datos de acceso complete");
 			
 			//Datos de contacto de usuario
@@ -89,9 +101,12 @@ public class AgregarUsuario {
 			final HtmlInput envioDte = form.getInputByName("envioDTE");
 			assertTrue(envioDte.isChecked());
 			final HtmlTextInput mailDTE = form.getInputByName("envioDTEMail");
-			mailDTE.setValueAttribute(newMail);
+			mailDTE.setValueAttribute(username);
 			assertTrue(true);
 			System.out.println("DTE complete");
+			
+			System.out.println(form.asText());
+			
 			final HtmlButtonInput button = form.getInputByValue("Continuar >");
 			final HtmlPage p = button.click(); //TODO retorna vacío DX
 			assertTrue(button.getAttribute("type").equals("button"));
@@ -100,12 +115,18 @@ public class AgregarUsuario {
 			System.out.println("Ready to POST");
 			
 			System.out.println(p.asText());
+			//new UserAndPass().addTuple(username, password);
 			return p;
-		} catch (Exception e){
-			e.printStackTrace();
-			System.out.println(e);
-			return page;
-		}
+	      
+	    } catch(FailingHttpStatusCodeException e) {
+	      e.printStackTrace();
+	      assertTrue(false);
+	      return null;
+	    } catch(Exception e) {
+	      e.printStackTrace();
+	      assertTrue(false);
+	      return null;
+	    }
 	}
 	
 	private HtmlPage aceptacionDeReglamentacion(HtmlPage page) throws Exception{
@@ -125,15 +146,12 @@ public class AgregarUsuario {
 	} 
 	 
 	@Test
-	public void fillForm() throws Exception{
-		System.out.println("c('.')o-- Opening page...");
-		HtmlPage page = this.openPage();
-		System.out.println("c(*.')o-- Filling form...");
-		HtmlPage post = this.fillFormAndPost(page);
+	public void addUser() throws Exception{
+		HtmlPage post = this.fillFormAndPost();
 		System.out.println("c(*.*)o-- Checking...");
 		HtmlPage accept = this.aceptacionDeReglamentacion(post);
 		System.out.println("6(*0*)9 Success!!");
-		new UserAndPass().addTuple(newMail, nicPass);
+		
 	}
 	
 

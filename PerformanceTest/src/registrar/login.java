@@ -85,47 +85,9 @@ public class login {
 			assertTrue(true);
 		}
 	}
-	
-	private void findRecoveryLink(){
-		System.out.print("Searching for 'Olvidó su ocntraseña?' link ... ");
-		try (final WebClient webClient = new WebClient()) {
-			String url ="https://clientes.nic.cl/registrar/logon.do";
-	        HtmlPage page = webClient.getPage(url);
-	        assertTrue(page.isHtmlPage());
-	        
-	        String recoveryLink = "registrar/recuperaPassword.do";
-	        List<DomElement> ahrefs = page.getElementsByTagName("a");
-	        for (DomElement ahref : ahrefs){
-	        	String href = ahref.getAttribute("href");
-	        	if (href.contains(recoveryLink)){
-	        		System.out.println(" o Link found ");
-	        		assertTrue(true);
-	        		return; 
-	        	}
-	        }
-	        System.out.println(" x Link not found");
-	        assertTrue(false);
-		} catch (Exception e){
-			e.printStackTrace();
-		}
-		System.out.println("Opening /recuperarPassword.do");
-		this.checkRecoverPass();
-	}
-	
-	private void checkRecoverPass(){// TODO
-		System.out.println("Recuperando contraseña... ");
-		try (final WebClient webClient = new WebClient()) {
-			String url ="https://clientes.nic.cl/registrar/recuperaPassword.do";
-	        HtmlPage page = webClient.getPage(url);
-	        assertTrue(page.isHtmlPage());
-		} catch (Exception e){
-			e.printStackTrace();
-		}
 		
-	}
-	
 	@Test
-	public void checkNotregistredAccount(){
+	public void logWithOneAccount(){
 		UserAndPass up = new UserAndPass();
 		up.getTuple(0);
 		String user = up.getUser();
@@ -136,7 +98,7 @@ public class login {
 
 	
 	@Test
-	public void checkAllTestAccounts(){
+	public void logWithAllTestAccounts(){
 		UserAndPass up = new UserAndPass();
 		int size = up.numberOfAccounts();
 		for (int index = 0; index < size; index++){
@@ -147,5 +109,4 @@ public class login {
 			this.verifyResponse(page);
 		}
 	}
-
 }
