@@ -82,7 +82,7 @@ public class Ultimos {
 			String[] count = title.asText().split(" ");
 			assertTrue(count[0].equals(deletedSites));			
 		} catch (Exception e){
-			System.out.println(e); 
+			e.printStackTrace();
 			assertTrue(false);
 		}
 	}

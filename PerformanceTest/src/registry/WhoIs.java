@@ -101,7 +101,7 @@ public class WhoIs {
 			}
 			
 		} catch (Exception e){
-			System.out.println(e);
+			e.printStackTrace();
 			return true;
 		}
 	}
@@ -139,6 +139,7 @@ public class WhoIs {
 			}
 		} catch (Exception e){ 
 			System.out.println(word+".cl : No contacts info");
+			e.printStackTrace();
 		}
 	}
 	
@@ -167,7 +168,7 @@ public class WhoIs {
 			}
 			
 		} catch (Exception e){
-			System.out.println(e);
+			e.printStackTrace();
 		}
 	}
 	
@@ -228,6 +229,7 @@ public class WhoIs {
 				verify(simpleSites[i]);
 			} catch (Exception e){
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -239,6 +241,7 @@ public class WhoIs {
 				verify(specialSites[i]);
 			} catch (Exception e){
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -250,6 +253,7 @@ public class WhoIs {
 				verify(numberSites[i]);
 			} catch (Exception e){
 				assertTrue(false);
+				e.printStackTrace();			
 			}
 		}
 	}

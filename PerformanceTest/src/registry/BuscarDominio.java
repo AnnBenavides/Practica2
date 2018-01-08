@@ -120,6 +120,7 @@ public class BuscarDominio {
 				verifyExactaResults(page, testSimpleSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}		
 	}
@@ -134,6 +135,7 @@ public class BuscarDominio {
 				verifyExactaResults(page, testNumberSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}		
 	}
@@ -147,6 +149,7 @@ public class BuscarDominio {
 				verifyExactaResults(page, testSpecialSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}		
 	}
@@ -186,6 +189,7 @@ public class BuscarDominio {
 				verifyContengaResults(page, testSimpleSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}		
 	}
@@ -199,6 +203,7 @@ public class BuscarDominio {
 				verifyContengaResults(page, testNumberSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}	
 	}
@@ -212,6 +217,7 @@ public class BuscarDominio {
 				verifyContengaResults(page, testSpecialSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}	
 	}
@@ -251,6 +257,7 @@ public class BuscarDominio {
 				verifyComienceResults(page, testSimpleSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -264,6 +271,7 @@ public class BuscarDominio {
 				verifyComienceResults(page, testNumberSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -277,6 +285,7 @@ public class BuscarDominio {
 				verifyComienceResults(page, testSpecialSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -324,6 +333,7 @@ public class BuscarDominio {
 				verifyTermineResults(page, testSimpleSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -337,6 +347,7 @@ public class BuscarDominio {
 				verifyTermineResults(page, testNumberSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}
 	}
@@ -350,6 +361,7 @@ public class BuscarDominio {
 				verifyTermineResults(page, testSpecialSites[i]);
 			} catch (Exception e) {
 				assertTrue(false);
+				e.printStackTrace();
 			}
 		}
 	}

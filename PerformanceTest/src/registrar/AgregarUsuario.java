@@ -30,7 +30,8 @@ public class AgregarUsuario {
 	    }
 	}
 	
-	private HtmlPage fillFormAndPost(HtmlPage page) throws Exception{
+	private HtmlPage fillFormAndPost(HtmlPage page){
+		try{
 		List<HtmlForm> forms = page.getForms();
 		HtmlForm form = forms.get(0);
 		//System.out.println(form.asText());
@@ -43,7 +44,7 @@ public class AgregarUsuario {
 		clave.setValueAttribute(nicPass);
 		HtmlTextInput claveRep = form.getInputByName("passwordVerification");
 		clave.setValueAttribute(nicPass);
-		claveRep.setValueAttribute(nicPass);
+		claveRep.setValueAttribute(nicPass);  
 		assertTrue(true);
 		System.out.println("Datos de acceso complete");
 		//Datos de contacto de usuario
@@ -75,7 +76,7 @@ public class AgregarUsuario {
 		//Documento de identidad (opcional)
 		//List<HtmlSelect> paiseEmisor = form.getSelectsByName("contacto.documentIdentidad.paisEmisor.id");
 		HtmlTextInput id = form.getInputByName("contacto.documentoIdentidad.value");
-		id.setValueAttribute("5555555-5");
+		id.setValueAttribute("9841569-6");
 		System.out.println("Documentos de Identidad complete");
 		//Autorizacion voluntaria de envio de DTEs por Email
 		HtmlInput envioDte = form.getInputByName("envioDTE");
@@ -88,7 +89,11 @@ public class AgregarUsuario {
 		assertTrue(button.getAttribute("type").equals("button"));
 		assertTrue(button.getAttribute("id").equals(""));
 		System.out.println("Ready to POST");
-		return button.click();
+		return button.click();}
+		catch (Exception e){
+			e.printStackTrace();
+			return page;
+		}
 	}
 	
 	private HtmlPage aceptacionDeReglamentacion(HtmlPage page) throws Exception{

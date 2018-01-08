@@ -1,10 +1,15 @@
 package registrar;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Writer;
+
+import org.junit.Test;
 
 
 /**Clase que permitira ingresar y tomar combinaciones
@@ -16,14 +21,13 @@ import java.io.Writer;
 public class UserAndPass {
 	private String user;
 	private String pass;
-	private String file = "userkeys.csv";
+	private String localPath = new File(".").getAbsolutePath();
+	private String path = localPath.substring(0, localPath.length()-1);
+	private String file = "src/registrar/userkeys.csv";
 		
 	public void getTuple(int n){
-		try (BufferedReader br = new BufferedReader(new FileReader(file))){
-			int size=0;
-			for(String line; (line = br.readLine()) != null;){ size++; }
+		try (BufferedReader br = new BufferedReader(new FileReader(path+file))){
 			int index = 0;
-			n = n%size;
 			for(String line; (line = br.readLine()) != null;){
 				//System.out.println(line);
 				if (index == n){
@@ -34,16 +38,33 @@ public class UserAndPass {
 				}
 				index++;
 			}
+			if (index<=n){
+				this.getTuple(n-index);
+			}
 		}catch (Exception e){
-			System.out.println("Getting userpass problem:\n"+e);
+			System.out.println("Getting userpass problem:\n");
+			e.printStackTrace();
+		}	
+	}
+	
+	public int numberOfAccounts(){
+		try (BufferedReader br = new BufferedReader(new FileReader(path+file))){
+			int index = 0;
+			for(String line; (line = br.readLine()) != null;){
+				index++;
+			}
+			return index;
+		}catch (Exception e){
+			System.out.println("Reading problem : \n"+e);
+			return 0;
 		}	
 	}
 	
 	public void addTuple(String usr, String pss){
 		try{
 			Writer output;
-			output = new BufferedWriter(new FileWriter(file,true));
-			output.append(usr+","+pss);
+			output = new BufferedWriter(new FileWriter(path+file,true));
+			output.append("\n"+usr+","+pss);
 			output.close();
 		} catch (Exception e){
 			System.out.println("Problem saving tuple\n"+e);
@@ -56,5 +77,25 @@ public class UserAndPass {
 	
 	public String getPass(){
 		return this.pass;
+	}
+	
+	@Test
+	public void checkGetTuple(){
+		System.out.println("Checking load of username and password");
+		this.getTuple(0);
+		assertEquals("nic3chile@gmail.com", this.getUser());
+		assertEquals("RVUtxErU2018",this.getPass());
+	}
+	
+	@Test
+	public void checkAddTuple(){
+		System.out.println("Checking record of username and password");
+		int before = this.numberOfAccounts();
+		this.addTuple("nic3chile+0@gmail.com", "RVUtxErU2018");
+		int after = this.numberOfAccounts();
+		assertEquals(before+1, after);
+		this.getTuple(after-1);
+		assertEquals("nic3chile+0@gmail.com", this.getUser());
+		assertEquals("RVUtxErU2018",this.getPass());
 	}
 }
