@@ -7,7 +7,7 @@ public class Email {
 	private String mailUser = "nic3chile";
 	private String endMail = "@gmail.com";
 	private String mailPass = "testaccount";
-	private String nicPass = "RVUtxErU2018";
+	private String nicPass = "#RVUtxErU2018";
 	private int generator = new UserAndPass().numberOfAccounts()-1;
 	
 	public String getMainMail(){

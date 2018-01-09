@@ -86,18 +86,18 @@ public class UserAndPass {
 		System.out.println("Checking load of username and password");
 		this.getTuple(0);
 		assertEquals("nic3chile@gmail.com", this.getUser());
-		assertEquals("RVUtxErU2018",this.getPass());
+		assertEquals("#RVUtxErU2018",this.getPass());
 	}
 	
 	@Test
 	public void checkAddTuple(){
 		System.out.println("Checking record of username and password");
 		int before = this.numberOfAccounts();
-		this.addTuple("nic3chile+0@gmail.com", "RVUtxErU2018");
+		this.addTuple("nic3chile+0@gmail.com", "#RVUtxErU2018");
 		int after = this.numberOfAccounts();
 		assertEquals(before+1, after);
 		this.getTuple(after-1);
 		assertEquals("nic3chile+0@gmail.com", this.getUser());
-		assertEquals("RVUtxErU2018",this.getPass());
+		assertEquals("#RVUtxErU2018",this.getPass());
 	}
 }
