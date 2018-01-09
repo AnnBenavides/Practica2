@@ -35,7 +35,7 @@ public class ListaDominio {
 		System.out.println("Signing in ...");
 		
 		UserAndPass up = new UserAndPass();
-		up.getTuple(1);
+		up.getTuple(0);
 		String username = up.getUser();
 		String password = up.getPass();
 		
@@ -140,7 +140,7 @@ public class ListaDominio {
 				}
 			}
 			assertNotEquals(null,filter);
-			System.out.println("Click");
+			//System.out.println("Click");
 			return filter.click();
 		} catch (Exception e) {
 			System.out.println("Problems selecting the filter");
@@ -191,22 +191,56 @@ public class ListaDominio {
 	}
 	
 	private void verifyAllColumns(HtmlPage page){
-		//TODO
+		/**TODO verificar que existan elementos en las columnas
+		 * checkbox, nombre dominio, el titular, expira el, y el carrito**/
 		
 	}
 	
 	private void verifyContacts(HtmlPage page, int filterIndex){
-		//TODO
+		/**TODO**/
 	}
 	
 	private void verifyState(HtmlPage page, int filterIndex){
-		//TODO
+		/**TODO**/
 	}
 	
-	private void verifyNoElementsBeforeFilter(HtmlPage page){
-		//TODO boolean
+	private boolean verifyNoElementsBeforeFilter(HtmlPage page){
+		try {
+			DomElement box = page.getElementById("listaDatosVacia");
+			String tBox = box.asText();
+			//System.out.println(tBox);
+			return tBox.contains("No hay dominios que coincidan con sus criterios de búsqueda.");
+		} catch (Exception e){
+			e.printStackTrace();
+			System.out.println("There is no domains in this selection");
+			return false;
+		}
+		
 	}
-	
+	private boolean allFilter(int index){
+		if (index == 0 || index == 1 || index == 5){
+			System.out.println("Showing all domains");
+			return true;
+		} else {
+			return false;
+		}
+	}
+	private boolean contactFilter(int index){
+		if ( index > 1 && index < 5){
+			System.out.println("Showing by 'Contacto' filter");
+			return true;
+		} else {
+			return false;
+		}
+	}	
+	private boolean stateFilter(int index){
+		if ( index > 5 && index < 12){
+			System.out.println("Showing by 'Estado' filter");
+			return true;
+		} else {
+			return false;
+		}
+	}
 	private boolean verifyNoDomains(HtmlPage page){
 		// si no tiene dominios inscritos, le redirige a
 		String inscripcion = "https://clientes.nic.cl/registrar/agregarDominio.do";
@@ -223,7 +257,8 @@ public class ListaDominio {
 	 * fId o fValue debe ser !null, en caso de ambos tener valores
 	 * se prioriza fId **/
 	private void verifyElements(HtmlPage page, String fId, String fValue){
-		//TODO
+		/**TODO**/
+		//fIndex : 0.1.5 -> todos || 2-4 -> contactos || 6-11 -> dominio
 		int fIndex;
 		if (fValue !=  null){
 			fIndex = this.getIndexValue(fValue);
@@ -237,7 +272,11 @@ public class ListaDominio {
 		}
 		HtmlPage filter = this.selectFilter(page, fIndex);
 		//System.out.println(filter.asText());
-		
+		if (!verifyNoElementsBeforeFilter(page)){
+			this.verifyAllColumns(page);
+			this.verifyContacts(page, fIndex);
+			this.verifyState(page, fIndex);
+		}
 	}
 	
 	@Test
@@ -248,7 +287,8 @@ public class ListaDominio {
 			for (String filter : filterId){
 				this.verifyElements(page, filter, null);
 			}
+		} else {
+			System.out.println("User has no domains");
 		}
-		System.out.println("User has no domains");
 	}
 }
