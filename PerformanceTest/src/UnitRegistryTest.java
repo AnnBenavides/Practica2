@@ -1,13 +1,15 @@
-package registry;
+
 
 import org.junit.Test;
+
+import registry.*;
 
 public class UnitRegistryTest {
 	
 	
 	@Test
 	public void buscarDomino(){
-		System.out.println("Starting registry/BuscarDominio tests");
+		System.out.println(">> Starting registry/BuscarDominio tests");
 		BuscarDominio test = new BuscarDominio();
 		
 		test.exactaSimpleTest();
@@ -26,23 +28,23 @@ public class UnitRegistryTest {
 		test.termineNumberTest();
 		//test.termineSpecialTest();
         
-        System.out.println("Success");
+        System.out.println("Finished <<");
 	}
 	
 	@Test
 	public void eliminados() throws Exception{
-		System.out.println("Starting registry/Eliminados tests");
+		System.out.println(">> Starting registry/Eliminados tests");
 
 		Eliminados test = new Eliminados();
 		
 		test.lastDayTest();
 		test.lastWeekTest();        
-        System.out.println("Success");
+        System.out.println("Finished <<");
 	}
 	
 	@Test
 	public void ultimos() throws Exception{
-		System.out.println("Starting registry/Ultimos tests");
+		System.out.println(">> Starting registry/Ultimos tests");
 		Ultimos test = new Ultimos();
 		
 		test.hourTest();
@@ -50,18 +52,18 @@ public class UnitRegistryTest {
 		test.weekTest();
 		test.monthTest();
         
-        System.out.println("Success");
+        System.out.println("Finished <<");
 	}
 	
 	@Test
 	public void whoIs() throws Exception{
-		System.out.println("Starting registry/Whois tests");
+		System.out.println(">> Starting registry/Whois tests");
 		WhoIs test = new WhoIs();
 		
 		test.simpleTest();
 		test.numberTest();
 		//test.specialTest();
     
-		System.out.println("Success");
+		System.out.println("Finished <<");
 	}
 }

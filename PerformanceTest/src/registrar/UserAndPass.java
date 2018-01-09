@@ -50,12 +50,13 @@ public class UserAndPass {
 	public int numberOfAccounts(){
 		try (BufferedReader br = new BufferedReader(new FileReader(path+file))){
 			int index = 0;
-			for(String line; (line = br.readLine()) != null;){
+			for(; (br.readLine()) != null;){
 				index++;
 			}
 			return index;
 		}catch (Exception e){
-			System.out.println("Reading problem : \n"+e);
+			System.out.println("Reading problem : \n");
+			e.printStackTrace();
 			return 0;
 		}	
 	}
@@ -67,7 +68,8 @@ public class UserAndPass {
 			output.append("\n"+usr+","+pss);
 			output.close();
 		} catch (Exception e){
-			System.out.println("Problem saving tuple\n"+e);
+			System.out.println("Problem saving tuple\n");
+			e.printStackTrace();
 		}
 	}
 	
