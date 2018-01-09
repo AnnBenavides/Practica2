@@ -73,7 +73,7 @@ public class AgregarUsuario {
 			//List<HtmlSelect> paises = form.getSelectsByName("contacto.direccion.pais.id");
 			//List<HtmlSelect> regiones = form.getSelectsByName("contacto.direccion.regionEstadoProvincia");
 			final HtmlTextInput ciudad = form.getInputByName("contacto.direccion.ciudad");
-			List<HtmlSelect> comunas = form.getSelectsByName("contacto.direccion.communa.id");
+			List<HtmlSelect> comunas = form.getSelectsByName("contacto.direccion.comuna.id");
 			for (HtmlSelect comuna : comunas){
 				if (comuna.asText().contains("Santiago")){
 					comuna.click();

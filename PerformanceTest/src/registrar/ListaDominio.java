@@ -179,20 +179,30 @@ public class ListaDominio {
 		String estado = filter[2];
 		
 		String icon = "ico_mini_" + estado;
-		//System.out.println(icon);
+		System.out.println(icon);
 		for (HtmlElement div : estados){
 			String clas = div.getAttribute("class");
-			//System.out.println(clas);
+			System.out.println(clas);
 			if (clas.equals("icon")){
 				return true;
 			}
 		}
 		return false;
 	}
-	
+	/** TODO ...
+	 * verificar que existan elementos en las columnas
+	 * checkbox, nombre dominio, el titular, expira el, y el carrito**/
 	private void verifyAllColumns(HtmlPage page){
-		/**TODO verificar que existan elementos en las columnas
-		 * checkbox, nombre dominio, el titular, expira el, y el carrito**/
+		try {
+			List<DomElement> data = page.getByXPath("//div[@class='contenedor_pdc2']//div[@id='listaDatos']");
+			//List<HtmlElement> rows = data.getElementsByTagName("div");
+			System.out.println(data.get(0).asText());
+			//TODO
+		} catch (Exception e){
+			System.out.println("Can't find the data table");
+			assertTrue(false);
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -251,13 +261,13 @@ public class ListaDominio {
 	}
 	
 	/**
+	 * TODO
 	 * @param page : pagina retornada del login
 	 * 		fId : algun elemento de filterId o null
 	 * 		fValue : algun elemento de filterValue o null
 	 * fId o fValue debe ser !null, en caso de ambos tener valores
 	 * se prioriza fId **/
 	private void verifyElements(HtmlPage page, String fId, String fValue){
-		/**TODO**/
 		//fIndex : 0.1.5 -> todos || 2-4 -> contactos || 6-11 -> dominio
 		int fIndex;
 		if (fValue !=  null){
@@ -274,9 +284,10 @@ public class ListaDominio {
 		//System.out.println(filter.asText());
 		if (!verifyNoElementsBeforeFilter(page)){
 			this.verifyAllColumns(page);
-			this.verifyContacts(page, fIndex);
-			this.verifyState(page, fIndex);
+			/**TODO ... **/
 		}
+		
+		
 	}
 	
 	@Test
@@ -284,9 +295,10 @@ public class ListaDominio {
 		HtmlPage page = this.login();
 		if (!verifyNoDomains(page)){
 			System.out.println("User has domains");
-			for (String filter : filterId){
+			/**for (String filter : filterId){
 				this.verifyElements(page, filter, null);
-			}
+			}**/
+			this.verifyElements(page, filterId[1], null);
 		} else {
 			System.out.println("User has no domains");
 		}
