@@ -17,7 +17,8 @@ import com.gargoylesoftware.htmlunit.WebClient;
 
 public class Test {
 
-    public static void main(final String[] args) {
+    @SuppressWarnings("resource")
+	public static void main(final String[] args) {
         final WebClient webClient = new WebClient();
         webClient.setJavaScriptTimeout(1);
         try {
