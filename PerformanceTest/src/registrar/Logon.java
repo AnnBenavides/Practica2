@@ -23,7 +23,8 @@ public class Logon {
 	    String passwordInputName = "j_password";
 	    
 	    // create the HTMLUnit WebClient instance
-	    WebClient wclient = new WebClient();
+	    @SuppressWarnings("resource")
+		WebClient wclient = new WebClient();
 	    
 	    // configure WebClient based on your desired
 		wclient.getOptions().setPrintContentOnFailingStatusCode(false);

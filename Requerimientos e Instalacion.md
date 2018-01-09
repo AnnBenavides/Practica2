@@ -42,7 +42,7 @@ public class Test {
 }
 ```
 	
-    donde si todo esta bien deberíamos tener la siguiente respuesta:
+donde si todo esta bien deberíamos tener la siguiente respuesta:
     
 ```sh
 Querying
@@ -101,6 +101,7 @@ Caused by: com.gargoylesoftware.htmlunit.javascript.TimeoutError: Javascript exe
 Finished
 
 ```
+
 ## JMeter
 ### Entorno y requerimientos
 El número en negrita debe ser mayor a 1.7
