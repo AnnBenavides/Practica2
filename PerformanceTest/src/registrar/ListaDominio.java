@@ -210,16 +210,62 @@ public class ListaDominio {
 			List<HtmlElement> rows = box.getElementsByTagName("div");
 			System.out.println("Number of domains visible: "+rows.size()); //BUG no encuentra nada D:
 			for (HtmlElement row : rows){
-				if (contactFilter(fIndex)){
-					this.verifyContacts(page, fIndex);
-				} else if (stateFilter(fIndex)){
-					this.verifyState(page, fIndex);
-				} else if (allFilter(fIndex)){
-					//TODO verify any Contact and State
+				List<HtmlElement> colDivs = row.getElementsByTagName("div"); 
+				System.out.println("Number of divs in row (must be at least 7 columns): ");
+							
+				
+				for (HtmlElement col : colDivs){
+					String classAttr = col.getAttribute("class");
+					
+					//NOMBRE DOMINIO
+					if (classAttr.equals("dominio_mini")){
+						String text = col.asText();
+						System.out.print(" | Domain : "+text);
+						assertTrue(text.endsWith(".cl"));
+						HtmlElement a = col.getElementsByTagName("a").get(0);
+						String href = a.getAttribute("href");
+						System.out.println(" href="+href);
+						assertTrue(href.contains("registrar/editarDominio.do?id="));
+					}
+					//ESTADO
+					if (stateFilter(fIndex)){
+						this.verifyState(page, fIndex);
+					} else {
+						//TODO verify any State
+					}
+					//TITULAR
+					if (classAttr.equals("titular_mini")){
+						String text = col.asText();
+						System.out.print(" | Titular : "+text);
+						assertTrue(!text.isEmpty());
+					}
+					
+					if (classAttr.equals("fecha_mini")){
+						if(col.hasAttribute("style")){
+							//CHECKBOX
+							List<HtmlElement> inputs = row.getElementsByTagName("input");
+							for (HtmlElement input : inputs){
+								String type = input.getAttribute("type");
+								String name = input.getAttribute("name");
+								if (type.equals("checkbox")){
+									assertTrue(name.equals("check"));
+								}
+							}
+						} else {
+							try {
+								//CONTACTOS
+								if (contactFilter(fIndex)){
+									this.verifyContacts(page, fIndex);
+								} else {
+									//TODO verify any Contact
+								}
+							} catch (Exception e){
+								//EXPIRA EL
+							}
+						}
+					}
+					//CARRITO
 				}
-				//TODO verify other columns : checkbox, nombre dominio,
-				// el titular, expira el, y el carrito
-				HtmlInput checkbox = ;
 			}
 			//TODO
 		} catch (Exception e){
@@ -239,17 +285,16 @@ public class ListaDominio {
 		/**TODO**/
 	}
 	
-	private boolean verifyNoElementsBeforeFilter(HtmlPage page){
+	private boolean isEmptyBeforeFilter(HtmlPage page){
 		try {
 			DomElement box = page.getElementById("listaDatosVacia");
-			String tBox = box.asText();
+			//String tBox = box.asText();
 			//System.out.println(tBox);
 			String style = box.getAttribute("style");
-			boolean isVisible = !style.contains("display: none");
-			//System.out.println("Style of 'listaDatosVacia' : "+ style+ isVisible);
-			System.out.println("Is there any elements? "+ !isVisible);
-			boolean hasText = tBox.contains("No hay dominios que coincidan con sus criterios de búsqueda.");
-			return hasText && isVisible;
+			boolean isEmpty = style.contains("display: block;");
+			System.out.println("Style of 'listaDatosVacia' : "+ style);
+			System.out.println("Is there any elements? "+ isEmpty);
+			return isEmpty;
 		} catch (Exception e){
 			e.printStackTrace();
 			System.out.println("There is no domains in this selection");
@@ -311,11 +356,9 @@ public class ListaDominio {
 			fIndex = -1;
 		}
 		HtmlPage filter = this.selectFilter(page, fIndex);
-		System.out.println(filter.asText());
-		if (!verifyNoElementsBeforeFilter(filter)){
+		//System.out.println(filter.asText());
+		if (!isEmptyBeforeFilter(filter)){
 			this.verifyAllColumns(filter, fIndex);
-			
-			/**TODO ... **/
 		}
 		
 		
