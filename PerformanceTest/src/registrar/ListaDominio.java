@@ -1,5 +1,6 @@
 package registrar;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
@@ -7,8 +8,11 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
@@ -48,17 +52,22 @@ public class ListaDominio {
 	    
 	    // create the HTMLUnit WebClient instance
 	    @SuppressWarnings("resource")
-		WebClient wclient = new WebClient();
+		WebClient wclient = new WebClient(BrowserVersion.FIREFOX_45);
+	    
 	    
 	    // configure WebClient based on your desired
 		wclient.getOptions().setPrintContentOnFailingStatusCode(false);
 		wclient.getOptions().setCssEnabled(false);
+		wclient.getOptions().setJavaScriptEnabled(true);
+        wclient.setAjaxController(new NicelyResynchronizingAjaxController());
 		wclient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 		wclient.getOptions().setThrowExceptionOnScriptError(false);
+		wclient.waitForBackgroundJavaScript(5000);
+		
 	    
 	    try {
-    	
-	      final HtmlPage loginPage = wclient.getPage(url);
+	      WebRequest request = new WebRequest(new URL(url));
+	      final HtmlPage loginPage = wclient.getPage(request);
 	      assertTrue(loginPage.isHtmlPage());
 	      System.out.print("Log in state : ");     
 	      final HtmlForm loginForm = loginPage.getForms().get(0);
@@ -88,6 +97,7 @@ public class ListaDominio {
 			assertTrue(false);
 			return null;
 		  }
+		  
 	    } catch(FailingHttpStatusCodeException e) {
 	      e.printStackTrace();
 	      assertTrue(false);
@@ -143,9 +153,16 @@ public class ListaDominio {
 				}
 				assertNotEquals(null,filter);
 				//System.out.println("Click");
-				return filter.click();
+				HtmlPage refresh = filter.click();
+				synchronized (refresh) {
+		            refresh.wait(2000); //wait
+		        }
+				return refresh;
 			}
 			System.out.println("Applying no filter");
+			synchronized (page) {
+	            page.wait(2000); //wait
+	        }
 			return page;
 		} catch (Exception e) {
 			System.out.println("Problems selecting the filter");
@@ -204,68 +221,60 @@ public class ListaDominio {
 			DomElement box = boxes.get(0);
 			String style = box.getAttribute("style");
 			boolean isVisible = !style.contains("display: none;");
-			//box.setAttribute("style","height: 300px; display: block;");
-			//String style2 = box.getAttribute("style");
-			System.out.println("Style of 'listaDatos' : "+ style + isVisible);
+
 			List<HtmlElement> rows = box.getElementsByTagName("div");
-			System.out.println("Number of domains visible: "+rows.size()); //BUG no encuentra nada D:
-			for (HtmlElement row : rows){
-				List<HtmlElement> colDivs = row.getElementsByTagName("div"); 
-				System.out.println("Number of divs in row (must be at least 7 columns): ");
-							
+			//System.out.println("Number of domains visible: "+rows.size()); 
+			for (HtmlElement col : rows){
+			
+				String classAttr = col.getAttribute("class");
+				//NOMBRE DOMINIO
+				if (classAttr.equals("dominio_mini")){
+					String text = col.asText();
+					System.out.print("\n | Domain : "+text);
+					assertTrue(text.endsWith(".cl"));
+					HtmlElement a = col.getElementsByTagName("a").get(0);
+					String href = a.getAttribute("href");
+					//System.out.println(" href="+href);
+					assertTrue(href.contains("registrar/editarDominio.do?id="));
+				}
+				//ESTADO
+				if (stateFilter(fIndex)){
+					this.verifyState(page, fIndex);
+				} else {
+					//TODO verify any State
+				}
+				//TITULAR
+				if (classAttr.equals("titular_mini")){
+					String text = col.asText();
+					System.out.print(" | Titular : "+text);
+					assertTrue(!text.isEmpty());
+				}
 				
-				for (HtmlElement col : colDivs){
-					String classAttr = col.getAttribute("class");
-					
-					//NOMBRE DOMINIO
-					if (classAttr.equals("dominio_mini")){
-						String text = col.asText();
-						System.out.print(" | Domain : "+text);
-						assertTrue(text.endsWith(".cl"));
-						HtmlElement a = col.getElementsByTagName("a").get(0);
-						String href = a.getAttribute("href");
-						System.out.println(" href="+href);
-						assertTrue(href.contains("registrar/editarDominio.do?id="));
-					}
-					//ESTADO
-					if (stateFilter(fIndex)){
-						this.verifyState(page, fIndex);
-					} else {
-						//TODO verify any State
-					}
-					//TITULAR
-					if (classAttr.equals("titular_mini")){
-						String text = col.asText();
-						System.out.print(" | Titular : "+text);
-						assertTrue(!text.isEmpty());
-					}
-					
-					if (classAttr.equals("fecha_mini")){
-						if(col.hasAttribute("style")){
-							//CHECKBOX
-							List<HtmlElement> inputs = row.getElementsByTagName("input");
-							for (HtmlElement input : inputs){
-								String type = input.getAttribute("type");
-								String name = input.getAttribute("name");
-								if (type.equals("checkbox")){
-									assertTrue(name.equals("check"));
-								}
-							}
-						} else {
-							try {
-								//CONTACTOS
-								if (contactFilter(fIndex)){
-									this.verifyContacts(page, fIndex);
-								} else {
-									//TODO verify any Contact
-								}
-							} catch (Exception e){
-								//EXPIRA EL
+				if (classAttr.equals("fecha_mini")){
+					if(col.hasAttribute("style")){
+						//CHECKBOX
+						List<HtmlElement> inputs = box.getElementsByTagName("input");
+						for (HtmlElement input : inputs){
+							String type = input.getAttribute("type");
+							String name = input.getAttribute("name");
+							if (type.equals("checkbox")){
+								assertTrue(name.equals("check"));
 							}
 						}
+					} else {
+						try {
+							//CONTACTOS
+							if (contactFilter(fIndex)){
+								this.verifyContacts(page, fIndex);
+							} else {
+								//TODO verify any Contact
+							}
+						} catch (Exception e){
+							//EXPIRA EL
+						}
 					}
-					//CARRITO
 				}
+				//CARRITO
 			}
 			//TODO
 		} catch (Exception e){
@@ -292,8 +301,8 @@ public class ListaDominio {
 			//System.out.println(tBox);
 			String style = box.getAttribute("style");
 			boolean isEmpty = style.contains("display: block;");
-			System.out.println("Style of 'listaDatosVacia' : "+ style);
-			System.out.println("Is there any elements? "+ isEmpty);
+			//System.out.println("Style of 'listaDatosVacia' : "+ style);
+			System.out.println("Is there any elements? "+ !isEmpty);
 			return isEmpty;
 		} catch (Exception e){
 			e.printStackTrace();
@@ -343,22 +352,26 @@ public class ListaDominio {
 	 * fId o fValue debe ser !null, en caso de ambos tener valores
 	 * se prioriza fId **/
 	private void verifyElements(HtmlPage page, String fId, String fValue){
-		//fIndex : 0.1.5 -> todos || 2-4 -> contactos || 6-11 -> dominio
-		int fIndex;
-		if (fValue !=  null){
-			fIndex = this.getIndexValue(fValue);
-		}
-		else if (fId != null){
-			fIndex = this.getIndexId(fId);
-		} else {
-			assertTrue(false);
-			System.out.println("Ingrese algun valor de filtro, ya sea la id (fId) o su valor (fValue)");
-			fIndex = -1;
-		}
-		HtmlPage filter = this.selectFilter(page, fIndex);
-		//System.out.println(filter.asText());
-		if (!isEmptyBeforeFilter(filter)){
-			this.verifyAllColumns(filter, fIndex);
+		try {
+			//fIndex : 0.1.5 -> todos || 2-4 -> contactos || 6-11 -> dominio
+			int fIndex;
+			if (fValue !=  null){
+				fIndex = this.getIndexValue(fValue);
+			}
+			else if (fId != null){
+				fIndex = this.getIndexId(fId);
+			} else {
+				assertTrue(false);
+				System.out.println("Ingrese algun valor de filtro, ya sea la id (fId) o su valor (fValue)");
+				fIndex = -1;
+			}
+			HtmlPage filter = this.selectFilter(page, fIndex);	
+			//System.out.println(page.asText());
+			if (!isEmptyBeforeFilter(filter)){
+				this.verifyAllColumns(filter, fIndex);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		
 		
