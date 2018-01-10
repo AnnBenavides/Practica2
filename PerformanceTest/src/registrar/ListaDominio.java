@@ -230,7 +230,7 @@ public class ListaDominio {
 				//NOMBRE DOMINIO
 				if (classAttr.equals("dominio_mini")){
 					String text = col.asText();
-					System.out.print("\n | Domain : "+text);
+					System.out.print(" | Domain : "+text);
 					assertTrue(text.endsWith(".cl"));
 					HtmlElement a = col.getElementsByTagName("a").get(0);
 					String href = a.getAttribute("href");
@@ -259,6 +259,7 @@ public class ListaDominio {
 							String name = input.getAttribute("name");
 							if (type.equals("checkbox")){
 								assertTrue(name.equals("check"));
+								System.out.print("\n [ ]");
 							}
 						}
 					} else {
