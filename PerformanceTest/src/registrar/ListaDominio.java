@@ -13,6 +13,7 @@ import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
+import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
@@ -124,24 +125,28 @@ public class ListaDominio {
 	
 	private HtmlPage selectFilter(HtmlPage page, int fIndex){
 		try{
-			System.out.println("Selecting filter :"+filterValue[fIndex]);
+			System.out.println("Selecting filter : "+filterValue[fIndex]);
 			DomElement menu = page.getElementById("menu-filtros");
 			List<HtmlElement> options = menu.getElementsByTagName("li");
 			
 			//fIndex : 0.1.5 -> todos || 2-4 -> contactos || 6-11 -> dominio
 			assertTrue(fIndex >= 0);
 			
-			HtmlElement filter = null;
-			for (HtmlElement option : options){
-				String id = option.getAttribute("id");
-				if (id.equals(filterId[fIndex])){
-					filter = option;
-					System.out.println("Applying filter");
+			if (!allFilter(fIndex)){
+				HtmlElement filter = null;
+				for (HtmlElement option : options){
+					String id = option.getAttribute("id");
+					if (id.equals(filterId[fIndex])){
+						filter = option;
+						System.out.println("Applying filter");
+					}
 				}
+				assertNotEquals(null,filter);
+				//System.out.println("Click");
+				return filter.click();
 			}
-			assertNotEquals(null,filter);
-			//System.out.println("Click");
-			return filter.click();
+			System.out.println("Applying no filter");
+			return page;
 		} catch (Exception e) {
 			System.out.println("Problems selecting the filter");
 			e.printStackTrace();
@@ -162,6 +167,7 @@ public class ListaDominio {
 		for (HtmlElement div : contactos){
 			String title = div.getAttribute("title");
 			if (title.equals(contacto)){
+				System.out.println(title + " found");
 				return true;
 			}
 		}
@@ -192,16 +198,35 @@ public class ListaDominio {
 	/** TODO ...
 	 * verificar que existan elementos en las columnas
 	 * checkbox, nombre dominio, el titular, expira el, y el carrito**/
-	private void verifyAllColumns(HtmlPage page){
+	private void verifyAllColumns(HtmlPage page, int fIndex){
 		try {
-			List<DomElement> data = page.getByXPath("//div[@class='contenedor_pdc2']//div[@id='listaDatos']");
-			//List<HtmlElement> rows = data.getElementsByTagName("div");
-			System.out.println(data.get(0).asText());
+			List<DomElement> boxes = page.getElementsById("listaDatos");
+			DomElement box = boxes.get(0);
+			String style = box.getAttribute("style");
+			boolean isVisible = !style.contains("display: none;");
+			//box.setAttribute("style","height: 300px; display: block;");
+			//String style2 = box.getAttribute("style");
+			System.out.println("Style of 'listaDatos' : "+ style + isVisible);
+			List<HtmlElement> rows = box.getElementsByTagName("div");
+			System.out.println("Number of domains visible: "+rows.size()); //BUG no encuentra nada D:
+			for (HtmlElement row : rows){
+				if (contactFilter(fIndex)){
+					this.verifyContacts(page, fIndex);
+				} else if (stateFilter(fIndex)){
+					this.verifyState(page, fIndex);
+				} else if (allFilter(fIndex)){
+					//TODO verify any Contact and State
+				}
+				//TODO verify other columns : checkbox, nombre dominio,
+				// el titular, expira el, y el carrito
+				HtmlInput checkbox = ;
+			}
 			//TODO
 		} catch (Exception e){
 			System.out.println("Can't find the data table");
-			assertTrue(false);
 			e.printStackTrace();
+			assertTrue(false);
+			
 		}
 		
 	}
@@ -219,7 +244,12 @@ public class ListaDominio {
 			DomElement box = page.getElementById("listaDatosVacia");
 			String tBox = box.asText();
 			//System.out.println(tBox);
-			return tBox.contains("No hay dominios que coincidan con sus criterios de búsqueda.");
+			String style = box.getAttribute("style");
+			boolean isVisible = !style.contains("display: none");
+			//System.out.println("Style of 'listaDatosVacia' : "+ style+ isVisible);
+			System.out.println("Is there any elements? "+ !isVisible);
+			boolean hasText = tBox.contains("No hay dominios que coincidan con sus criterios de búsqueda.");
+			return hasText && isVisible;
 		} catch (Exception e){
 			e.printStackTrace();
 			System.out.println("There is no domains in this selection");
@@ -281,9 +311,10 @@ public class ListaDominio {
 			fIndex = -1;
 		}
 		HtmlPage filter = this.selectFilter(page, fIndex);
-		//System.out.println(filter.asText());
-		if (!verifyNoElementsBeforeFilter(page)){
-			this.verifyAllColumns(page);
+		System.out.println(filter.asText());
+		if (!verifyNoElementsBeforeFilter(filter)){
+			this.verifyAllColumns(filter, fIndex);
+			
 			/**TODO ... **/
 		}
 		
@@ -298,7 +329,7 @@ public class ListaDominio {
 			/**for (String filter : filterId){
 				this.verifyElements(page, filter, null);
 			}**/
-			this.verifyElements(page, filterId[1], null);
+			this.verifyElements(page, filterId[0], null);
 		} else {
 			System.out.println("User has no domains");
 		}
