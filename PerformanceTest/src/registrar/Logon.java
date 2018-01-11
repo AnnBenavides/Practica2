@@ -64,7 +64,7 @@ public class Logon {
 	}
 	
 	private void verifyResponse(HtmlPage page){
-		System.out.print("Checking site... ");
+		System.out.print("Login status... ");
 		URL loginPage = page.getUrl();
 		String pageLink = loginPage.toString();
 		//System.out.println(pageLink);
@@ -72,30 +72,21 @@ public class Logon {
 		//Error login
 		String errorLink = "https://clientes.nic.cl/registrar/logon.do?login_error=";
 		if (pageLink.contains(errorLink)){
-			System.out.println("Login error : Account not found");
+			System.out.println("Failure : Account not found");
 			assertTrue(true);
 		}
+		//NoDomain login
+		String noDomainLink = "agregarDominio.do";
 		//Success login
-		String successLink = "https://clientes.nic.cl/registrar/listarDominio.do";
-		if (pageLink.contains(successLink)){
-			System.out.println("Login successfull");
+		String successLink = "listarDominio.do";
+		if (pageLink.contains(successLink) || pageLink.contains(noDomainLink)){
+			System.out.println("Successfull \n");
 			assertTrue(true);
 		}
 	}
 		
 	@Test
-	public void logWithOneAccount(){
-		UserAndPass up = new UserAndPass();
-		up.getTuple(0);
-		String user = up.getUser();
-		String pass = up.getPass();
-		HtmlPage page = this.startLogin(user, pass);
-		this.verifyResponse(page);
-	}
-
-	
-	@Test
-	public void logWithAllTestAccounts(){
+	public void loginWithAllTestAccounts(){
 		UserAndPass up = new UserAndPass();
 		int size = up.numberOfAccounts();
 		for (int index = 0; index < size; index++){

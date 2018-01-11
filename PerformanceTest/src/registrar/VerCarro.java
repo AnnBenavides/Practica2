@@ -1,5 +1,5 @@
 package registrar;
 
-public class EditarUsuario {
+public class VerCarro {
 	/**TODO**/
 }

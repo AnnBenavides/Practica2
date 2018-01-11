@@ -62,7 +62,7 @@ public class ListaDominio {
         wclient.setAjaxController(new NicelyResynchronizingAjaxController());
 		wclient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 		wclient.getOptions().setThrowExceptionOnScriptError(false);
-		wclient.waitForBackgroundJavaScript(5000);
+		//wclient.waitForBackgroundJavaScript(5000);
 		
 	    
 	    try {
