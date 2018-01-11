@@ -1,6 +1,5 @@
 package registrar;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +17,6 @@ import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
-import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
@@ -35,13 +33,15 @@ public class ListaDominio {
 			"Comercial","Técnico","Administrativo","Todos","Inscritos",
 			"No pagados","En conflito","En restauración","Bloqueados",
 			"Eliminados"};
-	
-	private HtmlPage login(){
+	//iconIndex = fIndex-6
+	private String[] iconState = {"asignado","no_pagado","en_conflito","en_restauracion",
+			"bloqueado","eliminado"};
+	private HtmlPage login(int userNumber){
 		HtmlPage page;
 		System.out.println("Signing in ...");
 		
 		UserAndPass up = new UserAndPass();
-		up.getTuple(0);
+		up.getTuple(userNumber);
 		String username = up.getUser();
 		String password = up.getPass();
 		
@@ -173,17 +173,14 @@ public class ListaDominio {
 	/**
 	 * @param 
 	 * contactos : es una lista de divs hijos de "fecha_mini"
-	 * id : es un elemento de filterId
+	 * fIndex : es el índice de un elemento de filterId
 	 * **/
-	private boolean contactExist(List<HtmlElement> contactos, String id){
-		String[] filter = id.split(".");
-		assertEquals("contacto",filter[1]);
-		String contacto = filter[2];
-		
+	private boolean contactExist(List<HtmlElement> contactos, int fIndex){
+		String contacto = filterValue[fIndex];
 		for (HtmlElement div : contactos){
 			String title = div.getAttribute("title");
 			if (title.equals(contacto)){
-				System.out.println(title + " found");
+				//System.out.println(title + " found");
 				return true;
 			}
 		}
@@ -195,19 +192,12 @@ public class ListaDominio {
 	 * contactos : es una lista de divs hijos de "contenedor_datos"
 	 * id : es un elemento de filterId
 	 * **/
-	private boolean hasTheState(List<HtmlElement> estados, String id){
-		String[] filter = id.split(".");
-		assertEquals("dominio",filter[1]);
-		String estado = filter[2];
-		
-		String icon = "ico_mini_" + estado;
-		System.out.println(icon);
-		for (HtmlElement div : estados){
-			String clas = div.getAttribute("class");
-			System.out.println(clas);
-			if (clas.equals("icon")){
-				return true;
-			}
+	private boolean hasTheState(HtmlElement estados,  int fIndex){
+		int iconIndex = fIndex-6;
+		String icon = "ico_mini_" + iconState[iconIndex];
+		String clas = estados.getAttribute("class");
+		if (clas.equals(icon)){
+			return true;
 		}
 		return false;
 	}
@@ -228,7 +218,7 @@ public class ListaDominio {
 		System.out.println("Number of domains: "+ret.size());
 		return ret;
 	}
-	/** TODO ...
+	/** 
 	 * verificar que existan elementos en las columnas 
 	 * **/
 	private void verifyAllColumns(HtmlPage page, int fIndex){
@@ -259,7 +249,7 @@ public class ListaDominio {
 									String title = p.get(0).getAttribute("title");
 									assertTrue(title.contains("expira en:"));
 									String pText = p.get(0).asText();
-									System.out.println("\t | Expira en: "+pText);
+									System.out.println("\t | Expira en : "+pText);
 									String[] date = pText.split("/");
 									assertTrue(date.length == 3 || date.length == 1);
 								} else {
@@ -271,10 +261,13 @@ public class ListaDominio {
 											contactos.add(cont);
 										}
 									}
-									System.out.println("\t | Tipos de contacto: "+contactos.size());
+									System.out.print("\t | Tipos de contacto : "+contactos.size());
 									if (this.contactFilter(fIndex)){
-										this.verifyContacts(contactos, fIndex);
+										boolean c = this.contactExist(contactos, fIndex);
+										System.out.println(" | Filtro correcto? "+c);
+										assertTrue(c);
 									} else {
+										System.out.println(" | Filtro correcto? "+true);
 										assertTrue(contactos.size()>0);
 									}
 								}
@@ -283,9 +276,11 @@ public class ListaDominio {
 						//ESTADO
 						if (classAttr.startsWith("ico_mini_")){
 							if (this.stateFilter(fIndex)){
-								this.verifyState(divs, fIndex);
+								boolean e = this.hasTheState(div, fIndex);
+								System.out.println("\t | Estado correcto? : "+e);
+								assertTrue(e);
 							} else {
-								System.out.println("\t | Estado?: "+true);
+								System.out.println("\t | Estado correcto? : "+true);
 								assertTrue(true);
 							}
 						}
@@ -309,15 +304,12 @@ public class ListaDominio {
 							HtmlElement a = div.getElementsByTagName("a").get(0);
 							String href = a.getAttribute("href");
 							boolean pagar = href.contains("/registrar/agregarDominioCarro.do?id=");
-							System.out.println("\t | Carrito? :"+pagar);
+							System.out.println("\t | Carrito? : "+pagar+"\n");
 							assertTrue(pagar);
 						}
-						
 					}
 				}
 			}
-		
-			//TODO ends here
 		} catch (Exception e){
 			System.out.println("Can't find the data table");
 			e.printStackTrace();
@@ -325,14 +317,6 @@ public class ListaDominio {
 			
 		}
 		
-	}
-	
-	private void verifyContacts(List<HtmlElement> divs, int filterIndex){
-		/**TODO**/
-	}
-	
-	private void verifyState(List<HtmlElement> divs, int filterIndex){
-		/**TODO**/
 	}
 	
 	private boolean isEmptyBeforeFilter(HtmlPage page){
@@ -352,7 +336,7 @@ public class ListaDominio {
 	}
 	private boolean allFilter(int index){
 		if (index == 0 || index == 1 || index == 5){
-			System.out.println("\n Showing all domains");
+			//System.out.println("\n ! Showing all domains");
 			return true;
 		} else {
 			return false;
@@ -360,7 +344,7 @@ public class ListaDominio {
 	}
 	private boolean contactFilter(int index){
 		if ( index > 1 && index < 5){
-			System.out.println("! Showing by 'Contacto' filter");
+			//System.out.println("! Showing by 'Contacto' filter");
 			return true;
 		} else {
 			return false;
@@ -368,7 +352,7 @@ public class ListaDominio {
 	}	
 	private boolean stateFilter(int index){
 		if ( index > 5 && index < 12){
-			System.out.println("! Showing by 'Estado' filter");
+			//System.out.println("! Showing by 'Estado' filter");
 			return true;
 		} else {
 			return false;
@@ -419,15 +403,19 @@ public class ListaDominio {
 	
 	@Test
 	public void misDominios(){
-		HtmlPage page = this.login();
-		if (!verifyNoDomains(page)){
-			System.out.println("User has domains");
-			for (String filter : filterId){
-				this.verifyElements(page, filter, null);
+		System.out.println("<< STARTING ListaDominio.misDominios test");
+		int topUser = new UserAndPass().numberOfAccounts();
+		for (int user = 0 ; user < topUser ; user++){
+			HtmlPage page = this.login(user);
+			if (!verifyNoDomains(page)){
+				System.out.println("User has domains");
+				for (String filter : filterId){
+					this.verifyElements(page, filter, null);
+				}
+			} else {
+				System.out.println("User has no domains");
 			}
-			//this.verifyElements(page, filterId[0], null);
-		} else {
-			System.out.println("User has no domains");
 		}
+		System.out.println("ListaDominio.misDominios FINISHED >>");
 	}
 }
