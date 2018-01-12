@@ -3,6 +3,7 @@ package registrar;
 import static org.junit.Assert.*;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -21,7 +22,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 
 public class DTE {
-	/**TODO**/
 	private HtmlPage login(int userNumber){
 		HtmlPage page;
 		System.out.println("Signing in ...");
@@ -126,8 +126,7 @@ public class DTE {
 			for (DomElement div : divs){
 				if (div.hasAttribute("class")){
 					String classAttr = div.getAttribute("class");
-					assertEquals("mensaje",classAttr);
-					if (classAttr.equals("mensaje")){
+					if (classAttr.equals("listaDatosVacia")){
 						String text = div.asText();
 						String msg = "No tiene dominios que se encuentren facturados, por lo cual, tampoco Documentos Tributarios Electronicos asociados";
 						return text.contains(msg);
@@ -158,57 +157,122 @@ public class DTE {
 			return -1;
 		}
 	}
-	
-	private HtmlPage selectDomain(HtmlPage page, int dom){
+		
+	private void verifyRows(List<HtmlElement> rows){
 		try{
-			System.out.print("Filter by domain ");
-			if (dom <= this.getDomains(page)){
-				DomElement select = page.getElementById("filtroBusqueda");
-				List<HtmlElement> options = select.getElementsByTagName("option");
-				HtmlElement domain = options.get(dom);
-				System.out.println(domain.asText());
-				HtmlPage refresh = domain.click();
-				synchronized (refresh) {
-		            refresh.wait(2000); //wait
-		        }
-				return refresh;
+			System.out.println("This domain has "+rows.size()+" 'comprobantes'");
+			for (HtmlElement row : rows){
+				 List<HtmlElement> columns = row.getElementsByTagName("div");
+				 //System.out.println("Nr of columns (div): "+columns.size());
+				 //NRO DE DOCUMENTO
+				 List<HtmlElement> col1 = columns.get(0).getElementsByTagName("p");
+				 String nroDoc = col1.get(0).asText();
+				 System.out.println("\n\t | Nro. de Documento : "+nroDoc);
+				 assertTrue(!nroDoc.isEmpty());
+				 //FECHA
+				 List<HtmlElement> col2 = columns.get(1).getElementsByTagName("p");
+				 String fecha = col2.get(0).asText();
+				 System.out.println("\t | Fecha : "+fecha);
+				 String[] format = fecha.split("-");
+				 assertEquals(3,format.length);
+				 //TIPO DE DOCUMENTO
+				 List<HtmlElement> col3 = columns.get(2).getElementsByTagName("p");
+				 String tipoDoc = col3.get(0).asText();
+				 System.out.println("\t | Tipo de Documento : "+tipoDoc);
+				 assertTrue(!tipoDoc.isEmpty());
+				 //DESCARGAR
+				 List<HtmlElement> col4 = columns.get(3).getElementsByTagName("a");
+				 //System.out.println("\t | Descargas : "+col4.size());
+				 String xml = "&format=XML";
+				 String pdf = "&format=PDF";
+				 String getDTELink = "/registrar/getDTE.do?folio="+nroDoc+"&tipoDTE=";
+				 String hrefXML = col4.get(0).getAttribute("href");
+				 String hrefPDF = col4.get(1).getAttribute("href");
+				 boolean hasXML = hrefXML.contains(getDTELink) && hrefXML.contains("&tipoDTE=")
+						 && hrefXML.contains("&idDominio=") && hrefXML.endsWith(xml);
+				 boolean hasPDF = hrefPDF.contains(getDTELink) && hrefPDF.contains("&tipoDTE=")
+						 && hrefPDF.contains("&idDominio=") && hrefPDF.endsWith(pdf);
+				 assertEquals(true,hasXML);
+				 assertEquals(true,hasPDF);
+				 System.out.println("\t | Descarga XML : "+hasXML+"\t Descarga PDF : "+hasPDF);
+			}
+			
+		} catch (Exception e){
+			assertTrue(false);
+			e.printStackTrace();
+		}
+	}
+	
+	private void verifyResults(HtmlPage page){
+		try{
+			List<DomElement> divs = page.getElementsByTagName("div");
+			List<HtmlElement> rows = new ArrayList<HtmlElement>();
+			for (DomElement div : divs){
+				if (div.hasAttribute("class")){
+					String classAttr = div.getAttribute("class");
+					if (classAttr.equals("listaDatos")){
+						System.out.println("Verifying data ...");
+						assertTrue(true);				
+					}
+					String rowClass = "contenedor_datos";
+					if (classAttr.equals(rowClass)){
+						rows.add((HtmlElement)div);
+						assertTrue(true);	
+					}
+				}
+			}
+			this.verifyRows(rows);			
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	private void selectDomain(HtmlPage page){
+		try{
+			if (!this.hasNoDomains(page)){
+				int domains = this.getDomains(page);
+				if (domains > 0){
+					System.out.println("User has "+domains+" domains to select");
+					assertTrue(true);
+				}
+				for (int dom = 0 ; dom < domains ; dom++){
+					System.out.print("Filter by domain ");
+					if (dom <= this.getDomains(page)){
+						DomElement select = page.getElementById("filtroBusqueda");
+						List<HtmlElement> options = select.getElementsByTagName("option");
+						HtmlElement domain = options.get(dom);
+						System.out.println("\t > Working on "+domain.asText());
+						HtmlPage refresh = domain.click();
+						synchronized (refresh) {
+				            refresh.wait(2000); //wait
+				        }
+						this.verifyResults(refresh);
+					} else {
+						System.out.println("! There is no such domain to select");
+						assertTrue(false);
+						return;
+					}
+				}
 			} else {
-				System.out.println("! There is no such domain to select");
-				assertTrue(false);
-				return null;
+				System.out.println("User has no domains in this section");
+				assertTrue(true);
 			}
 		} catch (Exception e){
 			System.out.println("! Problems at DTE.selectDomain(HtmlPage page, int dom)");
 			e.printStackTrace();
 			assertTrue(false);
-			return null;
-		}
-	}
-	
-	private verifyRows(HtmlPage page){
-		//TODO
-		try{
-			
-		} catch (Exception e){
-			e.printStackTrace();
-		}
-	}
-	
-	private verifyResults(HtmlPage page){
-		//TODO
-		try{
-			
-		} catch (Exception e){
-			e.printStackTrace();
 		}
 	}
 
 	@Test
 	public void comprobantes(){
+		System.out.println("<< STARTING DTE.comprobantes test");
 		try{
 			HtmlPage page = this.goToDTE(this.login(0));
+			this.selectDomain(page);
 		} catch (Exception e){
 			e.printStackTrace();
 		}
+		System.out.println("DTE.comprobantes FINISHED >>");
 	}
 }
