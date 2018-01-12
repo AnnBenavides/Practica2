@@ -24,7 +24,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 public class DTE {
 	private HtmlPage login(int userNumber){
 		HtmlPage page;
-		System.out.println("Signing in ...");
+		System.out.println("\n\n\t Signing in ...");
 		
 		UserAndPass up = new UserAndPass();
 		up.getTuple(userNumber);
@@ -126,7 +126,8 @@ public class DTE {
 			for (DomElement div : divs){
 				if (div.hasAttribute("class")){
 					String classAttr = div.getAttribute("class");
-					if (classAttr.equals("listaDatosVacia")){
+					//System.out.println("div class = "+classAttr);
+					if (classAttr.equals("mensaje")){
 						String text = div.asText();
 						String msg = "No tiene dominios que se encuentren facturados, por lo cual, tampoco Documentos Tributarios Electronicos asociados";
 						return text.contains(msg);
@@ -268,8 +269,11 @@ public class DTE {
 	public void comprobantes(){
 		System.out.println("<< STARTING DTE.comprobantes test");
 		try{
-			HtmlPage page = this.goToDTE(this.login(0));
-			this.selectDomain(page);
+			int users = new UserAndPass().numberOfAccounts();
+			for (int user = 0 ; user < users ; user++){
+				HtmlPage page = this.goToDTE(this.login(user));
+				this.selectDomain(page);
+			}
 		} catch (Exception e){
 			e.printStackTrace();
 		}
