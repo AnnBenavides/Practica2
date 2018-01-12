@@ -196,6 +196,7 @@ public class ListaDominio {
 		int iconIndex = fIndex-6;
 		String icon = "ico_mini_" + iconState[iconIndex];
 		String clas = estados.getAttribute("class");
+		assertEquals(icon,clas);
 		if (clas.equals(icon)){
 			return true;
 		}
@@ -238,7 +239,7 @@ public class ListaDominio {
 									String type = input.getAttribute("type");
 									String name = input.getAttribute("name");
 									if (type.equals("checkbox")){
-										assertTrue(name.equals("check"));
+										assertEquals("check",name);
 										//System.out.println("\t [ ]");
 									}
 								}
