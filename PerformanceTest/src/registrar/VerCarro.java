@@ -3,6 +3,7 @@ package registrar;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URL;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -11,6 +12,7 @@ import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
+import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlButton;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
@@ -71,10 +73,14 @@ public class VerCarro {
 	      
 		  URL lPage = page.getUrl();
 		  String pageLink = lPage.toString();
-		  if (pageLink.contains("listarDominio.do") || pageLink.contains("agregarDominio.do")){
+		  if (pageLink.contains("listarDominio.do")){
 		  	System.out.println("Success");
 			assertTrue(true);
 			return page;
+		  } else if(pageLink.contains("agregarDominio.do")){
+			System.out.println("Success, but user with no domains");
+			assertTrue(true);
+			return null;
 		  } else {
 			System.out.println("Failure");
 			assertTrue(false);
@@ -94,7 +100,7 @@ public class VerCarro {
 	
 	private HtmlPage goToCarro(HtmlPage page){
 		try {
-			System.out.print("Accessing to 'Carro de Compra'... ");
+			System.out.print("Verify response of an empty 'Carro de Compra'... ");
 			HtmlElement div = (HtmlElement) page.getElementById("menu_pago");
 			HtmlElement a = div.getElementsByTagName("a").get(0);
 			String href = a.getAttribute("href");
@@ -121,7 +127,32 @@ public class VerCarro {
 
 	private HtmlPage addToCarro(HtmlPage page){
 		try {
-			//TODO
+			System.out.println("Adding products to 'Carro'");
+			synchronized (page) {
+	            page.wait(2000); //wait
+	        }
+			HtmlElement data = (HtmlElement) page.getElementById("listaDatos");
+			List<HtmlElement> divs = data.getElementsByTagName("div");
+			//System.out.println("Found "+divs.size()+" <div> elements");
+			for (HtmlElement botones : divs){
+				if(botones.hasAttribute("class")){
+					String classAttr = botones.getAttribute("class");
+					//System.out.println(classAttr);
+					if (classAttr.equals("botones_dominio_mini")){
+						HtmlElement a = botones.getElementsByTagName("a").get(0);
+						HtmlPage refresh = a.click();
+						synchronized (refresh) {
+				            refresh.wait(2000); //wait
+				        }
+						System.out.println("\t Going to 'Ver Carro' with 1 product");
+						assertTrue(true);
+						return refresh;
+					}
+				}
+			}
+			assertTrue(false);
+			System.out.println("There is no selectable domain");
+			return null;
 		} catch (Exception e){ 
 			System.out.println("! Problems in VerCarro.addToCarro");
 			e.printStackTrace();
@@ -132,7 +163,21 @@ public class VerCarro {
 	
 	private boolean hasNoProducts(HtmlPage page){
 		try {
-			//TODO
+			List<DomElement> divs = page.getElementsByTagName("div");
+			for (DomElement div : divs){
+				if(div.hasAttribute("class")){
+					String classAttr = div.getAttribute("class");
+					//System.out.println(classAttr);
+					if (classAttr.equals("mensaje")){
+						String text = div.asText();
+						if (text.contains("El carro de compras se encuentra vacío.")){
+							assertTrue(true);
+							return true;
+						}
+					}
+				}
+			}
+			return false;
 		} catch (Exception e){ 
 			System.out.println("! Problems in VerCarro.hasNoProducts");
 			e.printStackTrace();
@@ -201,9 +246,15 @@ public class VerCarro {
 		}
 	}
 	
-	private void verify(){
+	private void verify(HtmlPage page){
 		try {
 			//TODO
+			if (!this.hasNoProducts(page)){
+				//TODO
+			}else{
+				System.out.println("There are no products");
+				assertTrue(false);
+			}
 		} catch (Exception e){ 
 			System.out.println("! Problems in VerCarro.verify");
 			e.printStackTrace();
@@ -217,12 +268,35 @@ public class VerCarro {
 		try{
 			int users = new UserAndPass().numberOfAccounts();
 			for (int user = 0 ; user < users ; user++){
-				this.goToCarro(this.login(0));
-				//this.selectDomain(page);
+				HtmlPage loginPage = this.login(0);
+				if (loginPage!= null){
+					HtmlPage refresh = this.addToCarro(loginPage);
+					synchronized (refresh) {
+			            refresh.wait(2000); //wait
+			        }
+					this.verify(refresh);
+				}
 			}
 		} catch (Exception e){
 			e.printStackTrace();
 		}
 		System.out.println("VerCarro.compra FINISHED >>");
+	}
+	
+	@Test
+	public void carroVacio(){
+		System.out.println("<< STARTING VerCarro.carroVacio test");
+		try{
+			int users = new UserAndPass().numberOfAccounts();
+			for (int user = 0 ; user < users ; user++){
+				HtmlPage loginPage = this.login(0);
+				if (loginPage!= null){
+					assertTrue(this.hasNoProducts(this.goToCarro(loginPage)));
+				}
+			}
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		System.out.println("VerCarro.carroVacio FINISHED >>");
 	}
 }
