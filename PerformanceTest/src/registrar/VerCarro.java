@@ -241,7 +241,7 @@ public class VerCarro {
 		}
 	}
 	
-	private HtmlPage selectMediodePagoCLP(HtmlElement div, String medioDePago){
+	private HtmlPage selectMediodePago(HtmlElement div, String medioDePago){
 		try {
 			System.out.println("> Select 'medio de pago' : "+medioDePago);
 			List<HtmlElement> medios = div.getElementsByTagName("input");
@@ -268,10 +268,10 @@ public class VerCarro {
 		}
 	}
 	
-	private void verifyMediosdePagoCLP(HtmlElement div, String medioDePago){
+	private void verifyMediosdePago(HtmlElement div, String medioDePago){
 		try {
 			System.out.println("Seleccionar medio de pago");
-			HtmlPage refresh = this.selectMediodePagoCLP(div, medioDePago);
+			HtmlPage refresh = this.selectMediodePago(div, medioDePago);
 			DomElement pago = refresh.getElementById("medios_de_pago");
 			List<HtmlElement> divs = pago.getElementsByTagName("div");
 			System.out.print("\t | Medio de pago : "+medioDePago+"\t | Success? ");
@@ -291,7 +291,7 @@ public class VerCarro {
 		}
 	}
 	
-	private void verifyCompraCLP(DomElement div, String medioDePago){
+	private void verifyCompra(DomElement div, String medioDePago){
 		try {
 			System.out.println("> Verify 'Compra'");
 			List<HtmlElement> divs = div.getElementsByTagName("div");
@@ -331,20 +331,18 @@ public class VerCarro {
 							System.out.println("Verificando productos");	
 						}
 						//TOTALES y MONEDA
-						else if (classAttr.equals("total_final")){
-							System.out.println("Verificando total");	
+						else if (classAttr.equals("total_final")){	
 							this.verifyTotalesYMoneda((HtmlElement) div,"CLP");
 						} 
 						//MEDIOS DE PAGO
 						else if (classAttr.equals("medios_de_pago")){
 							String[] mediosDePago = {"webpay","khipu","servipag_online","servipag"};
-							this.verifyMediosdePagoCLP((HtmlElement) div, mediosDePago[pago]);
+							this.verifyMediosdePago((HtmlElement) div, mediosDePago[pago]);
 						}
 						//COMPRA
 						else if (classAttr.equals("contenedor_pdc2") && div.hasAttribute("style")){
-							System.out.println("Compra con ");
 							String[] mediosDePago = {"Webpay","Khipu","ServipagOnline","Servipag"};
-							this.verifyCompraCLP(div, mediosDePago[pago]);
+							this.verifyCompra(div, mediosDePago[pago]);
 						}
 					}
 				}
@@ -354,7 +352,91 @@ public class VerCarro {
 				assertTrue(false);
 			}
 		} catch (Exception e){ 
-			System.out.println("! Problems in VerCarro.verify");
+			System.out.println("! Problems in VerCarro.verifyCLP");
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	
+	private HtmlPage getUSDPage(HtmlPage page){
+		try{
+			if (!this.hasNoProducts(page)){
+				System.out.print("Searching button ");
+				List<DomElement> divs = page.getElementsByTagName("div");
+				for (DomElement div : divs){
+					if (div.hasAttribute("class")){
+						String classAttr = div.getAttribute("class");
+						//TOTALES y MONEDA
+						if (classAttr.equals("total_final")){
+							System.out.println(". . .");	
+							List<HtmlElement> buttons = div.getElementsByTagName("button");
+							for (HtmlElement button : buttons){
+								if(button.getAttribute("id").equals("USD-button")){
+									HtmlPage refresh = button.click();
+									System.out.println("> Getting USD page");
+									synchronized (refresh) {
+							            refresh.wait(2000); //wait
+							        }
+									assertTrue(true);
+									return refresh;
+								}
+							}
+						} 
+					}
+				}
+				System.out.println("Cant perform this action");
+				assertTrue(false);
+				return page;
+			} else {
+				System.out.println("There are no products");
+				assertTrue(false);
+				return page;
+			}
+		} catch (Exception e){ 
+			System.out.println("! Problems in VerCarro.getUSDPage");
+			e.printStackTrace();
+			assertTrue(false);
+			return page;
+		}
+	}
+	private void verifyUSD(HtmlPage defaultPage){
+		try {
+			//TODO
+			HtmlPage page = this.getUSDPage(defaultPage);
+			if (!this.hasNoProducts(page)){
+				//TODO
+				System.out.println("Checking content...");
+				List<DomElement> divs = page.getElementsByTagName("div");
+				int pago = 0;
+				for (DomElement div : divs){
+					if (div.hasAttribute("class")){
+						String classAttr = div.getAttribute("class");
+						//CONTENEDOR PRODUCTOS
+						if (classAttr.equals("contenedor_scroll")){
+							System.out.println("Verificando productos");	
+						}
+						//TOTALES y MONEDA
+						else if (classAttr.equals("total_final")){	
+							this.verifyTotalesYMoneda((HtmlElement) div,"USD");
+						} 
+						//MEDIOS DE PAGO
+						else if (classAttr.equals("medios_de_pago")){
+							this.verifyMediosdePago((HtmlElement) div, "paypal");
+						}
+						//COMPRA
+						else if (classAttr.equals("contenedor_pdc2") && div.hasAttribute("style")){
+							System.out.println("Compra con ");
+							this.verifyCompra(div, "Paypal");
+						}
+					}
+				}
+				
+			}else{
+				System.out.println("There are no products");
+				assertTrue(false);
+			}
+		} catch (Exception e){ 
+			System.out.println("! Problems in VerCarro.verifyUSD");
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -365,8 +447,8 @@ public class VerCarro {
 		System.out.println("<< STARTING VerCarro.compraCLP test");
 		try{
 			int users = new UserAndPass().numberOfAccounts();
-			for (int user = 0 ; user < users ; user++){
-				HtmlPage loginPage = this.login(user);
+			//for (int user = 0 ; user < users ; user++){
+				HtmlPage loginPage = this.login(0);
 				if (loginPage!= null){
 					HtmlPage refresh = this.addToCarro(loginPage);
 					synchronized (refresh) {
@@ -374,24 +456,43 @@ public class VerCarro {
 			        }
 					this.verifyCLP(refresh);
 				}
-			}
+			//}
 		} catch (Exception e){
 			e.printStackTrace();
 		}
 		System.out.println("VerCarro.compraCLP FINISHED >> \n");
 	}
-	
+	@Test
+	public void compraUSD(){
+		System.out.println("<< STARTING VerCarro.compraUSD test");
+		try{
+			int users = new UserAndPass().numberOfAccounts();
+			//for (int user = 0 ; user < users ; user++){
+				HtmlPage loginPage = this.login(0);
+				if (loginPage!= null){
+					HtmlPage refresh = this.addToCarro(loginPage);
+					synchronized (refresh) {
+			            refresh.wait(2000); //wait
+			        }
+					this.verifyUSD(refresh);
+				}
+			//}
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		System.out.println("VerCarro.compraUSD FINISHED >> \n");
+	}
 	@Test
 	public void carroVacio(){
 		System.out.println("<< STARTING VerCarro.carroVacio test");
 		try{
 			int users = new UserAndPass().numberOfAccounts();
-			for (int user = 0 ; user < users ; user++){
-				HtmlPage loginPage = this.login(user);
+			//for (int user = 0 ; user < users ; user++){
+				HtmlPage loginPage = this.login(0);
 				if (loginPage!= null){
 					assertTrue(this.hasNoProducts(this.goToCarro(loginPage)));
 				}
-			}
+			//}
 		} catch (Exception e){
 			e.printStackTrace();
 		}
