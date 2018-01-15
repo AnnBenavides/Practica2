@@ -1,6 +1,6 @@
 package registrar;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.net.URL;
 import java.util.List;
@@ -186,7 +186,7 @@ public class VerCarro {
 		}
 	}
 	
-	private void verifyColumns(HtmlPage page){
+	private void verifyColumns(HtmlElement row){
 		try {
 			//TODO
 		} catch (Exception e){ 
@@ -196,7 +196,7 @@ public class VerCarro {
 		}
 	}
 	
-	private void verifyProducts(HtmlPage page){
+	private void verifyProducts(HtmlElement rows){
 		try {
 			//TODO
 		} catch (Exception e){ 
@@ -206,7 +206,7 @@ public class VerCarro {
 		}
 	}
 	
-	private void verifyTotalesYMoneda(HtmlPage page){
+	private void verifyTotalesYMoneda(HtmlElement div){
 		try {
 			//TODO
 		} catch (Exception e){ 
@@ -216,19 +216,49 @@ public class VerCarro {
 		}
 	}
 	
-	private void selectMediodePago(HtmlPage page){
+	private HtmlPage selectMediodePago(HtmlElement div, String medioDePago){
 		try {
-			//TODO
+			System.out.println("> Select 'medio de pago' : "+medioDePago);
+			List<HtmlElement> medios = div.getElementsByTagName("input");
+			for (HtmlElement medio : medios){
+				String id = "medio_pago_"+medioDePago;
+				String medio_id = medio.getAttribute("id");
+				if (medio_id.equals(id)){
+					System.out.println("> Found and clicked, charging page");
+					HtmlPage refresh = medio.click();
+					synchronized (refresh) {
+			            refresh.wait(2000); //wait
+			        }
+					assertTrue(true);
+					return refresh;
+				}
+			}
+			System.out.println("> Option not found");
+			return null;
 		} catch (Exception e){ 
 			System.out.println("! Problems in VerCarro.selectMediodePago");
 			e.printStackTrace();
 			assertTrue(false);
+			return null;
 		}
 	}
 	
-	private void verifyMediosdePago(HtmlPage page){
+	private void verifyMediosdePago(HtmlElement div, String medioDePago){
 		try {
-			//TODO
+			System.out.println("Seleccionar medio de pago");
+			HtmlPage refresh = this.selectMediodePago(div, medioDePago);
+			DomElement pago = refresh.getElementById("medios_de_pago");
+			List<HtmlElement> divs = pago.getElementsByTagName("div");
+			System.out.print("\t | Medio de pago : "+medioDePago+"\t | Success? ");
+			for (HtmlElement medio : divs){
+				if (medio.hasAttribute("class")){
+					if (medio.getAttribute("class").equals("medio_pago on")){
+						HtmlElement input = medio.getElementsByTagName("input").get(0);
+						System.out.println(input.getAttribute("id").equals("medio_pago_"+medioDePago));
+						assertEquals("medio_pago_"+medioDePago, input.getAttribute("id"));
+					}
+				}
+			}
 		} catch (Exception e){ 
 			System.out.println("! Problems in VerCarro.verifyMediosdePago");
 			e.printStackTrace();
@@ -236,7 +266,7 @@ public class VerCarro {
 		}
 	}
 	
-	private void verifyCompra(HtmlPage page){
+	private void verifyCompra(HtmlElement div, String medioDePago){
 		try {
 			//TODO
 		} catch (Exception e){ 
@@ -251,6 +281,33 @@ public class VerCarro {
 			//TODO
 			if (!this.hasNoProducts(page)){
 				//TODO
+				System.out.println("Checking content...");
+				List<DomElement> divs = page.getElementsByTagName("div");
+				int pago = 0;
+				for (DomElement div : divs){
+					if (div.hasAttribute("class")){
+						String classAttr = div.getAttribute("class");
+						//CONTENEDOR PRODUCTOS
+						if (classAttr.equals("contenedor_scroll")){
+							System.out.println("Verificando productos");	
+						}
+						//TOTALES y MONEDA
+						else if (classAttr.equals("total_final")){
+							System.out.println("Verificando total");	
+						} 
+						//MEDIOS DE PAGO
+						else if (classAttr.equals("medios_de_pago")){
+							String[] mediosDePago = {"webpay","khipu","servipag_online","servipag"};
+							this.verifyMediosdePago((HtmlElement) div, mediosDePago[pago]);
+						}
+						//COMPRA
+						else if (classAttr.equals("contenedor_pdc2") && div.hasAttribute("style")){
+							System.out.println("Compra con ");
+							String[] mediosDePago = {"Webpay","Khipu","ServipagOnline","Servipag"};
+						}
+					}
+				}
+				
 			}else{
 				System.out.println("There are no products");
 				assertTrue(false);
@@ -268,7 +325,7 @@ public class VerCarro {
 		try{
 			int users = new UserAndPass().numberOfAccounts();
 			for (int user = 0 ; user < users ; user++){
-				HtmlPage loginPage = this.login(0);
+				HtmlPage loginPage = this.login(user);
 				if (loginPage!= null){
 					HtmlPage refresh = this.addToCarro(loginPage);
 					synchronized (refresh) {
@@ -289,7 +346,7 @@ public class VerCarro {
 		try{
 			int users = new UserAndPass().numberOfAccounts();
 			for (int user = 0 ; user < users ; user++){
-				HtmlPage loginPage = this.login(0);
+				HtmlPage loginPage = this.login(user);
 				if (loginPage!= null){
 					assertTrue(this.hasNoProducts(this.goToCarro(loginPage)));
 				}
