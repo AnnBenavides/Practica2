@@ -118,6 +118,98 @@ public class VerCarro {
 			return null;
 		}
 	}
+
+	private HtmlPage addToCarro(HtmlPage page){
+		try {
+			//TODO
+		} catch (Exception e){ 
+			System.out.println("! Problems in VerCarro.addToCarro");
+			e.printStackTrace();
+			assertTrue(false);
+			return page;
+		}
+	}
+	
+	private boolean hasNoProducts(HtmlPage page){
+		try {
+			//TODO
+		} catch (Exception e){ 
+			System.out.println("! Problems in VerCarro.hasNoProducts");
+			e.printStackTrace();
+			assertTrue(false);
+			return true;
+		}
+	}
+	
+	private void verifyColumns(HtmlPage page){
+		try {
+			//TODO
+		} catch (Exception e){ 
+			System.out.println("! Problems in VerCarro.verify columns");
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	
+	private void verifyProducts(HtmlPage page){
+		try {
+			//TODO
+		} catch (Exception e){ 
+			System.out.println("! Problems in VerCarro.verifyProducts");
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	
+	private void verifyTotalesYMoneda(HtmlPage page){
+		try {
+			//TODO
+		} catch (Exception e){ 
+			System.out.println("! Problems in VerCarro.verifyTotalesYMoneda");
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	
+	private void selectMediodePago(HtmlPage page){
+		try {
+			//TODO
+		} catch (Exception e){ 
+			System.out.println("! Problems in VerCarro.selectMediodePago");
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	
+	private void verifyMediosdePago(HtmlPage page){
+		try {
+			//TODO
+		} catch (Exception e){ 
+			System.out.println("! Problems in VerCarro.verifyMediosdePago");
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	
+	private void verifyCompra(HtmlPage page){
+		try {
+			//TODO
+		} catch (Exception e){ 
+			System.out.println("! Problems in VerCarro.verifyCompra");
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	
+	private void verify(){
+		try {
+			//TODO
+		} catch (Exception e){ 
+			System.out.println("! Problems in VerCarro.verify");
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
 	
 	@Test
 	public void compra(){
