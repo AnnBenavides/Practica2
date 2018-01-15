@@ -199,6 +199,8 @@ public class VerCarro {
 	private void verifyProducts(HtmlElement rows){
 		try {
 			//TODO
+			System.out.println("> Verifing Domains data");
+			
 		} catch (Exception e){ 
 			System.out.println("! Problems in VerCarro.verifyProducts");
 			e.printStackTrace();
@@ -317,9 +319,7 @@ public class VerCarro {
 	
 	private void verifyCLP(HtmlPage page){
 		try {
-			//TODO
 			if (!this.hasNoProducts(page)){
-				//TODO
 				System.out.println("Checking content...");
 				List<DomElement> divs = page.getElementsByTagName("div");
 				int pago = 0;
@@ -328,7 +328,7 @@ public class VerCarro {
 						String classAttr = div.getAttribute("class");
 						//CONTENEDOR PRODUCTOS
 						if (classAttr.equals("contenedor_scroll")){
-							System.out.println("Verificando productos");	
+							this.verifyProducts((HtmlElement) div);	
 						}
 						//TOTALES y MONEDA
 						else if (classAttr.equals("total_final")){	
@@ -401,19 +401,16 @@ public class VerCarro {
 	}
 	private void verifyUSD(HtmlPage defaultPage){
 		try {
-			//TODO
 			HtmlPage page = this.getUSDPage(defaultPage);
 			if (!this.hasNoProducts(page)){
-				//TODO
 				System.out.println("Checking content...");
 				List<DomElement> divs = page.getElementsByTagName("div");
-				int pago = 0;
 				for (DomElement div : divs){
 					if (div.hasAttribute("class")){
 						String classAttr = div.getAttribute("class");
 						//CONTENEDOR PRODUCTOS
 						if (classAttr.equals("contenedor_scroll")){
-							System.out.println("Verificando productos");	
+							this.verifyProducts((HtmlElement) div);	
 						}
 						//TOTALES y MONEDA
 						else if (classAttr.equals("total_final")){	
