@@ -206,9 +206,34 @@ public class VerCarro {
 		}
 	}
 	
-	private void verifyTotalesYMoneda(HtmlElement div){
+	private void verifyTotalesYMoneda(HtmlElement div,String monedaValue){
 		try {
-			//TODO
+			List<HtmlElement> buttons = div.getElementsByTagName("button");
+			int nButtons = 0;
+			for (HtmlElement button : buttons){
+				if(button.getAttribute("id").equals("CLP-button") || button.getAttribute("id").equals("USD-button")){
+					nButtons++;
+				}
+			}
+			assertEquals(2,nButtons);
+			System.out.println("\t | Moneda : "+monedaValue);
+			HtmlElement input = div.getElementsByTagName("input").get(0);
+			assertEquals("codigoMonedaActual",input.getAttribute("id"));
+			assertEquals(monedaValue,input.getAttribute("value"));
+			System.out.print("\t | ");
+			List<HtmlElement> divs = div.getElementsByTagName("div");
+			for (HtmlElement total : divs){
+				if (total.hasAttribute("class")){					
+					if (total.getAttribute("class").equals("carro_compras_valor_total")){
+						assertTrue(total.asText().contains("Total") && total.asText().contains(monedaValue));
+						System.out.println(total.asText());
+						return;
+					}
+				}
+			}
+			System.out.println("Incorrect 'Total' output");
+			assertTrue(false);
+			
 		} catch (Exception e){ 
 			System.out.println("! Problems in VerCarro.verifyTotalesYMoneda");
 			e.printStackTrace();
@@ -216,7 +241,7 @@ public class VerCarro {
 		}
 	}
 	
-	private HtmlPage selectMediodePago(HtmlElement div, String medioDePago){
+	private HtmlPage selectMediodePagoCLP(HtmlElement div, String medioDePago){
 		try {
 			System.out.println("> Select 'medio de pago' : "+medioDePago);
 			List<HtmlElement> medios = div.getElementsByTagName("input");
@@ -243,10 +268,10 @@ public class VerCarro {
 		}
 	}
 	
-	private void verifyMediosdePago(HtmlElement div, String medioDePago){
+	private void verifyMediosdePagoCLP(HtmlElement div, String medioDePago){
 		try {
 			System.out.println("Seleccionar medio de pago");
-			HtmlPage refresh = this.selectMediodePago(div, medioDePago);
+			HtmlPage refresh = this.selectMediodePagoCLP(div, medioDePago);
 			DomElement pago = refresh.getElementById("medios_de_pago");
 			List<HtmlElement> divs = pago.getElementsByTagName("div");
 			System.out.print("\t | Medio de pago : "+medioDePago+"\t | Success? ");
@@ -266,9 +291,23 @@ public class VerCarro {
 		}
 	}
 	
-	private void verifyCompra(HtmlElement div, String medioDePago){
+	private void verifyCompraCLP(DomElement div, String medioDePago){
 		try {
-			//TODO
+			System.out.println("> Verify 'Compra'");
+			List<HtmlElement> divs = div.getElementsByTagName("div");
+			for (HtmlElement botonera : divs){
+				if(botonera.hasAttribute("id") && botonera.hasAttribute("style")){
+					boolean id = botonera.getAttribute("id").equals("botonera"+medioDePago);
+					if (id){
+						boolean style =botonera.getAttribute("style").contains("display: block");
+						System.out.println("\t | 'Comprar' por "+medioDePago+"? "+style);
+						assertEquals(true,style);
+						return;
+					}
+				}
+			}
+			System.out.println("\t | 'Comprar'? "+false);
+			assertTrue(false);
 		} catch (Exception e){ 
 			System.out.println("! Problems in VerCarro.verifyCompra");
 			e.printStackTrace();
@@ -276,7 +315,7 @@ public class VerCarro {
 		}
 	}
 	
-	private void verify(HtmlPage page){
+	private void verifyCLP(HtmlPage page){
 		try {
 			//TODO
 			if (!this.hasNoProducts(page)){
@@ -294,16 +333,18 @@ public class VerCarro {
 						//TOTALES y MONEDA
 						else if (classAttr.equals("total_final")){
 							System.out.println("Verificando total");	
+							this.verifyTotalesYMoneda((HtmlElement) div,"CLP");
 						} 
 						//MEDIOS DE PAGO
 						else if (classAttr.equals("medios_de_pago")){
 							String[] mediosDePago = {"webpay","khipu","servipag_online","servipag"};
-							this.verifyMediosdePago((HtmlElement) div, mediosDePago[pago]);
+							this.verifyMediosdePagoCLP((HtmlElement) div, mediosDePago[pago]);
 						}
 						//COMPRA
 						else if (classAttr.equals("contenedor_pdc2") && div.hasAttribute("style")){
 							System.out.println("Compra con ");
 							String[] mediosDePago = {"Webpay","Khipu","ServipagOnline","Servipag"};
+							this.verifyCompraCLP(div, mediosDePago[pago]);
 						}
 					}
 				}
@@ -320,8 +361,8 @@ public class VerCarro {
 	}
 	
 	@Test
-	public void compra(){
-		System.out.println("<< STARTING VerCarro.compra test");
+	public void compraCLP(){
+		System.out.println("<< STARTING VerCarro.compraCLP test");
 		try{
 			int users = new UserAndPass().numberOfAccounts();
 			for (int user = 0 ; user < users ; user++){
@@ -331,13 +372,13 @@ public class VerCarro {
 					synchronized (refresh) {
 			            refresh.wait(2000); //wait
 			        }
-					this.verify(refresh);
+					this.verifyCLP(refresh);
 				}
 			}
 		} catch (Exception e){
 			e.printStackTrace();
 		}
-		System.out.println("VerCarro.compra FINISHED >>");
+		System.out.println("VerCarro.compraCLP FINISHED >> \n");
 	}
 	
 	@Test
@@ -354,6 +395,6 @@ public class VerCarro {
 		} catch (Exception e){
 			e.printStackTrace();
 		}
-		System.out.println("VerCarro.carroVacio FINISHED >>");
+		System.out.println("VerCarro.carroVacio FINISHED >> \n");
 	}
 }
