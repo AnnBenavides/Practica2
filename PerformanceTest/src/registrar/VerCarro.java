@@ -198,7 +198,7 @@ public class VerCarro {
 	
 	private void verifyProducts(HtmlElement rows){
 		try {
-			//TODO
+			//TODO here
 			System.out.println("> Verifing Domains data");
 			
 		} catch (Exception e){ 
