@@ -20,6 +20,7 @@ public class Ultimos {
 	private HtmlPage openPage(String filter) throws Exception{
 		try (final WebClient webClient = new WebClient()) {
 			String url ="http://www.nic.cl/registry/Ultimos.do?t=1"+filter;
+			System.out.println("Abriendo URL "+url);
 	        HtmlPage page = webClient.getPage(url);
 	        assertTrue(page.isHtmlPage());
 	        return page;
@@ -45,6 +46,7 @@ public class Ultimos {
 		
 		String dom = divs.get(0).asText();
 		assertTrue(dom.endsWith(".cl"));
+		//System.out.println("\n\t | "+dom);
 		
 		List<HtmlElement> a = divs.get(0).getElementsByTagName("a");
 		assertTrue(!a.isEmpty());
@@ -52,10 +54,12 @@ public class Ultimos {
 		String url = "Whois.do?d=";
 		String href = a.get(0).getAttribute("href");
 		assertTrue(href.contains(url) && href.endsWith(".cl"));
+		//System.out.println("\t | Redirecciona a "+href);
 		
 		
 		String strDate = divs.get(1).asText();
 		assertTrue(!strDate.isEmpty());
+		//System.out.println("\t | Fecha de inscripción: "+strDate);
 		
 		Date date = this.parseDate(strDate);
 		assertTrue(date.before(new Date()));
@@ -66,6 +70,7 @@ public class Ultimos {
 	
 	private void verifyResults(HtmlPage page){
 		try {
+			System.out.println("Verificando resultados ... ");
 			final List<HtmlTable> table = page.getByXPath("//table[@class='tablabusqueda']");
 			assertTrue(!table.isEmpty());
 			List <HtmlTableRow> rows = table.get(0).getRows();
@@ -80,7 +85,8 @@ public class Ultimos {
 			HtmlElement title = rows.get(0);
 			String deletedSites = ""+(rows.size()-1);
 			String[] count = title.asText().split(" ");
-			assertTrue(count[0].equals(deletedSites));			
+			assertTrue(count[0].equals(deletedSites));
+			System.out.println("> Mostrando "+rows.size()+" resultados");
 		} catch (Exception e){
 			e.printStackTrace();
 			assertTrue(false);
@@ -88,33 +94,41 @@ public class Ultimos {
 	}
 	@Test
 	public void hourTest() throws Exception{
+		System.out.println("<< STARTING Ultimos.hour test");
 		try (final WebClient webClient = new WebClient()) {
 	        HtmlPage page = this.openPage("h");
+	        System.out.println("> Success");
 	        verifyResults(page);
 	    }
 	}
 	
 	@Test
 	public void dayTest() throws Exception{
+		System.out.println("<< STARTING Ultimos.day test");
 		try (final WebClient webClient = new WebClient()) {
 			HtmlPage page = this.openPage("d");
+			System.out.println("> Success");
 			verifyResults(page);
 	    }
 	}
 	
 	@Test
 	public void weekTest() throws Exception{
+		System.out.println("<< STARTING Ultimos.week test");
 		try (final WebClient webClient = new WebClient()) {
 			HtmlPage page = this.openPage("w");
+			System.out.println("> Success");
 			verifyResults(page);
 	    }
 	}
 	
-	@Test
+	//@Test
 	 /** Por alguna razon este test demora mucho**/
 	public void monthTest() throws Exception{
+		System.out.println("<< STARTING Ultimos.month test");
 		try (final WebClient webClient = new WebClient()) {
 			HtmlPage page = this.openPage("m");
+			System.out.println("> Success");
 			verifyResults(page);
 	    }
 	}

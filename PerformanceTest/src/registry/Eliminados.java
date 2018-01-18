@@ -16,10 +16,13 @@ import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 public class Eliminados {
 	
 	private HtmlPage openPage(String filter) throws Exception{
+		
 		try (final WebClient webClient = new WebClient()) {
 			String url ="http://www.nic.cl/registry/Eliminados.do?t=1"+filter;
+			System.out.println("Abriendo URL "+url);
 	        HtmlPage page = webClient.getPage(url);
 	        assertTrue(page.isHtmlPage());
+	        System.out.println("> Success");
 	        return page;
 	    }
 	}
@@ -29,29 +32,35 @@ public class Eliminados {
 		assertTrue(!divs.isEmpty());
 		
 		String text = divs.get(0).asText();
-		//System.out.println(text);
 		assertTrue(text.endsWith(".cl"));
+		//System.out.println("\n\t | Dominio: "+text);
 						
 		List<HtmlElement> buttons = element.getElementsByTagName("button");
 		assertTrue(!buttons.isEmpty());
 		
+		//System.out.print("\t | Botón de agregar dominio? ");
 		String url = "https://clientes.nic.cl/registrar/agregarDominio.do?d=";
 		String href = buttons.get(0).getAttribute("onclick");
 		assertTrue(href.contains(url));
+		//System.out.println(href.contains(url));
+		
 	}
 		
 	private void verifyResults(HtmlPage page){
 		try {
+			System.out.println("Cargado resultados...");
 			final List<HtmlTable> table = page.getByXPath("//table[@class='tablabusqueda']");
 			assertTrue(!table.isEmpty());
 			List <HtmlTableRow> rows = table.get(0).getRows();
 			for (int i = 1; i < rows.size() ; i++){
 				verifyRow(rows.get(i));				
 			}
+			System.out.println("> Mostrando "+rows.size()+" dominios eliminados");
 			HtmlElement title = rows.get(0);
 			String deletedSites = ""+(rows.size()-1);
 			String[] count = title.asText().split(" ");
-			assertTrue(count[0].equals(deletedSites));			
+			assertTrue(count[0].equals(deletedSites));
+			
 		} catch (Exception e){
 			e.printStackTrace();
 			assertTrue(false);
@@ -61,18 +70,22 @@ public class Eliminados {
 	/**Validar URL**/
 	@Test
 	public void lastDayTest() throws Exception{
+		System.out.println("<< STARTING Eliminados.lastDay test");
 		try (final WebClient webClient = new WebClient()) {
 			HtmlPage page = this.openPage("d");
 			this.verifyResults(page);
+			System.out.println("> Correcto ");
 	    }
 	}
 	
 	/**Validar URL**/
 	@Test
 	public void lastWeekTest() throws Exception{
+		System.out.println("<< STARTING Eliminados.lastWeekDay test");
 		try (final WebClient webClient = new WebClient()) {
 			HtmlPage page = this.openPage("w");
 			this.verifyResults(page);
+			System.out.println("> Correcto ");
 	    }
 	}
 
