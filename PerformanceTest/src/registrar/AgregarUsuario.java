@@ -75,12 +75,14 @@ public class AgregarUsuario {
 	        }
 			
 			//Direccion postal
+			System.out.println("> Direccion postal");
 			//List<HtmlSelect> paises = form.getSelectsByName("contacto.direccion.pais.id");
 			//List<HtmlSelect> regiones = form.getSelectsByName("contacto.direccion.regionEstadoProvincia");
 			final HtmlTextInput ciudad = form.getInputByName("contacto.direccion.ciudad");
 			List<HtmlSelect> comunas = form.getSelectsByName("contacto.direccion.comuna.id");
 			for (HtmlSelect comuna : comunas){
 				if (comuna.asText().contains("Santiago")){
+					System.out.println("\t | Comuna: "+comuna.asText());
 					comuna.click();
 					assertTrue(true);
 				}
@@ -88,44 +90,71 @@ public class AgregarUsuario {
 			synchronized (page) {
 	            page.wait(2000); //wait
 	        }
+			
 			final HtmlTextInput calle = form.getInputByName("contacto.direccion.calleYNumero");
 			assertTrue(true);
 			ciudad.setValueAttribute("Santiago");
+			System.out.println("\t | Ciudad: "+ciudad.getValueAttribute());
 			calle.setValueAttribute("Miraflores 222");
-			System.out.println("Direccion postal complete");
+			System.out.println("\t | Calle: "+calle.getValueAttribute());
 			synchronized (page) {
 	            page.wait(2000); //wait
 	        }
 	
 			//Documento de identidad (opcional)
+			System.out.println("> Documentos de Identidad");
 			//List<HtmlSelect> paiseEmisor = form.getSelectsByName("contacto.documentIdentidad.paisEmisor.id");
 			final HtmlTextInput id = form.getInputByName("contacto.documentoIdentidad.value");
 			id.setValueAttribute("9841569-6");
-			System.out.println("Documentos de Identidad complete");
+			System.out.println("\t | RUN: "+id.getValueAttribute());
 			synchronized (page) {
 	            page.wait(2000); //wait
 	        }
 			
 			//Autorizacion voluntaria de envio de DTEs por Email
+			System.out.println("> DTE complete");
 			final HtmlInput envioDte = form.getInputByName("envioDTE");
 			assertTrue(envioDte.isChecked());
+			System.out.println("\t | ["+envioDte.isChecked()+"]");
 			final HtmlTextInput mailDTE = form.getInputByName("envioDTEMail");
 			mailDTE.setValueAttribute(username);
+			System.out.println("\t | Mail: "+mailDTE.getValueAttribute());
 			assertTrue(true);
-			System.out.println("DTE complete");
+			
 			synchronized (page) {
 	            page.wait(2000); //wait
 	        }
 			
-			System.out.println(form.asText());
+			//System.out.println(form.asText());
 			
 			//final HtmlInput button = (HtmlInput) page.getElementById("submitButton");
 			HtmlPage p = page;
 			List<HtmlElement> divs = form.getElementsByTagName("div");
-			for (HtmlElement div : divs){
+			for (DomElement div : divs){
 				if (!div.hasAttribute("class") && div.hasAttribute("style")){
-					System.out.println(div.asText());
-					p=div.click();
+					List<HtmlElement> inputs= div.getElementsByTagName("input");
+					for (DomElement input : inputs){
+						if ( input.hasAttribute("type") && input.hasAttribute("id") && input.hasAttribute("value")){
+							boolean type = input.getAttribute("type").equals("button");
+							boolean inputId = input.getAttribute("id").equals("submitButton");
+							boolean value = input.getAttribute("value").equals("Continuar >");
+							if (type && inputId && value){
+								assertTrue(type);
+								assertTrue(inputId);
+								assertTrue(value);
+								System.out.println("> Continuar: click!");
+								System.out.println(div.asXml());
+								synchronized (p) {
+						            p.wait(2000); //wait
+						        }
+								p=input.click();
+								synchronized (p) {
+						            p.wait(2000); //wait
+						        }
+								
+							}
+						}
+					}
 				}
 			}
 			//p = button.click(); //TODO retorna vacío DX
@@ -153,19 +182,24 @@ public class AgregarUsuario {
 	}
 	
 	private HtmlPage aceptacionDeReglamentacion(HtmlPage page) throws Exception{
-		System.out.println("Searching PopUp");
-		DomElement popUp = page.getElementById("panel_reglamentacion_c");
-		System.out.println(popUp.asXml());
-		List<HtmlElement> inputs = popUp.getElementsByTagName("input");
-		for (HtmlElement input : inputs){
-			if (input.getAttribute("id").equals("chkAceptado")){
-				input.click();
-			} else if (input.getAttribute("id").equals("reglamentacionDialogSubmit")){
-				System.out.println("Checking complete");
-				return input.click();
+		try{
+			System.out.println("Searching PopUp");
+			DomElement popUp = page.getElementById("panel_reglamentacion_c");
+			System.out.println(popUp.asXml());
+			List<HtmlElement> inputs = popUp.getElementsByTagName("input");
+			for (HtmlElement input : inputs){
+				if (input.getAttribute("id").equals("chkAceptado")){
+					input.click();
+				} else if (input.getAttribute("id").equals("reglamentacionDialogSubmit")){
+					System.out.println("Checking complete");
+					return input.click();
+				}
 			}
+			return page;
+		} catch (Exception e){
+			e.printStackTrace();
+			return null;
 		}
-		return page;
 	} 
 	 
 	@Test
