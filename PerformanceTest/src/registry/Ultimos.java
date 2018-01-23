@@ -17,6 +17,12 @@ import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 
 public class Ultimos {
 	
+	/** Cargar la pagina de la forma
+	 * "http://www.nic.cl/registry/Ultimos.do?t=1"+filter
+	 * 
+	 * @param filter	filtro: hora, dia, semana o mes
+	 * @return 			página Ultimos.do
+	 * **/
 	private HtmlPage openPage(String filter) throws Exception{
 		try (final WebClient webClient = new WebClient()) {
 			String url ="http://www.nic.cl/registry/Ultimos.do?t=1"+filter;

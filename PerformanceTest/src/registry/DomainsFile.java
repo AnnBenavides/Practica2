@@ -37,7 +37,7 @@ public class DomainsFile {
 		try (BufferedReader br = new BufferedReader(new FileReader(path+file))){
 			List<String> alfabeto = new ArrayList<String>();
 			for(String line; (line = br.readLine()) != null;){
-				System.out.println(line);
+				//System.out.println(line);
 				alfabeto.add(line);
 			}
 			return alfabeto;

@@ -18,7 +18,7 @@ public class WhoIs {
 	private boolean nic = false;
 	
 	/** Cargar la pagina de la forma
-	 * nic.cl/regisstry/Whois.do?d=word.cl
+	 * "http://www.nic.cl/registry/Whois.do?d="+word+".cl"
 	 * 
 	 * @param word		nombre del dominio buscado
 	 * @return 			página BusquedaDominio.do
@@ -283,7 +283,8 @@ public class WhoIs {
 	}
 	
 	/**Test de WhoIs.do para alfabeto con caracteres especiales
-	 * ERROR por conversión de caracteres especiales en la URL
+	 * 
+	 * TODO		ERROR por conversión de caracteres especiales en la URL
 	 * 
 	 * @see	verify(word)
 	 * **/
