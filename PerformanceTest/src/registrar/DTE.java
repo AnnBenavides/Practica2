@@ -22,16 +22,26 @@ import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 
 public class DTE {
+	/**Método para iniciar sesion
+	 * login exitoso lleva a listarDominio.do
+	 * o a agregarDominio.do si el usuario no tiene dominios
+	 * 
+	 * @param userNumber	indice de usuario en el csv 'userkeys'
+	 * @return				contenido de la pagina si el inicio fue exitoso
+	 * 						null si hubo algun problema
+	 * 
+	 * @see		UserAndPass.java
+	 * */
 	private HtmlPage login(int userNumber){
 		HtmlPage page;
-		System.out.println("\n\n\t Signing in ...");
+		//System.out.println("\n\n\t Signing in ...");
 		
 		UserAndPass up = new UserAndPass();
 		up.getTuple(userNumber);
 		String username = up.getUser();
 		String password = up.getPass();
 		
-		System.out.println("Starting login with "+username+" account");
+		//System.out.println("Starting login with "+username+" account");
 		
 		String url ="https://clientes.nic.cl/registrar/logon.do";
 	    String usernameInputName = "j_username";
@@ -54,7 +64,7 @@ public class DTE {
 	      WebRequest request = new WebRequest(new URL(url));
 	      final HtmlPage loginPage = wclient.getPage(request);
 	      assertTrue(loginPage.isHtmlPage());
-	      System.out.print("Log in state : ");     
+	      //System.out.print("Log in state : ");     
 	      final HtmlForm loginForm = loginPage.getForms().get(0);
 	      
 	      // get the text input field by the name and set the value
@@ -74,11 +84,11 @@ public class DTE {
 		  URL lPage = page.getUrl();
 		  String pageLink = lPage.toString();
 		  if (pageLink.contains("listarDominio.do") || pageLink.contains("agregarDominio.do")){
-		  	System.out.println("Success");
+		  	//System.out.println("Success");
 			assertTrue(true);
 			return page;
 		  } else {
-			System.out.println("Failure");
+			//System.out.println("Failure");
 			assertTrue(false);
 			return null;
 		  }
@@ -94,32 +104,50 @@ public class DTE {
 	    }
 	}
 	
+	/**Si al iniciar sesion se retorno a listarDominio.do
+	 * vamos a la seccion de 'Comprobantes' o dte.do
+	 * 
+	 * @param page		contenido de la pagina listarDominio.do
+	 * @return			contenido de la pagina dte.do
+	 * 					o null si ocurrio algun problema	
+	 * 
+	 * @see			login(userNumber)	
+	 * */
 	private HtmlPage goToDTE(HtmlPage page){
 		try {
-			System.out.print("Accessing to 'Comprobantes'... ");
+			//System.out.print("Accessing to 'Comprobantes'... ");
 			HtmlElement div = (HtmlElement) page.getElementById("menu_dte");
 			HtmlElement a = div.getElementsByTagName("a").get(0);
 			String href = a.getAttribute("href");
 			boolean checkLink = href.contains("dte.do");
 			assertTrue(checkLink);
 			if (checkLink){
-				System.out.println("Success");
+				//System.out.println("Success");
 				HtmlPage refresh = a.click();
 				synchronized (refresh) {
 		            refresh.wait(2000); //wait
 		        }
 				return refresh;
 			} else {
-				System.out.println("Failure");
+				//System.out.println("Failure");
 				return null;
 			}
 		} catch (Exception e){
-			System.out.println("! Link not accesible");
+			//System.out.println("! Link not accesible");
 			assertTrue(false);
 			e.printStackTrace();
 			return null;
 		}
 	}
+	
+	/** Evalua si hay o no elementos facturados
+	 * 
+	 * @param page		contenido luego de ingresar a dte.do
+	 * @return			true si no hay elementos facturados
+	 * 					o false si los hay
+	 * 
+	 * @see			goToDTE(page)
+	 * */
 	private boolean hasNoDomains(HtmlPage page){
 		try{
 			List<DomElement> divs = page.getElementsByTagName("div");
@@ -136,7 +164,7 @@ public class DTE {
 			}
 			return false;
 		} catch (Exception e){
-			System.out.println("! Problems at DTE.hasNoDomains(HtmlPage page)");
+			//System.out.println("! Problems at DTE.hasNoDomains(HtmlPage page)");
 			e.printStackTrace();
 			return false;
 		}
@@ -144,16 +172,18 @@ public class DTE {
 		
 	}
 	
+	/**
+	 * */
 	private int getDomains(HtmlPage page){
 		try{
 			DomElement select = page.getElementById("filtroBusqueda");
 			List<HtmlElement> options = select.getElementsByTagName("option");
 			assertTrue(options.size()>0);
-			System.out.println("User has "+options.size()+" domains to choose");
+			//System.out.println("User has "+options.size()+" domains to choose");
 			return options.size();
 		} catch (Exception e){
 			assertTrue(false);
-			System.out.println("! Can't find select for domains");
+			//System.out.println("! Can't find select for domains");
 			e.printStackTrace();
 			return -1;
 		}
@@ -233,33 +263,33 @@ public class DTE {
 			if (!this.hasNoDomains(page)){
 				int domains = this.getDomains(page);
 				if (domains > 0){
-					System.out.println("User has "+domains+" domains to select");
+					//System.out.println("User has "+domains+" domains to select");
 					assertTrue(true);
 				}
 				for (int dom = 0 ; dom < domains ; dom++){
-					System.out.print("Filter by domain ");
+					//System.out.print("Filter by domain ");
 					if (dom <= this.getDomains(page)){
 						DomElement select = page.getElementById("filtroBusqueda");
 						List<HtmlElement> options = select.getElementsByTagName("option");
 						HtmlElement domain = options.get(dom);
-						System.out.println("\t > Working on "+domain.asText());
+						//System.out.println("\t > Working on "+domain.asText());
 						HtmlPage refresh = domain.click();
 						synchronized (refresh) {
 				            refresh.wait(2000); //wait
 				        }
 						this.verifyResults(refresh);
 					} else {
-						System.out.println("! There is no such domain to select");
+						//System.out.println("! There is no such domain to select");
 						assertTrue(false);
 						return;
 					}
 				}
 			} else {
-				System.out.println("User has no domains in this section");
+				//System.out.println("User has no domains in this section");
 				assertTrue(true);
 			}
 		} catch (Exception e){
-			System.out.println("! Problems at DTE.selectDomain(HtmlPage page, int dom)");
+			//System.out.println("! Problems at DTE.selectDomain(HtmlPage page, int dom)");
 			e.printStackTrace();
 			assertTrue(false);
 		}
