@@ -25,9 +25,9 @@ public class WhoIs {
 	 * **/
 	private HtmlPage getPage(String word) throws Exception{
 		try (final WebClient webClient = new WebClient()) {
-			System.out.print("\n Procesando "+word+".cl \n");
+			//System.out.print("\n Procesando "+word+".cl \n");
 			String url = "http://www.nic.cl/registry/Whois.do?d="+word+".cl";
-			System.out.println("Abriendo URL "+url);
+			//System.out.println("Abriendo URL "+url);
 			return webClient.getPage(url);
 		}
 	}
@@ -48,9 +48,9 @@ public class WhoIs {
 			String href = button.getAttribute("onclick");
 			String nextUrl = "https://clientes.nic.cl/registrar/agregarDominio.do?";
 			assertTrue(href.contains(nextUrl));
-			System.out.println("> Link de inscripcion? "+href.contains(nextUrl));
+			//System.out.println("> Link de inscripcion? "+href.contains(nextUrl));
 		} else { 
-			System.out.println("> Link de inscripcion? "+false);
+			//System.out.println("> Link de inscripcion? "+false);
 			assertTrue(false);
 		}
 	}
@@ -66,7 +66,7 @@ public class WhoIs {
 		final HtmlElement elem = rows.get(0);
 		String response = elem.asText();
 		if (response.contains("dominio no existe")){
-			System.out.println("> Failure: Dominio no inscrito");
+			//System.out.println("> Failure: Dominio no inscrito");
 			return false;
 		} else {return true;}
 	}
@@ -82,7 +82,7 @@ public class WhoIs {
 	 * @return				true si el formato esta correcto, false sino**/
 	private boolean verifyRowElement(List<HtmlTableRow> rows, String elementName){
 		try{
-			System.out.print("\t | "+elementName+" ");
+			//System.out.print("\t | "+elementName+" ");
 			boolean matches = false;
 			boolean hasData = false;
 			for (HtmlElement row : rows){
@@ -91,7 +91,7 @@ public class WhoIs {
 				if(columns[0].equals(elementName)){
 					matches = true;
 					hasData = !columns[1].isEmpty();
-					System.out.println(columns[1]);
+					//System.out.println(columns[1]);
 					if (columns[0].equals("Agente Registrador:") && columns[1].equals("NIC Chile")){
 						nic = true;
 					} else if (columns[0].equals("Agente Registrador:") && !columns[1].equals("NIC Chile")){
@@ -102,7 +102,7 @@ public class WhoIs {
 				}
 			}
 			if (!matches){
-				System.out.println("(!) No se encontró el campo");
+				//System.out.println("(!) No se encontró el campo");
 				return true;
 			} else {
 				assertTrue(hasData);
@@ -124,7 +124,7 @@ public class WhoIs {
 	private void verifyBasic(List<HtmlTableRow> rows, String word){
 		String tittle = rows.get(0).asText();
 		assertTrue(tittle.equals(word+".cl"));
-		System.out.println("\t | "+tittle);
+		//System.out.println("\t | "+tittle);
 		
 		//Titular
 		assertTrue(this.verifyRowElement(rows, "Titular:"));
@@ -162,7 +162,7 @@ public class WhoIs {
 				assertTrue(true);
 			}
 		} catch (Exception e){ 
-			System.out.println(word+".cl : No contacts info");
+			//System.out.println(word+".cl : No contacts info");
 			e.printStackTrace();
 		}
 	}
@@ -184,7 +184,7 @@ public class WhoIs {
 				if (cServ[0].equals("Servidor de Nombre:")){
 					servMatches = true;
 					servNotEmpty = !cServ[1].isEmpty();
-					System.out.println("\t | Servidor: "+cServ[1]+" ");
+					//System.out.println("\t | Servidor: "+cServ[1]+" ");
 				} else {
 					servMatches = false || servMatches;
 				}
@@ -213,7 +213,7 @@ public class WhoIs {
 	 * 			verifyServers(rows,word)
 	 * **/
 	private void verifyResults(HtmlPage page, String word){
-		System.out.println("Verificando resultados... ");
+		//System.out.println("Verificando resultados... ");
 		final HtmlTable table = (HtmlTable) page.getByXPath("//table[@class='tablabusqueda']").get(0);
 		final List<HtmlTableRow> rows = table.getRows();
 
@@ -229,7 +229,7 @@ public class WhoIs {
 		this.verifyContact(rows, word);
 		this.verifyServers(rows, word);
 		assertTrue(hasLink);
-		System.out.println("\t | Redirección dominio? "+hasLink);
+		//System.out.println("\t | Redirección dominio? "+hasLink);
 		
 		//boton de renovar
 		HtmlElement exp = rows.get(4);
@@ -239,7 +239,7 @@ public class WhoIs {
 		String autoatencion = "autoatencion?d="+word+".cl";
 		boolean hasRenovar = href.contains(renovar) || href.contains(autoatencion);
 		assertTrue(hasRenovar);
-		System.out.println("\t | Renovar? "+hasRenovar);
+		//System.out.println("\t | Renovar? "+hasRenovar);
 
 	}
 	
@@ -257,9 +257,9 @@ public class WhoIs {
 	private void verify(String word) throws Exception{
 		HtmlPage page = this.getPage(word);
 		if (domFound(page)){
-			System.out.println("> Success");
+			//System.out.println("> Success");
 			verifyResults(page,word);
-			System.out.println("> Finished");
+			//System.out.println("> Finished");
 		} else {
 			verifyDomNotFound(page);
 		}

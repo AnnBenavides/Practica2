@@ -12,21 +12,29 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTable;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 
-/*Test unitario para /registry/Eliminados.do*/
 public class Eliminados {
-	
+	/** Cargar la pagina de la forma
+	 * "http://www.nic.cl/registry/Eliminados.do?t=1"+filter
+	 * 
+	 * @param filter	filtro publico: hora o dia
+	 * @return 			contenido de página Eliminados.do
+	 * **/
 	private HtmlPage openPage(String filter) throws Exception{
-		
 		try (final WebClient webClient = new WebClient()) {
 			String url ="http://www.nic.cl/registry/Eliminados.do?t=1"+filter;
-			System.out.println("Abriendo URL "+url);
+			//System.out.println("Abriendo URL "+url);
 	        HtmlPage page = webClient.getPage(url);
 	        assertTrue(page.isHtmlPage());
-	        System.out.println("> Success");
+	        //System.out.println("> Success");
 	        return page;
 	    }
 	}
 	
+	/**Verifica que todos los elementos de la fila sean correctos
+	 * 
+	 * @param element	div de la fila
+	 * 
+	 * **/
 	private void verifyRow(HtmlElement element){
 		List<HtmlElement> divs = element.getElementsByTagName("div");
 		assertTrue(!divs.isEmpty());
@@ -45,17 +53,23 @@ public class Eliminados {
 		//System.out.println(href.contains(url));
 		
 	}
-		
+	
+	/** Verifica que orden y forma de todos los resultados
+	 * 
+	 * @param page	contenido de la página
+	 * 
+	 * @see	openPage(filter)
+	 * **/
 	private void verifyResults(HtmlPage page){
 		try {
-			System.out.println("Cargado resultados...");
+			//System.out.println("Cargado resultados...");
 			final List<HtmlTable> table = page.getByXPath("//table[@class='tablabusqueda']");
 			assertTrue(!table.isEmpty());
 			List <HtmlTableRow> rows = table.get(0).getRows();
 			for (int i = 1; i < rows.size() ; i++){
 				verifyRow(rows.get(i));				
 			}
-			System.out.println("> Mostrando "+rows.size()+" dominios eliminados");
+			//System.out.println("> Mostrando "+rows.size()+" dominios eliminados");
 			HtmlElement title = rows.get(0);
 			String deletedSites = ""+(rows.size()-1);
 			String[] count = title.asText().split(" ");
@@ -67,7 +81,11 @@ public class Eliminados {
 		}
 	}
 	
-	/**Validar URL**/
+	/**Test para Eliminados 
+	 * del ultimo dia
+	 * 
+	 * @see		openPage(page)
+	 * 			verifyResults(page)*/
 	@Test
 	public void lastDayTest() throws Exception{
 		System.out.println("<< STARTING Eliminados.lastDay test");
@@ -78,10 +96,14 @@ public class Eliminados {
 	    }
 	}
 	
-	/**Validar URL**/
+	/**Test para Eliminados 
+	 * de la ultima semana
+	 * 
+	 * @see		openPage(page)
+	 * 			verifyResults(page)*/
 	@Test
 	public void lastWeekTest() throws Exception{
-		System.out.println("<< STARTING Eliminados.lastWeekDay test");
+		System.out.println("<< STARTING Eliminados.lastWeek test");
 		try (final WebClient webClient = new WebClient()) {
 			HtmlPage page = this.openPage("w");
 			this.verifyResults(page);

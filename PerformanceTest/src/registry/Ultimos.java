@@ -26,13 +26,20 @@ public class Ultimos {
 	private HtmlPage openPage(String filter) throws Exception{
 		try (final WebClient webClient = new WebClient()) {
 			String url ="http://www.nic.cl/registry/Ultimos.do?t=1"+filter;
-			System.out.println("Abriendo URL "+url);
+			//System.out.println("Abriendo URL "+url);
 	        HtmlPage page = webClient.getPage(url);
 	        assertTrue(page.isHtmlPage());
 	        return page;
 	    }
 	}
 	
+	/**Parsea un String para verificar que
+	 * su formato sea de fecha
+	 * 	YYYY-MM-DD hh:mm:ss.s
+	 * 
+	 * @param stringDate	palabra que debería tenr el formato
+	 * @return 				palabra como objeto Date
+	 * **/
 	private Date parseDate(String stringDate){
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:sss"); 
 		Date date = null;
@@ -46,6 +53,14 @@ public class Ultimos {
 		return date;
 	}
 	
+	/**Verifica que todos los elementos de la fila sean correctos
+	 * 
+	 * @param element	div de la fila
+	 * @return			fecha para posterior comparacion
+	 * 
+	 * @see 	parseDate(stringDate)
+	 * 			verifyResults(page)
+	 * **/
 	private Date verifyRow(HtmlElement element){
 		List<HtmlElement> divs = element.getElementsByTagName("div");
 		assertTrue(!divs.isEmpty());
@@ -74,9 +89,17 @@ public class Ultimos {
 		
 	}
 	
+	/** Verifica que orden y forma de todos los resultados
+	 * para los tres filtros publicos:
+	 * 	hora, dia, semana y mes
+	 * 
+	 * @param page	contenido de la página
+	 * 
+	 * @see	openPage(filter)
+	 * **/
 	private void verifyResults(HtmlPage page){
 		try {
-			System.out.println("Verificando resultados ... ");
+			//System.out.println("Verificando resultados ... ");
 			final List<HtmlTable> table = page.getByXPath("//table[@class='tablabusqueda']");
 			assertTrue(!table.isEmpty());
 			List <HtmlTableRow> rows = table.get(0).getRows();
@@ -92,12 +115,18 @@ public class Ultimos {
 			String deletedSites = ""+(rows.size()-1);
 			String[] count = title.asText().split(" ");
 			assertTrue(count[0].equals(deletedSites));
-			System.out.println("> Mostrando "+rows.size()+" resultados");
+			//System.out.println("> Mostrando "+rows.size()+" resultados");
 		} catch (Exception e){
 			e.printStackTrace();
 			assertTrue(false);
 		}
 	}
+	
+	/**Test que carga los Ultimos sitios
+	 * en la última hora
+	 * 
+	 * @see	verifyResults(page)
+	 * */
 	@Test
 	public void hourTest() throws Exception{
 		System.out.println("<< STARTING Ultimos.hour test");
@@ -108,6 +137,11 @@ public class Ultimos {
 	    }
 	}
 	
+	/**Test que carga los Ultimos sitios
+	 * en el último día
+	 * 
+	 * @see	verifyResults(page)
+	 * */
 	@Test
 	public void dayTest() throws Exception{
 		System.out.println("<< STARTING Ultimos.day test");
@@ -118,6 +152,11 @@ public class Ultimos {
 	    }
 	}
 	
+	/**Test que carga los Ultimos sitios
+	 * en la última semana
+	 * 
+	 * @see	verifyResults(page)
+	 * */
 	@Test
 	public void weekTest() throws Exception{
 		System.out.println("<< STARTING Ultimos.week test");
@@ -128,8 +167,14 @@ public class Ultimos {
 	    }
 	}
 	
+	/**Test que carga los Ultimos sitios
+	 * en el último día
+	 * 
+	 * TODO IMPORTANTE, este test 'demora mucho'
+	 * 
+	 * @see	verifyResults(page)
+	 * */
 	//@Test
-	 /** Por alguna razon este test demora mucho**/
 	public void monthTest() throws Exception{
 		System.out.println("<< STARTING Ultimos.month test");
 		try (final WebClient webClient = new WebClient()) {

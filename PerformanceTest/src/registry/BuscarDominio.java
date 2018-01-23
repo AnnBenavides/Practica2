@@ -19,30 +19,20 @@ import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 
 
 public class BuscarDominio {
-	private String[] testSimpleSites = {"test","horrible","defensa","emision",
-			"antigua","farmacia","azucar","abajo","bolso",
-			"cama","casa","vendedor","raton","fruta",
-			"triangulo","flor","bota","ruta","jardin"};
-	private int simpleLimit = 5;
-	private String[] testNumberSites = {"1","2","34","5","01"};
-	private int numberLimit = 5;
-	private String[] testSpecialSites = {"ñandú", "jardín", 
-			"corazón", "sillón", "rápido", "teléfono"};
-	private int specialLimit = 5;
+	private DomainsFile file = new DomainsFile();
 	private String[] filterValues = {"exacta",
 			"contenga","comience","termine"};
 	
 	/**Metodo generalizado de testeo
 	 * 
-	 * testCase es la palabra a buscar,
-	 * sacada de las listas :testSimpleSites, testNumberSites y testSpecialSites
+	 * @param testCase		palabra a buscar
+	 * @param methodValue	filtro de busqueda, dados
+	 * 						por la lista filterValues
 	 * 
-	 * methodValue es el filtro de busqueda, 
-	 * dados por la lista filterValues
-	 * 
-	 * retorna la pagina luego de la busqueda**/
+	 * @return				pagina luego de la busqueda
+	 * */
 	private HtmlPage submitForm(String testCase,String methodValue) throws Exception{
-		System.out.println("Abriendo URL https://nic.cl/registry/BuscarDominio.do");
+		//System.out.println("Abriendo URL https://nic.cl/registry/BuscarDominio.do");
 		try (final WebClient webClient = new WebClient()) {
 			final HtmlPage page = webClient.getPage("https://nic.cl/registry/BuscarDominio.do");
 	        final HtmlForm form = page.getFormByName("buscarDominioForm");
@@ -53,7 +43,7 @@ public class BuscarDominio {
 			
 	        radioInput.setChecked(true);
 	        textField.setValueAttribute(testCase);
-	        System.out.println("Success");
+	        //System.out.println("Success");
 	        return button.click();
 		}
 	}
@@ -63,24 +53,29 @@ public class BuscarDominio {
 	 * Aparece un boton para inscribir el dominio
 	 * redireccionando a /registrar/agregarDominio.do?...
 	 * con una llave al final
+	 * 
+	 * @param page	contenido de la pagina luego de la busqueda
 	 * **/
 	private void verifyDomNotFound(HtmlPage page){
-		System.out.print("Opción de inscripción? ");
+		//System.out.print("Opción de inscripción? ");
 		final DomElement button = page.getElementById("submitButton");
 		String btn = button.getTextContent();
 		if (btn.contains("Inscribir")){
 			String href = button.getAttribute("onclick");
 			String nextUrl = "https://clientes.nic.cl/registrar/agregarDominio.do?";
 			assertTrue(href.contains(nextUrl));
-			System.out.println(href);
+			//System.out.println(href);
 		} else { 
 			assertTrue(false);
-			System.out.println("No");
+			//System.out.println("No");
 		}
 	}
 	
 	/** Verifica por contenido
 	 * si se ha encontrado el dominio o no
+	 * 
+	 * @param page	contenido de la pagina luego de la busqueda
+	 * @return		true si no hay resultados, false los hay
 	 * **/
 	private boolean domNotFound(HtmlPage page){
 		final List<HtmlElement> inTable= page.getByXPath("//table[@class='tablabusqueda']/tbody/tr/td[1]");
@@ -96,13 +91,13 @@ public class BuscarDominio {
 	
 //////////////// TEST con filtro "exacta" ////////////////////
 	/**Metodo para verificar el resultado de una busqueda
+	 * con filtro 'exacta'
 	 * 
-	 * page es la pagina generada post submit
-	 * 
-	 * word es la palabra buscada
+	 * @param page	pagina generada post submit
+	 * @param word	palabra buscada
 	 * **/
 	private void verifyExactaResults(HtmlPage page, String word){
-		System.out.println("> Verificando datos de busqueda para "+word+" con criterio 'exacta'");
+		//System.out.println("> Verificando datos de busqueda para "+word+" con criterio 'exacta'");
 		if (!domNotFound(page)){
 			//verificar dato mostrado con word.cl
 			final List<HtmlElement> results= page.getByXPath("//table[@class='tablabusqueda']/tbody/tr[2]/td[1]");
@@ -112,13 +107,13 @@ public class BuscarDominio {
 			String dom = word+".cl";
 			assertTrue(dom.equals(columns[0]));
 			assertTrue(!columns[1].isEmpty());
-			System.out.println("\n\t | Dominio: "+columns[0]);
-			System.out.println("\t | Dueño: "+columns[1]);
+			//System.out.println("\n\t | Dominio: "+columns[0]);
+			//System.out.println("\t | Dueño: "+columns[1]);
 			HtmlElement ahref = row.getElementsByTagName("a").get(0);
 			String href = "Whois.do?d="+columns[0];
 			boolean hasLink = ahref.getAttribute("href").contains(href);
 			//assertTrue(hasLink);
-			System.out.println("\t | Redirección a "+ahref.getAttribute("href"));			
+			//System.out.println("\t | Redirección a "+ahref.getAttribute("href"));			
 		} else {
 			// dominio no encontrado
 			verifyDomNotFound(page);
@@ -129,11 +124,11 @@ public class BuscarDominio {
 	public void exactaSimpleTest(){
 		System.out.println("<< STARTING BuscarDominio.exactaSimple test");
 		HtmlPage page;
-		for (int i = 0 ; i < simpleLimit; i++){
+		for (String word : file.getSimple()){
 			try {
-				page = submitForm(testSimpleSites[i],filterValues[0]);
+				page = submitForm(word,filterValues[0]);
 				//System.out.println("Verificando contenido...");
-				verifyExactaResults(page, testSimpleSites[i]);
+				verifyExactaResults(page, word);
 			} catch (Exception e) {
 				assertTrue(false);
 				e.printStackTrace();
@@ -145,11 +140,11 @@ public class BuscarDominio {
 	public void exactaNumberTest(){
 		System.out.println("<< STARTING BuscarDominio.exactaNumber test");
 		HtmlPage page;
-		for (int i = 0 ; i < numberLimit; i++){
+		for (String word : file.getNumber()){
 			try {
-				page = submitForm(testNumberSites[i],filterValues[0]);
+				page = submitForm(word,filterValues[0]);
 				//System.out.println("Verificando contenido...");
-				verifyExactaResults(page, testNumberSites[i]);
+				verifyExactaResults(page, word);
 			} catch (Exception e) {
 				assertTrue(false);
 				e.printStackTrace();
@@ -160,11 +155,11 @@ public class BuscarDominio {
 	public void exactaSpecialTest(){
 		System.out.println("<< STARTING BuscarDominio.exactaSpecial test");
 		HtmlPage page;
-		for (int i = 0 ; i < specialLimit; i++){
+		for (String word : file.getSpecial()){
 			try {
-				page = submitForm(testSpecialSites[i],filterValues[0]);
-				System.out.println("Verificando contenido...");
-				verifyExactaResults(page, testSpecialSites[i]);
+				page = submitForm(word,filterValues[0]);
+				//System.out.println("Verificando contenido...");
+				verifyExactaResults(page, word);
 			} catch (Exception e) {
 				assertTrue(false);
 				e.printStackTrace();
@@ -174,11 +169,11 @@ public class BuscarDominio {
 		
 	////////////////TEST con filtro "contenga" ////////////////////
 	/**Metodo para verificar el resultado de una busqueda
-	* 
-	* page es la pagina generada post submit
-	* 
-	* word es la palabra buscada
-	* **/
+	 * con filtro 'contenga'
+	 * 
+	 * @param page	pagina generada post submit
+	 * @param word	palabra buscada
+	 * **/
 	private void verifyContengaResults(HtmlPage page, String word){
 		System.out.println("> Verificando datos de busqueda para "+word+" con criterio 'contenga'");
 		if (!domNotFound(page)){
@@ -206,14 +201,15 @@ public class BuscarDominio {
 		}
 	}
 	
+	/***/
 	@Test
 	public void contengaSimpleTest(){
 		System.out.println("<< STARTING BuscarDominio.contengaSimple test");
 		HtmlPage page;
-		for (int i = 0 ; i < simpleLimit; i++){
+		for (String word : file.getSimple()){
 			try {
-				page = submitForm(testSimpleSites[i],filterValues[1]);
-				verifyContengaResults(page, testSimpleSites[i]);
+				page = submitForm(word,filterValues[1]);
+				verifyContengaResults(page, word);
 			} catch (Exception e) {
 				assertTrue(false);
 				e.printStackTrace();
@@ -225,10 +221,10 @@ public class BuscarDominio {
 	public void contegaNumberTest(){
 		System.out.println("<< STARTING BuscarDominio.contengaNumber test");
 		HtmlPage page;
-		for (int i = 0 ; i < numberLimit; i++){
+		for (String word : file.getNumber()){
 			try {
-				page = submitForm(testNumberSites[i],filterValues[1]);
-				verifyContengaResults(page, testNumberSites[i]);
+				page = submitForm(word,filterValues[1]);
+				verifyContengaResults(page, word);
 			} catch (Exception e) {
 				assertTrue(false);
 				e.printStackTrace();
@@ -240,10 +236,10 @@ public class BuscarDominio {
 	public void contengaSpecialTest(){
 		System.out.println("<< STARTING BuscarDominio.contengaSpecial test");
 		HtmlPage page;
-		for (int i = 0 ; i < specialLimit; i++){
+		for (String word : file.getSpecial()){
 			try {
-				page = submitForm(testSpecialSites[i],filterValues[1]);
-				verifyContengaResults(page, testSpecialSites[i]);
+				page = submitForm(word,filterValues[1]);
+				verifyContengaResults(page, word);
 			} catch (Exception e) {
 				assertTrue(false);
 				e.printStackTrace();
@@ -253,11 +249,11 @@ public class BuscarDominio {
 	
 	////////////////TEST con filtro "comience" ////////////////////
 	/**Metodo para verificar el resultado de una busqueda
-	* 
-	* page es la pagina generada post submit
-	* 
-	* word es la palabra buscada
-	* **/
+	 * con filtro 'comience'
+	 * 
+	 * @param page	pagina generada post submit
+	 * @param word	palabra buscada
+	 * **/
 	private void verifyComienceResults(HtmlPage page, String word){
 		if (!domNotFound(page)){
 			System.out.println("> Verificando datos de busqueda para "+word+" con criterio 'comience'");
@@ -289,10 +285,10 @@ public class BuscarDominio {
 	public void comienceSimpleTest(){
 		System.out.println("<< STARTING BuscarDominio.comienceSimple test");
 		HtmlPage page;
-		for (int i = 0 ; i < simpleLimit; i++){
+		for (String word : file.getSimple()){
 			try {
-				page = submitForm(testSimpleSites[i],filterValues[2]);
-				verifyComienceResults(page, testSimpleSites[i]);
+				page = submitForm(word,filterValues[2]);
+				verifyComienceResults(page, word);
 			} catch (Exception e) {
 				assertTrue(false);
 				e.printStackTrace();
@@ -304,10 +300,10 @@ public class BuscarDominio {
 	public void comienceNumberTest(){
 		System.out.println("<< STARTING BuscarDominio.comienceNumber test");
 		HtmlPage page;
-		for (int i = 0 ; i < numberLimit; i++){
+		for (String word : file.getNumber()){
 			try {
-				page = submitForm(testNumberSites[i],filterValues[2]);
-				verifyComienceResults(page, testNumberSites[i]);
+				page = submitForm(word, filterValues[2]);
+				verifyComienceResults(page, word);
 			} catch (Exception e) {
 				assertTrue(false);
 				e.printStackTrace();
@@ -319,10 +315,10 @@ public class BuscarDominio {
 	public void comienceSpecialTest(){
 		System.out.println("<< STARTING BuscarDominio.comienceSpecial test");
 		HtmlPage page;
-		for (int i = 0 ; i < specialLimit; i++){
+		for (String word: file.getSpecial()){
 			try {
-				page = submitForm(testSpecialSites[i],filterValues[2]);
-				verifyComienceResults(page, testSpecialSites[i]);
+				page = submitForm(word,filterValues[2]);
+				verifyComienceResults(page, word);
 			} catch (Exception e) {
 				assertTrue(false);
 				e.printStackTrace();
@@ -332,11 +328,11 @@ public class BuscarDominio {
 	
 	////////////////TEST con filtro "termine" ////////////////////
 	/**Metodo para verificar el resultado de una busqueda
-	* 
-	* page es la pagina generada post submit
-	* 
-	* word es la palabra buscada
-	* **/
+	 * con filtro 'termine'
+	 * 
+	 * @param page	pagina generada post submit
+	 * @param word	palabra buscada
+	 * **/
 	private void verifyTermineResults(HtmlPage page, String word){
 		if (!domNotFound(page)){
 			//verificar dato mostrado con word.cl
@@ -368,10 +364,10 @@ public class BuscarDominio {
 	public void termineSimpleTest(){
 		System.out.println("<< STARTING BuscarDominio.termineSimple test");
 		HtmlPage page;
-		for (int i = 0 ; i < simpleLimit; i++){
+		for (String word: file.getSimple()){
 			try {
-				page = submitForm(testSimpleSites[i],filterValues[3]);
-				verifyTermineResults(page, testSimpleSites[i]);
+				page = submitForm(word,filterValues[3]);
+				verifyTermineResults(page, word);
 			} catch (Exception e) {
 				assertTrue(false);
 				e.printStackTrace();
@@ -383,10 +379,10 @@ public class BuscarDominio {
 	public void termineNumberTest(){
 		System.out.println("<< STARTING BuscarDominio.termineNumber test");
 		HtmlPage page;
-		for (int i = 0 ; i < numberLimit; i++){
+		for (String word : file.getNumber()){
 			try {
-				page = submitForm(testNumberSites[i],filterValues[3]);
-				verifyTermineResults(page, testNumberSites[i]);
+				page = submitForm(word,filterValues[3]);
+				verifyTermineResults(page, word);
 			} catch (Exception e) {
 				assertTrue(false);
 				e.printStackTrace();
@@ -398,10 +394,10 @@ public class BuscarDominio {
 	public void termineSpecialTest(){
 		System.out.println("<< STARTING BuscarDominio.termineSpecial test");
 		HtmlPage page;
-		for (int i = 0 ; i < specialLimit; i++){
+		for (String word : file.getSpecial()){
 			try {
-				page = submitForm(testSpecialSites[i],filterValues[3]);
-				verifyTermineResults(page, testSpecialSites[i]);
+				page = submitForm(word,filterValues[3]);
+				verifyTermineResults(page, word);
 			} catch (Exception e) {
 				assertTrue(false);
 				e.printStackTrace();
