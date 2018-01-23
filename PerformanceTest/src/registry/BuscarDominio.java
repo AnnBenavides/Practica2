@@ -187,13 +187,13 @@ public class BuscarDominio {
 				String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
 				assertTrue(columns[0].contains(word));
 				assertTrue(!columns[1].isEmpty());
-				System.out.println("\n\t | Dominio: "+columns[0]);
-				System.out.println("\t | Dueño: "+columns[1]);
+				//System.out.println("\n\t | Dominio: "+columns[0]);
+				//System.out.println("\t | Dueño: "+columns[1]);
 				HtmlElement ahref = row.getElementsByTagName("a").get(0);
 				String href = "Whois.do?d="+columns[0];
 				boolean hasLink = ahref.getAttribute("href").contains(href);
 				//assertTrue(hasLink);
-				System.out.println("\t | Redirección a "+ahref.getAttribute("href"));
+				//System.out.println("\t | Redirección a "+ahref.getAttribute("href"));
 			}
 		} else {
 		// dominio no encontrado
