@@ -82,7 +82,7 @@ public class BuscarDominio {
 		final HtmlElement elem = inTable.get(0);
 		String response = elem.asText();
 		if (response.contains("no arrojó resultados")){
-			System.out.println("No hay dominios resultantes de la busqueda");
+			//System.out.println("No hay dominios resultantes de la busqueda");
 			return true;
 		} else {
 			return false;
@@ -175,7 +175,7 @@ public class BuscarDominio {
 	 * @param word	palabra buscada
 	 * **/
 	private void verifyContengaResults(HtmlPage page, String word){
-		System.out.println("> Verificando datos de busqueda para "+word+" con criterio 'contenga'");
+		//System.out.println("> Verificando datos de busqueda para "+word+" con criterio 'contenga'");
 		if (!domNotFound(page)){
 			//verificar dato mostrado con word.cl
 			final HtmlTable table = (HtmlTable) page.getByXPath("//table[@class='tablabusqueda']").get(0);
@@ -256,7 +256,7 @@ public class BuscarDominio {
 	 * **/
 	private void verifyComienceResults(HtmlPage page, String word){
 		if (!domNotFound(page)){
-			System.out.println("> Verificando datos de busqueda para "+word+" con criterio 'comience'");
+			//System.out.println("> Verificando datos de busqueda para "+word+" con criterio 'comience'");
 			//verificar dato mostrado con word.cl
 			final HtmlTable table = (HtmlTable) page.getByXPath("//table[@class='tablabusqueda']").get(0);
 			final List<HtmlTableRow> rows = table.getRows();
@@ -267,13 +267,13 @@ public class BuscarDominio {
 				String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
 				assertTrue(columns[0].startsWith(word));
 				assertTrue(!columns[1].isEmpty());
-				System.out.println("\n\t | Dominio: "+columns[0]);
-				System.out.println("\t | Dueño: "+columns[1]);
+				//System.out.println("\n\t | Dominio: "+columns[0]);
+				//System.out.println("\t | Dueño: "+columns[1]);
 				HtmlElement ahref = row.getElementsByTagName("a").get(0);
 				String href = "Whois.do?d="+columns[0];
 				boolean hasLink = ahref.getAttribute("href").contains(href);
 				//assertTrue(hasLink);
-				System.out.println("\t | Redirección a "+ahref.getAttribute("href"));
+				//System.out.println("\t | Redirección a "+ahref.getAttribute("href"));
 			}
 		} else {
 			// dominio no encontrado
@@ -336,7 +336,7 @@ public class BuscarDominio {
 	private void verifyTermineResults(HtmlPage page, String word){
 		if (!domNotFound(page)){
 			//verificar dato mostrado con word.cl
-			System.out.println("> Verificando datos de busqueda para "+word+" con criterio 'termine'");
+			//System.out.println("> Verificando datos de busqueda para "+word+" con criterio 'termine'");
 			final HtmlTable table = (HtmlTable) page.getByXPath("//table[@class='tablabusqueda']").get(0);
 			final List<HtmlTableRow> rows = table.getRows();
 			for (int i = 1 ; i< table.getRowCount()-1 ; i++){
@@ -346,13 +346,13 @@ public class BuscarDominio {
 				String[] columns = rowText.split("\n"); //[0]=dom, [1]=owner
 				assertTrue(columns[0].endsWith(word+".cl"));
 				assertTrue(!columns[1].isEmpty());
-				System.out.println("\n\t | Dominio: "+columns[0]);
-				System.out.println("\t | Dueño: "+columns[1]);
+				//System.out.println("\n\t | Dominio: "+columns[0]);
+				//System.out.println("\t | Dueño: "+columns[1]);
 				HtmlElement ahref = row.getElementsByTagName("a").get(0);
 				String href = "Whois.do?d="+columns[0];
 				boolean hasLink = ahref.getAttribute("href").contains(href);
 				//assertTrue(hasLink);
-				System.out.println("\t | Redirección a "+ahref.getAttribute("href"));
+				//System.out.println("\t | Redirección a "+ahref.getAttribute("href"));
 			}
 		} else {
 			// dominio no encontrado
