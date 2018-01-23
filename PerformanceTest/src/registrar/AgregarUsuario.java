@@ -120,15 +120,31 @@ public class AgregarUsuario {
 			mailDTE.setValueAttribute(username);
 			System.out.println("\t | Mail: "+mailDTE.getValueAttribute());
 			assertTrue(true);
-			
-			synchronized (page) {
-	            page.wait(2000); //wait
+						
+			HtmlPage confirm = this.aceptacionDeReglamentacion(page);
+			synchronized (confirm) {
+	            confirm.wait(2000); //wait
 	        }
+			System.out.println("Ready to POST");
 			
-			//System.out.println(form.asText());
-			
+			return this.clickContinua(confirm);
+	      
+	    } catch(FailingHttpStatusCodeException e) {
+	      e.printStackTrace();
+	      assertTrue(false);
+	      return null;
+	    } catch(Exception e) {
+	      e.printStackTrace();
+	      assertTrue(false);
+	      return null;
+	    }
+	}
+	
+	private HtmlPage clickContinua(HtmlPage page){
+		try{
+			List<HtmlForm> forms = page.getForms();
+			final HtmlForm form = forms.get(0);
 			//final HtmlInput button = (HtmlInput) page.getElementById("submitButton");
-			HtmlPage p = page;
 			List<HtmlElement> divs = form.getElementsByTagName("div");
 			for (DomElement div : divs){
 				if (!div.hasAttribute("class") && div.hasAttribute("style")){
@@ -144,48 +160,33 @@ public class AgregarUsuario {
 								assertTrue(value);
 								System.out.println("> Continuar: click!");
 								System.out.println(div.asXml());
-								synchronized (p) {
-						            p.wait(2000); //wait
+								synchronized (page) {
+						            page.wait(2000); //wait
 						        }
-								p=input.click();
-								synchronized (p) {
-						            p.wait(2000); //wait
+								page=input.click();
+								synchronized (page) {
+						            page.wait(2000); //wait
 						        }
+								return page;
 								
 							}
 						}
 					}
 				}
 			}
-			//p = button.click(); //TODO retorna vacío DX
-			synchronized (p) {
-	            p.wait(2000); //wait
-	        }
-			//assertTrue(button.getAttribute("type").equals("button"));
-			//assertTrue(button.getAttribute("id").equals("submitButton"));
-					
-			System.out.println("Ready to POST");
-			
-			//System.out.println(p.asText());
-			//new UserAndPass().addTuple(username, password);
-			return p;
-	      
-	    } catch(FailingHttpStatusCodeException e) {
-	      e.printStackTrace();
-	      assertTrue(false);
-	      return null;
-	    } catch(Exception e) {
-	      e.printStackTrace();
-	      assertTrue(false);
-	      return null;
-	    }
+			return page;
+		} catch (Exception e){
+			e.printStackTrace();
+		    assertTrue(false);
+		    return null;
+		}
 	}
 	
-	private HtmlPage aceptacionDeReglamentacion(HtmlPage page) throws Exception{
+	private HtmlPage aceptacionDeReglamentacion(HtmlPage page){
 		try{
 			System.out.println("Searching PopUp");
 			DomElement popUp = page.getElementById("panel_reglamentacion_c");
-			System.out.println(popUp.asXml());
+			//System.out.println(popUp.asXml());
 			List<HtmlElement> inputs = popUp.getElementsByTagName("input");
 			for (HtmlElement input : inputs){
 				if (input.getAttribute("id").equals("chkAceptado")){

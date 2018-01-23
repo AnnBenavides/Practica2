@@ -14,25 +14,34 @@ import com.gargoylesoftware.htmlunit.html.HtmlTable;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 
 public class WhoIs {
-	private String[] simpleSites = {"test","horrible","defensa","emision",
-			"antigua","farmacia","azucar","abajo","bolso",
-			"cama","casa","vendedor","raton","fruta",
-			"triangulo","flor","bota","ruta","jardin"};
-	private int simpleLimit = 5;
-	private String[] numberSites = {"1","2","34","5","01"};
-	private int numberLimit = 5;
-	private String[] specialSites = {"ñandú", "jardín", 
-			"corazón", "sillón", "rápido", "teléfono"};
-	private int specialLimit = 5;
+	private List<String> simpleSites;
+	private int simpleLimit;
+	private List<String> numberSites;
+	private int numberLimit;
+	private List<String> specialSites;
+	private int specialLimit;
 	private boolean nic = false;
+	
+	
+	/**Carga de alfabetos de prueba
+	 * 
+	 * @see DomainsFile.java
+	 * **/
+	private void getAlphabets(){
+		DomainsFile file = new DomainsFile();
+		simpleSites = file.getSimple();
+		numberSites = file.getNumber();
+		specialSites = file.getSpecial();
+		simpleLimit = file.limitSimple();
+		numberLimit = file.limitNumber();
+		specialLimit = file.limitSpecial();		
+	}
 	
 	/** Cargar la pagina de la forma
 	 * nic.cl/regisstry/Whois.do?d=word.cl
 	 * 
-	 * word es el nombre del dominio buscado
-	 * 
-	 * IMPORTANTE
-	 * se accede a esta página luego de una busqueda con BusquedaDominio.do
+	 * @param word		nombre del dominio buscado
+	 * @return 			página BusquedaDominio.do
 	 * **/
 	private HtmlPage getPage(String word) throws Exception{
 		try (final WebClient webClient = new WebClient()) {
@@ -48,6 +57,9 @@ public class WhoIs {
 	 * Aparece un boton para inscribir el dominio
 	 * redireccionando a /registrar/agregarDominio.do?...
 	 * con una llave al final
+	 * 
+	 * @param page	pagina cargada
+	 * @see 		getPage(String word)
 	 * **/
 	private void verifyDomNotFound(HtmlPage page){
 		final DomElement button = page.getElementById("submitButton");
@@ -63,9 +75,11 @@ public class WhoIs {
 		}
 	}
 	
-	/** el dominio buscado esta inscrito
+	/** Verifica si el dominio buscado esta inscrito
 	 * 
-	 * verificamos segun el contenido de la pagina**/
+	 * @param page	página de resultado tras la busqueda
+	 * @return 		true si hay dominios, false sino
+	 * **/
 	private boolean domFound(HtmlPage page){
 		final HtmlTable table = (HtmlTable) page.getByXPath("//table[@class='tablabusqueda']").get(0);
 		final List<HtmlTableRow> rows = table.getRows();
@@ -77,6 +91,15 @@ public class WhoIs {
 		} else {return true;}
 	}
 	
+	/**Verifica la forma del contenido del elemento indicado
+	 * Si el elemento de 'Agente registrador' es 'NIC Chile' se cae
+	 * en un caso especial de respuesta y usa el valor global nic
+	 * para indicar este caso
+	 * 
+	 * @param rows			lista con las filas de resultado
+	 * @param elementName	nombre de la primera columna del resultado (identificador del campo)
+	 * 
+	 * @return				true si el formato esta correcto, false sino**/
 	private boolean verifyRowElement(List<HtmlTableRow> rows, String elementName){
 		try{
 			System.out.print("\t | "+elementName+" ");
@@ -112,6 +135,12 @@ public class WhoIs {
 		}
 	}
 	
+	/**Verifica forma del contenido en cada fila
+	 * 
+	 * @param rows		lista con las filas de resultado
+	 * @param word		dominio buscado	
+	 * 
+	 * @see 			verifyRowElement(rows, elementName)**/
 	private void verifyBasic(List<HtmlTableRow> rows, String word){
 		String tittle = rows.get(0).asText();
 		assertTrue(tittle.equals(word+".cl"));
@@ -130,6 +159,14 @@ public class WhoIs {
 		assertTrue(this.verifyRowElement(rows,"Fecha de expiración:"));
 	}
 	
+	/** Verifica el formato de los datos de contacto
+	 * Si el agente administrados es NIC Chile
+	 * esta información no existe
+	 * 
+	 * @param rows		lista con las filas de resultado
+	 * @param word		dominio buscado	
+	 * 
+	 * @see 			verifyRowElement(rows, elementName)**/
 	private void verifyContact(List<HtmlTableRow> rows, String word){
 		try{
 			if (!nic){
@@ -224,6 +261,7 @@ public class WhoIs {
 	}
 	
 	private void verify(String word) throws Exception{
+		this.getAlphabets();
 		HtmlPage page = this.getPage(word);
 		if (domFound(page)){
 			System.out.println("> Success");
@@ -237,9 +275,9 @@ public class WhoIs {
 	@Test
 	public void simpleTest() throws Exception{
 		System.out.println("<< STARTING WhoIs.simple test");
-		for (int i = 0 ; i < simpleLimit; i++){
+		for (String word : simpleSites){
 			try{
-				verify(simpleSites[i]);
+				verify(word);
 			} catch (Exception e){
 				assertTrue(false);
 				e.printStackTrace();
@@ -250,9 +288,9 @@ public class WhoIs {
 	// TODO convertir caracteres especiales @Test
 	public void specialTest() throws Exception{
 		System.out.println("<< STARTING WhoIs.special test");
-		for (int i = 0 ; i < specialLimit; i++){
+		for (String word : specialSites){
 			try{
-				verify(specialSites[i]);
+				verify(word);
 			} catch (Exception e){
 				assertTrue(false);
 				e.printStackTrace();
@@ -263,9 +301,9 @@ public class WhoIs {
 	@Test
 	public void numberTest() throws Exception{
 		System.out.println("<< STARTING WhoIs.number test");
-		for (int i = 0 ; i < numberLimit; i++){
+		for (String word : numberSites){
 			try{
-				verify(numberSites[i]);
+				verify(word);
 			} catch (Exception e){
 				assertTrue(false);
 				e.printStackTrace();			
