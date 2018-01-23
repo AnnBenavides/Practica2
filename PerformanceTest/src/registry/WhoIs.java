@@ -14,28 +14,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlTable;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 
 public class WhoIs {
-	private List<String> simpleSites;
-	private int simpleLimit;
-	private List<String> numberSites;
-	private int numberLimit;
-	private List<String> specialSites;
-	private int specialLimit;
+	private DomainsFile file = new DomainsFile();
 	private boolean nic = false;
-	
-	
-	/**Carga de alfabetos de prueba
-	 * 
-	 * @see DomainsFile.java
-	 * **/
-	private void getAlphabets(){
-		DomainsFile file = new DomainsFile();
-		simpleSites = file.getSimple();
-		numberSites = file.getNumber();
-		specialSites = file.getSpecial();
-		simpleLimit = file.limitSimple();
-		numberLimit = file.limitNumber();
-		specialLimit = file.limitSpecial();		
-	}
 	
 	/** Cargar la pagina de la forma
 	 * nic.cl/regisstry/Whois.do?d=word.cl
@@ -187,6 +167,12 @@ public class WhoIs {
 		}
 	}
 	
+	/** Verifica el formato de los datos de servidor
+	 * No siempre estan y puede haber mas de uno
+	 * 
+	 * @param rows		lista con las filas de resultado
+	 * @param word		dominio buscado	
+	 **/
 	private void verifyServers(List<HtmlTableRow> rows, String word){ 
 		try{
 			boolean servMatches = false;
@@ -216,6 +202,16 @@ public class WhoIs {
 		}
 	}
 	
+	/** Busca la tabla de resultados y toma sus filas
+	 * para verificar su formato
+	 * 
+	 * @param page		pagina con resultados
+	 * @param word		dominio buscado
+	 * 
+	 * @see 	verifyBasic(rows,word)
+	 * 			verifyContacts(rows,word)
+	 * 			verifyServers(rows,word)
+	 * **/
 	private void verifyResults(HtmlPage page, String word){
 		System.out.println("Verificando resultados... ");
 		final HtmlTable table = (HtmlTable) page.getByXPath("//table[@class='tablabusqueda']").get(0);
@@ -242,26 +238,23 @@ public class WhoIs {
 		String renovar = "registrar/renovar.do?d="+word+".cl";
 		String autoatencion = "autoatencion?d="+word+".cl";
 		boolean hasRenovar = href.contains(renovar) || href.contains(autoatencion);
-		/**List<HtmlElement> buttons = rows.get().getElementsByTagName("button");
-		System.out.println(buttons.toString());
-		boolean hasRenovar = false;
-		for (HtmlElement btn : buttons){
-			try{
-				String href = btn.getAttribute("onckick");
-				String renovar = "https://clientes.nic.cl/registrar/renovar.do?d="+word+".cl";
-				hasRenovar = hasRenovar || href.contains(renovar);
-				
-			} catch (Exception e){
-				System.out.println("'Renovar' button not found");
-			}
-		}**/
 		assertTrue(hasRenovar);
 		System.out.println("\t | Renovar? "+hasRenovar);
 
 	}
 	
+	/** Carga la busqueda del dominio, luego segun
+	 * si el dominio esta inscrito o no
+	 * verifica el resultado
+	 * 
+	 * @param word		dominio buscado
+	 * 
+	 * @see 	getPage()
+	 * 			domFound(page)
+	 * 			verifyResults(page,word)
+	 * 			verifyDomNotFound(page)
+	 * **/
 	private void verify(String word) throws Exception{
-		this.getAlphabets();
 		HtmlPage page = this.getPage(word);
 		if (domFound(page)){
 			System.out.println("> Success");
@@ -272,10 +265,14 @@ public class WhoIs {
 		}
 	}
 	
+	/**Test de WhoIs.do para alfabeto con caracteres simples
+	 * 
+	 * @see	verify(word)
+	 * **/
 	@Test
 	public void simpleTest() throws Exception{
 		System.out.println("<< STARTING WhoIs.simple test");
-		for (String word : simpleSites){
+		for (String word : file.getSimple()){
 			try{
 				verify(word);
 			} catch (Exception e){
@@ -285,10 +282,15 @@ public class WhoIs {
 		}
 	}
 	
-	// TODO convertir caracteres especiales @Test
+	/**Test de WhoIs.do para alfabeto con caracteres especiales
+	 * ERROR por conversión de caracteres especiales en la URL
+	 * 
+	 * @see	verify(word)
+	 * **/
+	//@Test
 	public void specialTest() throws Exception{
 		System.out.println("<< STARTING WhoIs.special test");
-		for (String word : specialSites){
+		for (String word : file.getSpecial()){
 			try{
 				verify(word);
 			} catch (Exception e){
@@ -298,10 +300,14 @@ public class WhoIs {
 		}
 	}
 	
+	/**Test de WhoIs.do para alfabeto con caracteres numericos
+	 * 
+	 * @see	verify(word)
+	 * **/
 	@Test
 	public void numberTest() throws Exception{
 		System.out.println("<< STARTING WhoIs.number test");
-		for (String word : numberSites){
+		for (String word : file.getNumber()){
 			try{
 				verify(word);
 			} catch (Exception e){
