@@ -7,7 +7,7 @@ Bitácora de mi Práctica II  @NICChile
 ### Herramientas
 Se utiliza la librería [HtmlUnit](http://htmlunit.sourceforge.net/gettingStarted.html) (versión 2.8), y se desarrolla en Eclipse
 
-## Lectura de Issues
+# Lectura de Issues
 Segun nombre de issue se categorizan en:
 - **rPXXX:** de _registryPublic_ son las issues relacionadas puramente con ese sistema
 - **RrXXX:** de _registrar_ son las issues relacionadas puramente con ese sistema
