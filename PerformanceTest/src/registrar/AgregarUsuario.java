@@ -19,7 +19,13 @@ import com.gargoylesoftware.htmlunit.html.HtmlSelect;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 
 public class AgregarUsuario {
+	//TODO
 	
+	/** Cargar la pagina de la forma
+	 * "https://clientes.nic.cl/registrar/agregarUsuario.do"
+	 * 
+	 * @return 			contenido de página agregarUsuario.do
+	 * **/
 	private HtmlPage openPage() throws Exception{
 		try (final WebClient webClient = new WebClient()) {
 			String url = "https://clientes.nic.cl/registrar/agregarUsuario.do";
@@ -30,12 +36,25 @@ public class AgregarUsuario {
 	    }
 	}
 	
-	private HtmlPage fillFormAndPost(HtmlPage page){
+	/** Rellena las diferentes secciones del formulario
+	 * Sólo campos obligatorios de:
+	 * 		Datos de Acceso, Datos de contacto de usuario,
+	 * 		Direccion postal, Documento de identidad,
+	 * 		Autorizacion voluntaria de envio de DTEs por Email
+	 * Usuario y clave a registrar se generan en el momento
+	 * 
+	 *  @param page		contenido de agregarDominio.do
+	 *  @return			pagina con el formulario completo
+	 *  
+	 *  @see			Email.java
+	 *  				clickContinuar(page)
+	 *  */
+	private HtmlPage fillForm(HtmlPage page){
 		Email mailObj = new Email();
 		String username = mailObj.getNewMail();
 		String password = mailObj.getNicPass();
 		
-		System.out.println("Starting registrer with "+username+" account");
+		//System.out.println("Starting registrer with "+username+" account");
 	    
 	    try {      
 	      	List<HtmlForm> forms = page.getForms();
@@ -44,45 +63,45 @@ public class AgregarUsuario {
 			System.out.println("c(*.')o-- Filling form...");
 			
 			//Datos de acceso
-			System.out.println("> Datos de acceso");
+			//System.out.println("> Datos de acceso");
 			final HtmlTextInput email = form.getInputByName("username");
 			final HtmlPasswordInput clave = form.getInputByName("password");
 			final HtmlPasswordInput claveRep = form.getInputByName("passwordVerification");
 			assertTrue(true);
 			email.setValueAttribute(username);
-			System.out.println("\t | Username: "+username);
+			//System.out.println("\t | Username: "+username);
 			clave.setValueAttribute(password);
-			System.out.println("\t | Password: "+password);
+			//System.out.println("\t | Password: "+password);
 			claveRep.setValueAttribute(password);
-			System.out.println("\t | Password (again): "+password);
+			//System.out.println("\t | Password (again): "+password);
 			synchronized (page) {
 	            page.wait(2000); //wait
 	        }
 			
 			//Datos de contacto de usuario
-			System.out.println("> Datos de contacto");
+			//System.out.println("> Datos de contacto");
 			final HtmlTextInput nombre = form.getInputByName("contacto.nombreORazonSocial");
 			//HtmlTextInput giro = form.getInputByName("contacto.giro"); //opcional
 			//HtmlTextInput mailAlt = form.getInputByName("email"); //opcional
 			final HtmlTextInput telefono = form.getInputByName("contacto.telefono.numero");
 			assertTrue(true);
 			nombre.setValueAttribute("Test Nic Chile");
-			System.out.println("\t | Nombre: "+nombre.getValueAttribute());
+			//System.out.println("\t | Nombre: "+nombre.getValueAttribute());
 			telefono.setValueAttribute("229407700");
-			System.out.println("\t | Telefono: (+56)"+telefono.getValueAttribute());
+			//System.out.println("\t | Telefono: (+56)"+telefono.getValueAttribute());
 			synchronized (page) {
 	            page.wait(2000); //wait
 	        }
 			
 			//Direccion postal
-			System.out.println("> Direccion postal");
+			//System.out.println("> Direccion postal");
 			//List<HtmlSelect> paises = form.getSelectsByName("contacto.direccion.pais.id");
 			//List<HtmlSelect> regiones = form.getSelectsByName("contacto.direccion.regionEstadoProvincia");
 			final HtmlTextInput ciudad = form.getInputByName("contacto.direccion.ciudad");
 			List<HtmlSelect> comunas = form.getSelectsByName("contacto.direccion.comuna.id");
 			for (HtmlSelect comuna : comunas){
 				if (comuna.asText().contains("Santiago")){
-					System.out.println("\t | Comuna: "+comuna.asText());
+					//System.out.println("\t | Comuna: "+comuna.asText());
 					comuna.click();
 					assertTrue(true);
 				}
@@ -94,40 +113,40 @@ public class AgregarUsuario {
 			final HtmlTextInput calle = form.getInputByName("contacto.direccion.calleYNumero");
 			assertTrue(true);
 			ciudad.setValueAttribute("Santiago");
-			System.out.println("\t | Ciudad: "+ciudad.getValueAttribute());
+			//System.out.println("\t | Ciudad: "+ciudad.getValueAttribute());
 			calle.setValueAttribute("Miraflores 222");
-			System.out.println("\t | Calle: "+calle.getValueAttribute());
+			//System.out.println("\t | Calle: "+calle.getValueAttribute());
 			synchronized (page) {
 	            page.wait(2000); //wait
 	        }
 	
 			//Documento de identidad (opcional)
-			System.out.println("> Documentos de Identidad");
+			//System.out.println("> Documentos de Identidad");
 			//List<HtmlSelect> paiseEmisor = form.getSelectsByName("contacto.documentIdentidad.paisEmisor.id");
 			final HtmlTextInput id = form.getInputByName("contacto.documentoIdentidad.value");
 			id.setValueAttribute("9841569-6");
-			System.out.println("\t | RUN: "+id.getValueAttribute());
+			//System.out.println("\t | RUN: "+id.getValueAttribute());
 			synchronized (page) {
 	            page.wait(2000); //wait
 	        }
 			
 			//Autorizacion voluntaria de envio de DTEs por Email
-			System.out.println("> DTE complete");
+			//System.out.println("> DTE complete");
 			final HtmlInput envioDte = form.getInputByName("envioDTE");
 			assertTrue(envioDte.isChecked());
-			System.out.println("\t | ["+envioDte.isChecked()+"]");
+			//System.out.println("\t | ["+envioDte.isChecked()+"]");
 			final HtmlTextInput mailDTE = form.getInputByName("envioDTEMail");
 			mailDTE.setValueAttribute(username);
-			System.out.println("\t | Mail: "+mailDTE.getValueAttribute());
+			//System.out.println("\t | Mail: "+mailDTE.getValueAttribute());
 			assertTrue(true);
 						
 			HtmlPage confirm = this.aceptacionDeReglamentacion(page);
 			synchronized (confirm) {
 	            confirm.wait(2000); //wait
 	        }
-			System.out.println("Ready to POST");
+			//System.out.println("Ready to POST");
 			
-			return this.clickContinua(confirm);
+			return this.clickContinuar(confirm);
 	      
 	    } catch(FailingHttpStatusCodeException e) {
 	      e.printStackTrace();
@@ -140,7 +159,20 @@ public class AgregarUsuario {
 	    }
 	}
 	
-	private HtmlPage clickContinua(HtmlPage page){
+	/** Una vez relleno el form, se hace click en continuar para
+	 *  que aparezca una popUp para aceptar la reglamentacion
+	 *  
+	 *  TODO BUG: no encuentra el boton 'Continuar' D:!
+	 *  
+	 *  @param page		contenido de agregarDominio con 
+	 *  				el formulario completado
+	 *  @return			contenido de la pagina con popoUp de
+	 *  				aceptacion de reglamento o null de 
+	 *  				ocurrir algun error
+	 *  
+	 *  @see			aceptacionDeReglamentacion(page)
+	 * */
+	private HtmlPage clickContinuar(HtmlPage page){
 		try{
 			List<HtmlForm> forms = page.getForms();
 			final HtmlForm form = forms.get(0);
@@ -182,6 +214,16 @@ public class AgregarUsuario {
 		}
 	}
 	
+	/**	Rellena correctamente el popUp de aceptacion
+	 * 	y clickea Acepto para enviar el formulario
+	 * 
+	 * @param page	contenido de la pagina entregada 
+	 * 				tras clickear 'Continuar'
+	 * @return		contenido de pagina tras enviar el 
+	 * 				formulario
+	 * 
+	 * @see			verifyPOST(page) TODO
+	 * */
 	private HtmlPage aceptacionDeReglamentacion(HtmlPage page){
 		try{
 			System.out.println("Searching PopUp");
@@ -205,7 +247,7 @@ public class AgregarUsuario {
 	 
 	@Test
 	public void addUser() throws Exception{
-		HtmlPage post = this.fillFormAndPost(this.openPage());
+		HtmlPage post = this.fillForm(this.openPage());
 		System.out.println("c(*.*)o-- Checking...");
 		HtmlPage accept = this.aceptacionDeReglamentacion(post);
 		System.out.println("6(*0*)9 Success!!");
