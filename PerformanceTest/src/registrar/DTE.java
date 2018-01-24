@@ -110,7 +110,7 @@ public class DTE {
 	 * @param page		contenido de la pagina listarDominio.do
 	 * @return			contenido de la pagina dte.do
 	 * 					o null si ocurrio algun problema	
-	 * 
+	 *
 	 * @see			login(userNumber)	
 	 * */
 	private HtmlPage goToDTE(HtmlPage page){
@@ -172,7 +172,11 @@ public class DTE {
 		
 	}
 	
-	/**
+	/** Entrega la cantidad de dominios con facturacion
+	 * para su proxima seleccion
+	 * 
+	 * @param page		contenido de la pagina
+	 * @return			cantidad de dominios seleccionables
 	 * */
 	private int getDomains(HtmlPage page){
 		try{
@@ -189,28 +193,39 @@ public class DTE {
 		}
 	}
 		
+	/** Verifica el contenido de cada fila
+	 * o facturacion:
+	 * 		nro de documento, fecha, 
+	 * 		tipo de documento, descarga de pdf y xml
+	 * 
+	 * @param rows		lista de filas de resultados
+	 * */
 	private void verifyRows(List<HtmlElement> rows){
 		try{
-			System.out.println("This domain has "+rows.size()+" 'comprobantes'");
+			//System.out.println("This domain has "+rows.size()+" 'comprobantes'");
 			for (HtmlElement row : rows){
 				 List<HtmlElement> columns = row.getElementsByTagName("div");
 				 //System.out.println("Nr of columns (div): "+columns.size());
+				 
 				 //NRO DE DOCUMENTO
 				 List<HtmlElement> col1 = columns.get(0).getElementsByTagName("p");
 				 String nroDoc = col1.get(0).asText();
-				 System.out.println("\n\t | Nro. de Documento : "+nroDoc);
+				 //System.out.println("\n\t | Nro. de Documento : "+nroDoc);
 				 assertTrue(!nroDoc.isEmpty());
+				
 				 //FECHA
 				 List<HtmlElement> col2 = columns.get(1).getElementsByTagName("p");
 				 String fecha = col2.get(0).asText();
-				 System.out.println("\t | Fecha : "+fecha);
+				// System.out.println("\t | Fecha : "+fecha);
 				 String[] format = fecha.split("-");
 				 assertEquals(3,format.length);
+				
 				 //TIPO DE DOCUMENTO
 				 List<HtmlElement> col3 = columns.get(2).getElementsByTagName("p");
 				 String tipoDoc = col3.get(0).asText();
-				 System.out.println("\t | Tipo de Documento : "+tipoDoc);
+				 //System.out.println("\t | Tipo de Documento : "+tipoDoc);
 				 assertTrue(!tipoDoc.isEmpty());
+				
 				 //DESCARGAR
 				 List<HtmlElement> col4 = columns.get(3).getElementsByTagName("a");
 				 //System.out.println("\t | Descargas : "+col4.size());
@@ -225,7 +240,7 @@ public class DTE {
 						 && hrefPDF.contains("&idDominio=") && hrefPDF.endsWith(pdf);
 				 assertEquals(true,hasXML);
 				 assertEquals(true,hasPDF);
-				 System.out.println("\t | Descarga XML : "+hasXML+"\t Descarga PDF : "+hasPDF);
+				 //System.out.println("\t | Descarga XML : "+hasXML+"\t Descarga PDF : "+hasPDF);
 			}
 			
 		} catch (Exception e){
@@ -234,6 +249,14 @@ public class DTE {
 		}
 	}
 	
+	/**	Verifica los resultados de facturacion de un dominio
+	 * identifica la tabla de contenidos, crea una lista con
+	 * las filas de resultado y evalua
+	 * 
+	 * @param page	contenido de pagina luego de seleccionar un dominio
+	 * 
+	 * @see			verifyRows(rows)
+	 * */
 	private void verifyResults(HtmlPage page){
 		try{
 			List<DomElement> divs = page.getElementsByTagName("div");
@@ -258,6 +281,17 @@ public class DTE {
 		}
 	}
 	
+	/** Selecciona un dominio para cargar sus 
+	 * facturaciones y evaluar su contenido,
+	 * de no haber dominios facturados se evalua
+	 * el aviso
+	 * 
+	 * @param page	contenido de cargar dte.do
+	 * 
+	 * @see			hasNoDomains(page)
+	 * 				getDomains(page)
+	 * 				verifyResults(page)
+	 * */
 	private void selectDomain(HtmlPage page){
 		try{
 			if (!this.hasNoDomains(page)){
@@ -295,6 +329,15 @@ public class DTE {
 		}
 	}
 
+	/** Por cada usuario en 'userkey.csv'
+	 * se evaluan los comprobantes para todos
+	 * sus dominios disponibles
+	 * 
+	 * @see		UserAndPass class
+	 * 			login(int user)
+	 * 			goToDTE(page)
+	 * 			selectDomain(page)
+	 * */
 	@Test
 	public void comprobantes(){
 		System.out.println("<< STARTING DTE.comprobantes test");

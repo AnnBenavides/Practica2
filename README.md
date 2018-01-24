@@ -3,9 +3,15 @@ Bitácora de mi Práctica II  @NICChile
 
 **Comienzo:** Lunes 4 de Diciembre 2017
 
-## Performance Testing (```../PerformanceTest```)
-### Herramientas
+# Performance Testing (```../PerformanceTest```)
+## Herramientas
 Se utiliza la librería [HtmlUnit](http://htmlunit.sourceforge.net/gettingStarted.html) (versión 2.8), y se desarrolla en Eclipse
+
+## Inicialización
+### Archivos
+- ***Usuarios:*** crear un archivo csv ```src\registrar\userkeays.csv``` como indica en la [issue](https://github.com/AnnBenavides/Practica2/issues/20#issuecomment-360145362)
+- ***URLs:*** revisar ```src\UrlHandler.java```
+- ***Alfabetos de prueba:*** revisar ```src\registry\DomainsFile.java```
 
 # Lectura de Issues
 Segun nombre de issue se categorizan en:
@@ -15,7 +21,7 @@ Segun nombre de issue se categorizan en:
 - **TSXXX:** issues relacionadas con Test de Stress
 - **TTXXX:** issues relacionadas con Test de Seguridad
 
-### Labels
+## Labels
 ***Prioridades** (de mayor a menor)*
 - [urgente](https://github.com/AnnBenavides/Practica2/labels/urgente)
 - [necesario](https://github.com/AnnBenavides/Practica2/labels/necesario)
@@ -29,7 +35,7 @@ Segun nombre de issue se categorizan en:
 - [invalido](https://github.com/AnnBenavides/Practica2/labels/invalido) : issues que ya no son necesarias
 - [bug](https://github.com/AnnBenavides/Practica2/labels/bug) : problemas o casos especiales que rompen el programa
 
-### Milestones
+## Milestones
 - **[Rr: Cuentas de Usuario](https://github.com/AnnBenavides/Practica2/milestone/6):** issues relacionadas con la documentación e información recolectada del sistema Registrar
 - **[RegistryPublic: NIC.cl](https://github.com/AnnBenavides/Practica2/milestone/4):** issues relacionadas con la documentación e información recolectada del sistema Registry
 - **[Sistema EPP](https://github.com/AnnBenavides/Practica2/milestone/5):** issues relacionadas con la documentación e información recolectada de la conexión EPP
@@ -37,7 +43,7 @@ Segun nombre de issue se categorizan en:
 - **[Test de Stress](https://github.com/AnnBenavides/Practica2/milestone/1)**
 - **[Test de Seguridad](https://github.com/AnnBenavides/Practica2/milestone/3)** 
 
-### Projectos
+## Projectos
 Canvas de progreso para los distintos proyectos o etapas
 - [Investigación](https://github.com/AnnBenavides/Practica2/projects/1): _Buenas prácticas y herramientas para: performance testing, security testing & stress testing_
 - [Modelo de Test](https://github.com/AnnBenavides/Practica2/projects/3): _Identificar qué iremos a testear en detalle: con que prioridad, qué herramienta, de que forma, definir ambientes y datos._
