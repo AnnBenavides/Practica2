@@ -36,16 +36,28 @@ public class ListaDominio {
 	//iconIndex = fIndex-6
 	private String[] iconState = {"asignado","no_pagado","en_conflito","en_restauracion",
 			"bloqueado","eliminado"};
+	
+	/** Inicio de sesion con el userNumber-esimo usuario
+	 * en 'userkeys.csv', verificando un inicio correcto
+	 * ya sea redireccionando a listarDominio.do o 
+	 * a agregarDominio.do si el usuario no tiene dominios
+	 * 
+	 * @param userNumber	indice de usuario
+	 * @return				contenido de pagina luego del inicio de sesion
+	 * 						o null de haber algun problema
+	 * 
+	 * @see					UserAndPass.java
+	 * */
 	private HtmlPage login(int userNumber){
 		HtmlPage page;
-		System.out.println("Signing in ...");
+		//System.out.println("Signing in ...");
 		
 		UserAndPass up = new UserAndPass();
 		up.getTuple(userNumber);
 		String username = up.getUser();
 		String password = up.getPass();
 		
-		System.out.println("Starting login with "+username+" account");
+		//System.out.println("Starting login with "+username+" account");
 		
 		String url ="https://clientes.nic.cl/registrar/logon.do";
 	    String usernameInputName = "j_username";
@@ -68,7 +80,7 @@ public class ListaDominio {
 	      WebRequest request = new WebRequest(new URL(url));
 	      final HtmlPage loginPage = wclient.getPage(request);
 	      assertTrue(loginPage.isHtmlPage());
-	      System.out.print("Log in state : ");     
+	      //System.out.print("Log in state : ");     
 	      final HtmlForm loginForm = loginPage.getForms().get(0);
 	      
 	      // get the text input field by the name and set the value
@@ -88,11 +100,11 @@ public class ListaDominio {
 		  URL lPage = page.getUrl();
 		  String pageLink = lPage.toString();
 		  if (pageLink.contains("listarDominio.do") || pageLink.contains("agregarDominio.do")){
-		  	System.out.println("Success");
+		  	//System.out.println("Success");
 			assertTrue(true);
 			return page;
 		  } else {
-			System.out.println("Failure");
+			//System.out.println("Failure");
 			assertTrue(false);
 			return null;
 		  }
@@ -108,6 +120,13 @@ public class ListaDominio {
 	    }
 	}
 	
+	/** Obtener indice en el arreglo de id's de los filtros
+	 * 	
+	 * @param id	atributo id del filtro
+	 * @return		indice de filterId correspondiente al filtro
+	 * 
+	 * @see			filterId
+	 * */
 	private int getIndexId(String id){
 		int index = 0;
 		for (String str : filterId){
@@ -116,10 +135,17 @@ public class ListaDominio {
 			}
 			index++;
 		}
-		System.out.println("Filter not found");
+		//System.out.println("Filter not found");
 		return -1;
 	}
 	
+	/** Obtener indice en el arreglo de values's de los filtros
+	 * 	
+	 * @param value	atributo value del filtro
+	 * @return		indice de filterValue correspondiente al filtro
+	 * 
+	 * @see			filterValue
+	 * */
 	private int getIndexValue(String value){
 		int index = 0;
 		for (String str : filterValue){
@@ -128,13 +154,20 @@ public class ListaDominio {
 			}
 			index++;
 		}
-		System.out.println("Filter not found");
+		//System.out.println("Filter not found");
 		return -1;
 	}
 	
+	/**Selector de filtro
+	 * 
+	 * @param page		contenido de listarDOminio.do
+	 * @param fIndex	indice del filtro, respecto a los arreglos filterId y filterValue
+	 * 
+	 * @return			contenido de listarDominio.do luego de aplicar el filtro
+	 * */
 	private HtmlPage selectFilter(HtmlPage page, int fIndex){
 		try{
-			System.out.println("! Selecting filter : "+filterValue[fIndex]);
+			//System.out.println("! Selecting filter : "+filterValue[fIndex]);
 			DomElement menu = page.getElementById("menu-filtros");
 			List<HtmlElement> options = menu.getElementsByTagName("li");
 			
@@ -147,7 +180,7 @@ public class ListaDominio {
 					String id = option.getAttribute("id");
 					if (id.equals(filterId[fIndex])){
 						filter = option;
-						System.out.print("Getting domains... ");
+						//System.out.print("Getting domains... ");
 					}
 				}
 				assertNotEquals(null,filter);
@@ -158,22 +191,25 @@ public class ListaDominio {
 		        }
 				return refresh;
 			}
-			System.out.println("Applying no filter");
+			//System.out.println("Applying no filter");
 			synchronized (page) {
 	            page.wait(2000); //wait
 	        }
 			return page;
 		} catch (Exception e) {
-			System.out.println("Problems selecting the filter");
+			//System.out.println("Problems selecting the filter");
 			e.printStackTrace();
 			return null;
 		}
 	}
 	
-	/**
-	 * @param 
-	 * contactos : es una lista de divs hijos de "fecha_mini"
-	 * fIndex : es el índice de un elemento de filterId
+	/**	Verifica que tenga al menos el tipo de contacto
+	 * indicado por el filtro
+	 * 
+	 * @param contactos		lista de divs hijos de "fecha_mini"
+	 * @param fIndex		indice de un elemento de filterId
+	 * 
+	 * @return				true si hay informacion de contacto, false si no
 	 * **/
 	private boolean contactExist(List<HtmlElement> contactos, int fIndex){
 		String contacto = filterValue[fIndex];
@@ -187,15 +223,17 @@ public class ListaDominio {
 		return false;
 	}
 	
-	/**
-	 * @param 
-	 * contactos : es una lista de divs hijos de "contenedor_datos"
-	 * id : es un elemento de filterId
+	/**	Verifica que el estado corresponda al filtro
+	 * 
+	 * @param divs		lista de divs hijos de "contenedor_datos"
+	 * @param fIndex	indice de un elemento de filterId
+	 * 
+	 * @return			true si el icono de estado es correcto, false sino
 	 * **/
-	private boolean hasTheState(HtmlElement estados,  int fIndex){
+	private boolean hasTheState(HtmlElement divs,  int fIndex){
 		int iconIndex = fIndex-6;
 		String icon = "ico_mini_" + iconState[iconIndex];
-		String clas = estados.getAttribute("class");
+		String clas = divs.getAttribute("class");
 		assertEquals(icon,clas);
 		if (clas.equals(icon)){
 			return true;
@@ -203,6 +241,11 @@ public class ListaDominio {
 		return false;
 	}
 	
+	/** Busca y entrega el contenedor de resultados de la pagina
+	 * 
+	 * @param page		contenido de la pagina luego de aplicar un filtro
+	 * @return			lista de filas, correspondiente a cada dominio
+	 * */
 	private List<HtmlElement> getDataDiv(HtmlPage page){
 		List<DomElement> boxes = page.getElementsById("listaDatos");
 		DomElement box = boxes.get(0);
@@ -216,11 +259,20 @@ public class ListaDominio {
 				}	
 			}
 		}
-		System.out.println("Number of domains: "+ret.size());
+		//System.out.println("Number of domains: "+ret.size());
 		return ret;
 	}
-	/** 
-	 * verificar que existan elementos en las columnas 
+	
+	/** Verifica que existan elementos correspondientes
+	 * en las filas:
+	 * 		checkbox,contacto, dominio,fecha de expiracion,
+	 * 		estado, titular ,y acceso y adhision al carro 
+	 * 
+	 * @param page		contenido de la pagina luego de aplicar un filtro
+	 * @param fIndex	indice del filtro aplicado
+	 * 
+	 * @see		contactExist(contactos,fIndex)
+	 * 			hasTheState(divs,fIndex)
 	 * **/
 	private void verifyAllColumns(HtmlPage page, int fIndex){
 		try {
@@ -250,7 +302,7 @@ public class ListaDominio {
 									String title = p.get(0).getAttribute("title");
 									assertTrue(title.contains("expira en:"));
 									String pText = p.get(0).asText();
-									System.out.println("\t | Expira en : "+pText);
+									//System.out.println("\t | Expira en : "+pText);
 									String[] date = pText.split("/");
 									assertTrue(date.length == 3 || date.length == 1);
 								} else {
@@ -262,13 +314,13 @@ public class ListaDominio {
 											contactos.add(cont);
 										}
 									}
-									System.out.print("\t | Tipos de contacto : "+contactos.size());
+									//System.out.print("\t | Tipos de contacto : "+contactos.size());
 									if (this.contactFilter(fIndex)){
 										boolean c = this.contactExist(contactos, fIndex);
-										System.out.println(" | Filtro correcto? "+c);
+										//System.out.println(" | Filtro correcto? "+c);
 										assertTrue(c);
 									} else {
-										System.out.println(" | Filtro correcto? "+true);
+										//System.out.println(" | Filtro correcto? "+true);
 										assertTrue(contactos.size()>0);
 									}
 								}
@@ -278,17 +330,17 @@ public class ListaDominio {
 						if (classAttr.startsWith("ico_mini_")){
 							if (this.stateFilter(fIndex)){
 								boolean e = this.hasTheState(div, fIndex);
-								System.out.println("\t | Estado correcto? : "+e);
+								//System.out.println("\t | Estado correcto? : "+e);
 								assertTrue(e);
 							} else {
-								System.out.println("\t | Estado correcto? : "+true);
+								//System.out.println("\t | Estado correcto? : "+true);
 								assertTrue(true);
 							}
 						}
 						//NOMBRE DOMINIO
 						if (classAttr.equals("dominio_mini")){
 							String text = div.asText();
-							System.out.println("\t | Dominio : "+text);
+							//System.out.println("\t | Dominio : "+text);
 							assertTrue(text.endsWith(".cl"));
 							HtmlElement a = div.getElementsByTagName("a").get(0);
 							String href = a.getAttribute("href");
@@ -297,7 +349,7 @@ public class ListaDominio {
 						//TITULAR
 						if (classAttr.equals("titular_mini")){
 							String text = div.asText();
-							System.out.println("\t | Titular : "+text);
+							//System.out.println("\t | Titular : "+text);
 							assertTrue(!text.isEmpty());
 						}
 						//CARRITO
@@ -305,14 +357,14 @@ public class ListaDominio {
 							HtmlElement a = div.getElementsByTagName("a").get(0);
 							String href = a.getAttribute("href");
 							boolean pagar = href.contains("/registrar/agregarDominioCarro.do?id=");
-							System.out.println("\t | Carrito? : "+pagar+"\n");
+							//System.out.println("\t | Carrito? : "+pagar+"\n");
 							assertTrue(pagar);
 						}
 					}
 				}
 			}
 		} catch (Exception e){
-			System.out.println("Can't find the data table");
+			//System.out.println("Can't find the data table");
 			e.printStackTrace();
 			assertTrue(false);
 			
@@ -320,6 +372,12 @@ public class ListaDominio {
 		
 	}
 	
+	/** Evalua el contenido luego de aplicar el filtro
+	 * 
+	 * @param page		contenido de la pagina luego de aplicar un filtro
+	 * 
+	 * @return			true si hay dominios en la lista de resultados, false sino
+	 * */
 	private boolean isEmptyBeforeFilter(HtmlPage page){
 		try {
 			DomElement box = page.getElementById("listaDatosVacia");
@@ -329,12 +387,18 @@ public class ListaDominio {
 			//System.out.println("Is there any elements? "+ !isEmpty);
 			return isEmpty;
 		} catch (Exception e){
-			System.out.println("Problem finding domains");
+			//System.out.println("Problem finding domains");
 			e.printStackTrace();
 			return false;
 		}
 		
 	}
+	
+	/** Indica si el filtro muestra todos los dominios
+	 * 
+	 * @param index		indice del filtro
+	 * @return			true si no se aplica ningun filtro, false si no
+	 * */
 	private boolean allFilter(int index){
 		if (index == 0 || index == 1 || index == 5){
 			//System.out.println("\n ! Showing all domains");
@@ -343,6 +407,12 @@ public class ListaDominio {
 			return false;
 		}
 	}
+	
+	/** Indica si el filtro es de contactos
+	 * 
+	 * @param index		indice del filtro
+	 * @return			true si es in filtro de contacto, false sino
+	 * */
 	private boolean contactFilter(int index){
 		if ( index > 1 && index < 5){
 			//System.out.println("! Showing by 'Contacto' filter");
@@ -351,6 +421,12 @@ public class ListaDominio {
 			return false;
 		}
 	}	
+	
+	/** Indica si el filtro es de estado
+	 * 
+	 * @param index		indice del filtro
+	 * @return			true si es un filtro de estado, false sino
+	 * */
 	private boolean stateFilter(int index){
 		if ( index > 5 && index < 12){
 			//System.out.println("! Showing by 'Estado' filter");
@@ -359,6 +435,12 @@ public class ListaDominio {
 			return false;
 		}
 	}
+	
+	/** En caso de que el usuario no tengo dominios
+	 * 
+	 * @param page	contenido de la pagina luego de iniciar sesion
+	 * @return		true si el usuario no tiene dominios, false si los tiene
+	 * */
 	private boolean verifyNoDomains(HtmlPage page){
 		// si no tiene dominios inscritos, le redirige a
 		String inscripcion = "https://clientes.nic.cl/registrar/agregarDominio.do";
@@ -368,12 +450,20 @@ public class ListaDominio {
 		return inscripcion.equals(pageLink);
 	}
 	
-	/**
-	 * @param page : pagina del login
-	 * 		fId : algun elemento de filterId o null
-	 * 		fValue : algun elemento de filterValue o null
-	 * fId o fValue debe ser !null, en caso de ambos tener valores
-	 * se prioriza fId **/
+	/** Carga el filtro y verifica los resultados
+	 * IMPORTANTE: fId o fValue debe ser !null, en caso de ambos 
+	 * tener valores se prioriza fId 
+	 * 
+	 * @param page		contenido pagina post login
+	 * @param fId		indice de filterId o null
+	 * @param fValue	indice de filterValue o null
+	 * 
+	 * @see		getIndexValue(fValue)
+	 * 			getIndexId(fId)
+	 * 			selectFilter(page, fIndex)
+	 * 			isEmptyBeforeFilter(page)
+	 * 			verifyAllColumns(page,fIndex)
+	 * */
 	private void verifyElements(HtmlPage page, String fId, String fValue){
 		try {
 			//fIndex : 0.1.5 -> todos || 2-4 -> contactos || 6-11 -> dominio
@@ -385,15 +475,15 @@ public class ListaDominio {
 				fIndex = this.getIndexId(fId);
 			} else {
 				assertTrue(false);
-				System.out.println("Ingrese algun valor de filtro, ya sea la id (fId) o su valor (fValue)");
+				//System.out.println("Ingrese algun valor de filtro, ya sea la id (fId) o su valor (fValue)");
 				fIndex = -1;
 			}
 			HtmlPage filter = this.selectFilter(page, fIndex);	
 			if (!isEmptyBeforeFilter(filter)){
-				System.out.println("Checking domains \n");
+				//System.out.println("Checking domains \n");
 				this.verifyAllColumns(filter, fIndex);
 			} else {
-				System.out.println("No domains in this selection \n");
+				//System.out.println("No domains in this selection \n");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -402,6 +492,13 @@ public class ListaDominio {
 		
 	}
 	
+	/** Test para listarDominio.do
+	 * usando todos los usuarios y todos los filtros
+	 * 
+	 * @see		UserAndPass.java
+	 * 			login(userNumber)
+	 * 			verifyNoDomains(page)
+	 * 			verifyElements(page, fId, fValue)*/
 	@Test
 	public void misDominios(){
 		System.out.println("<< STARTING ListaDominio.misDominios test");
@@ -409,12 +506,12 @@ public class ListaDominio {
 		for (int user = 0 ; user < topUser ; user++){
 			HtmlPage page = this.login(user);
 			if (!verifyNoDomains(page)){
-				System.out.println("User has domains");
+				//System.out.println("User has domains");
 				for (String filter : filterId){
 					this.verifyElements(page, filter, null);
 				}
 			} else {
-				System.out.println("User has no domains");
+				//System.out.println("User has no domains");
 			}
 		}
 		System.out.println("ListaDominio.misDominios FINISHED >>");
