@@ -15,9 +15,16 @@ import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 
 public class Logon {
-
+	/**	Carga la pagina "https://clientes.nic.cl/registrar/logon.do"
+	 * para luego iniciar sesion con un usuario y clave
+	 * 
+	 * @param username		es el usuario
+	 * @param password		es la clave del usuario para nic.cl
+	 * 
+	 *@return				contenido de la pagina una vez se envie el formulario
+	 * */
 	public HtmlPage startLogin(String username, String password) {	
-		System.out.println("Starting login with "+username+" account");
+		//System.out.println("Starting login with "+username+" account");
 		String url ="https://clientes.nic.cl/registrar/logon.do";
 	    String usernameInputName = "j_username";
 	    String passwordInputName = "j_password";
@@ -63,8 +70,16 @@ public class Logon {
 	    }
 	}
 	
+	/** Si el inicio de sesion fue exitoso, se redirige a
+	 *  listarDominio.do o agregarDominio.do (si el usuario
+	 *  no tiene dominios), pero si fallo redirige a logon.do
+	 *  
+	 *  @param page		contenido de pagina luego de enviar el formulario logon
+	 *  
+	 *  @see			startLogin(username,password)
+	 * */
 	private void verifyResponse(HtmlPage page){
-		System.out.print("Login status... ");
+		//System.out.print("Login status... ");
 		URL loginPage = page.getUrl();
 		String pageLink = loginPage.toString();
 		//System.out.println(pageLink);
@@ -72,7 +87,7 @@ public class Logon {
 		//Error login
 		String errorLink = "https://clientes.nic.cl/registrar/logon.do?login_error=";
 		if (pageLink.contains(errorLink)){
-			System.out.println("Failure : Account not found");
+			//System.out.println("Failure : Account not found");
 			assertTrue(true);
 		}
 		//NoDomain login
@@ -80,11 +95,18 @@ public class Logon {
 		//Success login
 		String successLink = "listarDominio.do";
 		if (pageLink.contains(successLink) || pageLink.contains(noDomainLink)){
-			System.out.println("Successfull \n");
+			//System.out.println("Successfull \n");
 			assertTrue(true);
 		}
 	}
 		
+	/** Test de inicio de sesion para todas las cuentas
+	 *  disponibles en 'userkeys.csv'
+	 *  
+	 *  @see	UserAndPass.java
+	 *  		startLogin(username,password)
+	 *  		verifyResponse(page)
+	 * */
 	@Test
 	public void loginWithAllTestAccounts(){
 		UserAndPass up = new UserAndPass();

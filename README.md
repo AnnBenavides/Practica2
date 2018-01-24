@@ -9,7 +9,7 @@ Se utiliza la librería [HtmlUnit](http://htmlunit.sourceforge.net/gettingStarte
 
 ## Inicialización
 ### Archivos
-- ***Usuarios:*** crear un archivo csv ```src\registrar\userkeays.csv``` como indica en la [issue](https://github.com/AnnBenavides/Practica2/issues/20#issuecomment-360145362)
+- ***Usuarios:*** crear un archivo csv ```src\registrar\userkeys.csv``` como indica en la [issue](https://github.com/AnnBenavides/Practica2/issues/20#issuecomment-360145362)
 - ***URLs:*** revisar ```src\UrlHandler.java```
 - ***Alfabetos de prueba:*** revisar ```src\registry\DomainsFile.java```
 
