@@ -33,7 +33,6 @@ public class DTE {
 	 * @see		UserAndPass.java
 	 * */
 	private HtmlPage login(int userNumber){
-		HtmlPage page;
 		//System.out.println("\n\n\t Signing in ...");
 		
 		UserAndPass up = new UserAndPass();
@@ -79,20 +78,7 @@ public class DTE {
 	      final HtmlButton submitLogin = (HtmlButton) loginForm.getElementsByTagName("button").get(0);
 	      final HtmlPage returnPage = submitLogin.click();  
 	      assertTrue(true);
-	      page = returnPage; 
-	      
-		  URL lPage = page.getUrl();
-		  String pageLink = lPage.toString();
-		  if (pageLink.contains("listarDominio.do") || pageLink.contains("agregarDominio.do")){
-		  	//System.out.println("Success");
-			assertTrue(true);
-			return page;
-		  } else {
-			//System.out.println("Failure");
-			assertTrue(false);
-			return null;
-		  }
-		  
+	      return returnPage; 		  
 	    } catch(FailingHttpStatusCodeException e) {
 	      e.printStackTrace();
 	      assertTrue(false);
@@ -102,6 +88,18 @@ public class DTE {
 	      assertTrue(false);
 	      return null;
 	    }
+	}
+	
+	/** En caso de que el usuario no tengo dominios
+	 * 
+	 * @param page	contenido de la pagina luego de iniciar sesion
+	 * @return		true si el usuario no tiene dominios, false si los tiene
+	 * */
+	private boolean verifyNoDomains(HtmlPage page){
+		URL loginPage = page.getUrl();
+		String pageLink = loginPage.toString();
+		//System.out.println(pageLink);
+		return !pageLink.contains("listarDominio.do");
 	}
 	
 	/**Si al iniciar sesion se retorno a listarDominio.do
@@ -344,8 +342,10 @@ public class DTE {
 		try{
 			int users = new UserAndPass().numberOfAccounts();
 			for (int user = 0 ; user < users ; user++){
-				HtmlPage page = this.goToDTE(this.login(user));
-				this.selectDomain(page);
+				HtmlPage page = this.login(user);
+				if (!this.verifyNoDomains(page)){
+					this.selectDomain(this.goToDTE(page));
+				}
 			}
 		} catch (Exception e){
 			e.printStackTrace();
