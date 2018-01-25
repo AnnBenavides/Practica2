@@ -14,14 +14,14 @@ import java.io.Writer;
  * y se usaran para cargar las URL que necesita cada clase
  * 
  * los archivos son:
- * 		registry/urls.txt
- * 		registrar/urls.txt
+ * 		registry/urls.csv
+ * 		registrar/urls.csv
  * **/
 public class UrlHandler {
 	private String localPath = new File(".").getAbsolutePath();
 	private String path = localPath.substring(0, localPath.length()-1);
-	private String registry = "src/registry/urls.txt";
-	private String registrar = "src/registrar/urls.txt";
+	private String registry = "src/registry/urls.csv";
+	private String registrar = "src/registrar/urls.csv";
 	
 	/**Lee las urls de registry y entrega la encontrada
 	 * 
