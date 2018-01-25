@@ -45,7 +45,7 @@ public class Email {
 	 * */
 	public String getNewMail(){
 		generator++;
-		String newMail = generator + "." + mailUser + endMail;
+		String newMail = mailUser + "+" + generator + endMail;
 		return newMail;
 	}
 	

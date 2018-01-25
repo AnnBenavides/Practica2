@@ -2,14 +2,17 @@ package registrar;
 
 import static org.junit.Assert.assertTrue;
 
+import java.net.URL;
 import java.util.List;
 
 import org.junit.Test;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.HtmlButtonInput;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
@@ -19,22 +22,38 @@ import com.gargoylesoftware.htmlunit.html.HtmlSelect;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 
 public class AgregarUsuario {
-	//TODO
-	
+	private Email mailObj = new Email();
+	private String username ;
 	/** Cargar la pagina de la forma
 	 * "https://clientes.nic.cl/registrar/agregarUsuario.do"
 	 * 
 	 * @return 			contenido de página agregarUsuario.do
 	 * **/
-	private HtmlPage openPage() throws Exception{
-		try (final WebClient webClient = new WebClient()) {
+	private HtmlPage openPage(){
+		// create the HTMLUnit WebClient instance
+	    @SuppressWarnings("resource")
+		WebClient wclient = new WebClient(BrowserVersion.FIREFOX_45);
+	    
+	    
+	    // configure WebClient based on your desired
+		wclient.getOptions().setPrintContentOnFailingStatusCode(false);
+		wclient.getOptions().setCssEnabled(false);
+		wclient.getOptions().setJavaScriptEnabled(true); //muy importante
+        wclient.setAjaxController(new NicelyResynchronizingAjaxController());
+		wclient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+		wclient.getOptions().setThrowExceptionOnScriptError(false);
+		try {
 			String url = "https://clientes.nic.cl/registrar/agregarUsuario.do";
-			System.out.println("Abriendo URL "+url);
-	        HtmlPage page = webClient.getPage(url);
+			WebRequest request = new WebRequest(new URL(url));
+		    final HtmlPage page = wclient.getPage(request);
 	        assertTrue(page.isHtmlPage());
 	        return page;
-	    }
-	}
+	    } catch (Exception e){
+	    	assertTrue(false);
+	    	e.printStackTrace();
+	    	return null;
+    	}
+    }
 	
 	/** Rellena las diferentes secciones del formulario
 	 * Sólo campos obligatorios de:
@@ -50,8 +69,7 @@ public class AgregarUsuario {
 	 *  				clickContinuar(page)
 	 *  */
 	private HtmlPage fillForm(HtmlPage page){
-		Email mailObj = new Email();
-		String username = mailObj.getNewMail();
+		username = mailObj.getNewMail();
 		String password = mailObj.getNicPass();
 		
 		//System.out.println("Starting registrer with "+username+" account");
@@ -139,14 +157,12 @@ public class AgregarUsuario {
 			mailDTE.setValueAttribute(username);
 			//System.out.println("\t | Mail: "+mailDTE.getValueAttribute());
 			assertTrue(true);
-						
-			HtmlPage confirm = this.aceptacionDeReglamentacion(page);
-			synchronized (confirm) {
-	            confirm.wait(2000); //wait
-	        }
+
 			//System.out.println("Ready to POST");
-			
-			return this.clickContinuar(confirm);
+			synchronized (page) {
+	            page.wait(2000); //wait
+	        }			
+			return page;
 	      
 	    } catch(FailingHttpStatusCodeException e) {
 	      e.printStackTrace();
@@ -162,8 +178,6 @@ public class AgregarUsuario {
 	/** Una vez relleno el form, se hace click en continuar para
 	 *  que aparezca una popUp para aceptar la reglamentacion
 	 *  
-	 *  TODO BUG: no encuentra el boton 'Continuar' D:!
-	 *  
 	 *  @param page		contenido de agregarDominio con 
 	 *  				el formulario completado
 	 *  @return			contenido de la pagina con popoUp de
@@ -174,37 +188,13 @@ public class AgregarUsuario {
 	 * */
 	private HtmlPage clickContinuar(HtmlPage page){
 		try{
-			List<HtmlForm> forms = page.getForms();
-			final HtmlForm form = forms.get(0);
-			//final HtmlInput button = (HtmlInput) page.getElementById("submitButton");
-			List<HtmlElement> divs = form.getElementsByTagName("div");
-			for (DomElement div : divs){
-				if (!div.hasAttribute("class") && div.hasAttribute("style")){
-					List<HtmlElement> inputs= div.getElementsByTagName("input");
-					for (DomElement input : inputs){
-						if ( input.hasAttribute("type") && input.hasAttribute("id") && input.hasAttribute("value")){
-							boolean type = input.getAttribute("type").equals("button");
-							boolean inputId = input.getAttribute("id").equals("submitButton");
-							boolean value = input.getAttribute("value").equals("Continuar >");
-							if (type && inputId && value){
-								assertTrue(type);
-								assertTrue(inputId);
-								assertTrue(value);
-								System.out.println("> Continuar: click!");
-								System.out.println(div.asXml());
-								synchronized (page) {
-						            page.wait(2000); //wait
-						        }
-								page=input.click();
-								synchronized (page) {
-						            page.wait(2000); //wait
-						        }
-								return page;
-								
-							}
-						}
-					}
-				}
+			List<DomElement> submits = page.getElementsById("submitButton");
+			for (DomElement submit : submits){
+				submit.click();
+				assertTrue(true);
+				synchronized (page) {
+		            page.wait(2000); //wait
+		        }
 			}
 			return page;
 		} catch (Exception e){
@@ -221,8 +211,6 @@ public class AgregarUsuario {
 	 * 				tras clickear 'Continuar'
 	 * @return		contenido de pagina tras enviar el 
 	 * 				formulario
-	 * 
-	 * @see			verifyPOST(page) TODO
 	 * */
 	private HtmlPage aceptacionDeReglamentacion(HtmlPage page){
 		try{
@@ -235,24 +223,57 @@ public class AgregarUsuario {
 					input.click();
 				} else if (input.getAttribute("id").equals("reglamentacionDialogSubmit")){
 					System.out.println("Checking complete");
+					assertTrue(true);
 					return input.click();
 				}
 			}
+			assertTrue(false);
 			return page;
 		} catch (Exception e){
 			e.printStackTrace();
+			assertTrue(false);
 			return null;
 		}
 	} 
-	 
-	@Test
-	public void addUser() throws Exception{
-		HtmlPage post = this.fillForm(this.openPage());
-		System.out.println("c(*.*)o-- Checking...");
-		HtmlPage accept = this.aceptacionDeReglamentacion(post);
-		System.out.println("6(*0*)9 Success!!");
-		
+	
+	/** Verifica si la pagina de retorno confirma la creacion de cuenta
+	 * de ser positivo, se guarda esta nueva cuenta en el archivo de usuarios
+	 * 
+	 * @param page		contenido de pagina luego de hacer POST del formulario
+	 * 
+	 * @see				aceptacionDeReglamentacion(page)
+	 * 					UserAndPass.java
+	 * */
+	private void verifyPOST(HtmlPage page){
+		try{
+			URL lPage = page.getUrl();
+			String pageLink = lPage.toString();
+			if (pageLink.contains("logon.do")){
+				assertTrue(true);
+				
+				//agregar usuario al archivo
+				new UserAndPass().addTuple(username, mailObj.getNicPass());
+			} else {
+				assertTrue(false);
+			}
+			//System.out.println(pageLink+"\n"+page.asText());
+		} catch (Exception e){
+			e.printStackTrace();
+			assertTrue(false);
+		}
 	}
 	
-
+	/** Test para agregar un usuario a traves de agregarUsuario.do
+	 * y agregar el nuevo usuario a 'userkeys.csv'
+	 *
+	 * @see		UserAndPass.java
+	 * */
+	@Test
+	public void addUser() throws Exception{
+		HtmlPage init = this.openPage();
+		HtmlPage form = this.fillForm(init);
+		HtmlPage confirm = this.clickContinuar(form);
+		HtmlPage regla = this.aceptacionDeReglamentacion(confirm);
+		this.verifyPOST(regla);		
+	}
 }

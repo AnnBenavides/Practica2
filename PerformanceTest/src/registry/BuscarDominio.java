@@ -110,9 +110,9 @@ public class BuscarDominio {
 			//System.out.println("\n\t | Dominio: "+columns[0]);
 			//System.out.println("\t | Dueño: "+columns[1]);
 			HtmlElement ahref = row.getElementsByTagName("a").get(0);
-			String href = "Whois.do?d="+columns[0];
+			String href = "Whois.do?d="+dom;
 			boolean hasLink = ahref.getAttribute("href").contains(href);
-			//assertTrue(hasLink);
+			assertTrue(hasLink);
 			//System.out.println("\t | Redirección a "+ahref.getAttribute("href"));			
 		} else {
 			// dominio no encontrado
@@ -190,9 +190,9 @@ public class BuscarDominio {
 				//System.out.println("\n\t | Dominio: "+columns[0]);
 				//System.out.println("\t | Dueño: "+columns[1]);
 				HtmlElement ahref = row.getElementsByTagName("a").get(0);
-				String href = "Whois.do?d="+columns[0];
+				String href = "Whois.do?d=";
 				boolean hasLink = ahref.getAttribute("href").contains(href);
-				//assertTrue(hasLink);
+				assertTrue(hasLink);
 				//System.out.println("\t | Redirección a "+ahref.getAttribute("href"));
 			}
 		} else {
@@ -270,9 +270,9 @@ public class BuscarDominio {
 				//System.out.println("\n\t | Dominio: "+columns[0]);
 				//System.out.println("\t | Dueño: "+columns[1]);
 				HtmlElement ahref = row.getElementsByTagName("a").get(0);
-				String href = "Whois.do?d="+columns[0];
+				String href = "Whois.do?d="+word;
 				boolean hasLink = ahref.getAttribute("href").contains(href);
-				//assertTrue(hasLink);
+				assertTrue(hasLink);
 				//System.out.println("\t | Redirección a "+ahref.getAttribute("href"));
 			}
 		} else {
@@ -349,9 +349,9 @@ public class BuscarDominio {
 				//System.out.println("\n\t | Dominio: "+columns[0]);
 				//System.out.println("\t | Dueño: "+columns[1]);
 				HtmlElement ahref = row.getElementsByTagName("a").get(0);
-				String href = "Whois.do?d="+columns[0];
+				String href = "Whois.do?d=";
 				boolean hasLink = ahref.getAttribute("href").contains(href);
-				//assertTrue(hasLink);
+				assertTrue(hasLink);
 				//System.out.println("\t | Redirección a "+ahref.getAttribute("href"));
 			}
 		} else {
