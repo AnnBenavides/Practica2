@@ -21,7 +21,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 
 public class VerCarro {
-	/**TODO**/
 	/** Inicio de sesion con el userNumber-esimo usuario
 	 * en 'userkeys.csv', verificando un inicio correcto
 	 * ya sea redireccionando a listarDominio.do o 
@@ -222,12 +221,60 @@ public class VerCarro {
 	/** Verifica el contenido de una fila
 	 * 
 	 * @param row	div que contiene una elemento
+	 * 				class = 'contenedor_datos'
 	 * */
 	private void verifyColumns(HtmlElement row){
 		try {
-			//TODO
+			List<HtmlElement> columns = row.getElementsByTagName("div");
+			for (HtmlElement div : columns){
+				if (div.hasAttribute("class")){
+					String classAttr = div.getAttribute("class");
+			//	QUITAR
+					if (classAttr.equals("input_mis_pagos")){
+						HtmlElement a = div.getElementsByTagName("a").get(0);
+						String href = a.getAttribute("href");
+						assertTrue(href.contains("eliminarDominioCarro.do?id="));
+					}
+			//	NOMBRE DE DOMINIO
+					else if (classAttr.equals("dominio_pago")){
+						String str = div.asText();
+						assertTrue(str.contains(".cl"));
+					} 
+			//	TITULAR
+					else if (classAttr.equals("dato_pago") && !div.hasAttribute("style")){
+						String str = div.asText();
+						assertTrue(!str.isEmpty());
+					}
+			//	TIPO DE OPERACION
+					else if (classAttr.equals("dato_pago") && div.hasAttribute("style")){
+						String str = div.asText();
+						assertTrue(!str.isEmpty());
+						HtmlElement input = div.getElementsByTagName("input").get(0);
+						assertTrue(input.getAttribute("id").contains("tipoOperacion.id"));
+					}
+			//	PLAZO
+					else if (classAttr.contains("dato_pago")){
+						List<HtmlElement> options = div.getElementsByTagName("option");
+						boolean selected = false;
+						for (HtmlElement option : options){
+							assertTrue(option.hasAttribute("value"));
+							if (option.hasAttribute("selected")){
+								assertTrue(option.getAttribute("selected").equals("selected"));
+								selected = !selected;
+							}
+						}
+						assertTrue(selected);
+					}
+			//	VALOR
+					else if (classAttr.equals("total")){
+						int p = div.getElementsByTagName("p").size();
+						String total = div.asText();
+						assertTrue((!total.isEmpty()) && (p>0));
+					}
+				}
+			}
 		} catch (Exception e){ 
-			System.out.println("! Problems in VerCarro.verify columns");
+			//System.out.println("! Problems in VerCarro.verify columns");
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -240,9 +287,16 @@ public class VerCarro {
 	 * @see			verifyColumns(row)*/
 	private void verifyProducts(HtmlElement rows){
 		try {
-			//TODO here
 			//System.out.println("> Verifing Domains data");
-			
+			List<HtmlElement> divs = rows.getElementsByTagName("div");
+			for (HtmlElement div: divs){
+				if (div.hasAttribute("class")){
+					if (div.getAttribute("class").equals("contenedor_datos")){
+						this.verifyColumns(div);
+					}
+				}
+			}
+			assertTrue(true);
 		} catch (Exception e){ 
 			//System.out.println("! Problems in VerCarro.verifyProducts");
 			e.printStackTrace();
@@ -401,8 +455,9 @@ public class VerCarro {
 	 * 				verifyMediosdePago(div, medioDePago)
 	 * 				verifyCompra(div, medioDePago)
 	 * */
-	private void verifyCLP(HtmlPage page){
+	private void verifyCLP(HtmlPage defaultPage){
 		try {
+			HtmlPage page = this.getDivisaPage(defaultPage, "CLP");
 			if (!this.hasNoProducts(page)){
 				//System.out.println("Checking content...");
 				List<DomElement> divs = page.getElementsByTagName("div");
@@ -445,13 +500,14 @@ public class VerCarro {
 	/** Selecciona la opcion de precios en dolares
 	 * 
 	 * @param page		contenido de la pagina VerCarro.do
+	 * @param moneyCode "CLP", "USD"
 	 * @return			contenido de la pagina con precios en USD,
 	 * 					null de haber algun error, o la misma pagina
 	 * 					de no haber elementos en el carro
 	 * 
 	 * @see				hasNoProducts(page)
 	 * */
-	private HtmlPage getUSDPage(HtmlPage page){
+	private HtmlPage getDivisaPage(HtmlPage page, String moneyCode){
 		try{
 			if (!this.hasNoProducts(page)){
 				//System.out.print("Searching button ");
@@ -464,7 +520,7 @@ public class VerCarro {
 							//System.out.println(". . .");	
 							List<HtmlElement> buttons = div.getElementsByTagName("button");
 							for (HtmlElement button : buttons){
-								if(button.getAttribute("id").equals("USD-button")){
+								if(button.getAttribute("id").equals(moneyCode+"-button")){
 									HtmlPage refresh = button.click();
 									//System.out.println("> Getting USD page");
 									synchronized (refresh) {
@@ -508,7 +564,7 @@ public class VerCarro {
 	 * */
 	private void verifyUSD(HtmlPage defaultPage){
 		try {
-			HtmlPage page = this.getUSDPage(defaultPage);
+			HtmlPage page = this.getDivisaPage(defaultPage, "USD");
 			if (!this.hasNoProducts(page)){
 				//System.out.println("Checking content...");
 				List<DomElement> divs = page.getElementsByTagName("div");
@@ -560,7 +616,7 @@ public class VerCarro {
 		try{
 			int users = new UserAndPass().numberOfAccounts();
 			//for (int user = 0 ; user < users ; user++){
-				HtmlPage loginPage = this.login(0);
+				HtmlPage loginPage = this.login(1);
 				if (loginPage!= null){
 					HtmlPage refresh = this.addToCarro(loginPage);
 					synchronized (refresh) {
@@ -589,7 +645,7 @@ public class VerCarro {
 		try{
 			int users = new UserAndPass().numberOfAccounts();
 			//for (int user = 0 ; user < users ; user++){
-				HtmlPage loginPage = this.login(0);
+				HtmlPage loginPage = this.login(1);
 				if (loginPage!= null){
 					HtmlPage refresh = this.addToCarro(loginPage);
 					synchronized (refresh) {
@@ -618,7 +674,7 @@ public class VerCarro {
 		try{
 			int users = new UserAndPass().numberOfAccounts();
 			//for (int user = 0 ; user < users ; user++){
-				HtmlPage loginPage = this.login(0);
+				HtmlPage loginPage = this.login(1);
 				if (loginPage!= null){
 					assertTrue(this.hasNoProducts(this.goToCarro(loginPage)));
 				}

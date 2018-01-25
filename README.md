@@ -31,7 +31,7 @@ Segun nombre de issue se categorizan en:
 - [info](https://github.com/AnnBenavides/Practica2/labels/info) : documentación rápida, información del sistema y toma de decisiones
 - [issue padre](https://github.com/AnnBenavides/Practica2/labels/issue%20padre) 
 - [pregunta/ayuda](https://github.com/AnnBenavides/Practica2/labels/pregunta%2Fayuda) : para issues en donde se necesite discusión o una segunda opinion antes de tomar una decisión
-- [pendiente](https://github.com/AnnBenavides/Practica2/labels/pendiente) : issues que aun no son revisados
+- [pendiente](https://github.com/AnnBenavides/Practica2/labels/pendiente) : issues que aun no son revisados, o que no se lograron desarrollar en el periodo de práctica
 - [invalido](https://github.com/AnnBenavides/Practica2/labels/invalido) : issues que ya no son necesarias
 - [bug](https://github.com/AnnBenavides/Practica2/labels/bug) : problemas o casos especiales que rompen el programa
 
