@@ -412,37 +412,58 @@ public class VerCarro {
 		}
 	}
 	
-	/** Verifica el contenido de la seccion compra 
-	 * (al final de VerCarro.do)
+	/** Selecciona la opcion de precios en dolares
 	 * 
-	 * @param div			contenedor de la ultima seccion
-	 * @param medioDePago	"Webpay","Khipu","ServipagOnline","Servipag" para CLP
-	 * 						"Paypal" para USD
+	 * @param page		contenido de la pagina VerCarro.do
+	 * @param moneyCode "CLP", "USD"
+	 * @return			contenido de la pagina con precios en USD,
+	 * 					null de haber algun error, o la misma pagina
+	 * 					de no haber elementos en el carro
+	 * 
+	 * @see				hasNoProducts(page)
 	 * */
-	private void verifyCompra(DomElement div, String medioDePago){
-		try {
-			//System.out.println("> Verify 'Compra'");
-			List<HtmlElement> divs = div.getElementsByTagName("div");
-			for (HtmlElement botonera : divs){
-				if(botonera.hasAttribute("id") && botonera.hasAttribute("style")){
-					boolean id = botonera.getAttribute("id").equals("botonera"+medioDePago);
-					if (id){
-						boolean style =botonera.getAttribute("style").contains("display: block");
-						//System.out.println("\t | 'Comprar' por "+medioDePago+"? "+style);
-						assertEquals(true,style);
-						return;
+	private HtmlPage getDivisaPage(HtmlPage page, String moneyCode){
+		try{
+			if (!this.hasNoProducts(page)){
+				//System.out.print("Searching button ");
+				List<DomElement> divs = page.getElementsByTagName("div");
+				for (DomElement div : divs){
+					if (div.hasAttribute("class")){
+						String classAttr = div.getAttribute("class");
+						//TOTALES y MONEDA
+						if (classAttr.equals("total_final")){
+							//System.out.println(". . .");	
+							List<HtmlElement> buttons = div.getElementsByTagName("button");
+							for (HtmlElement button : buttons){
+								if(button.getAttribute("id").equals(moneyCode+"-button")){
+									HtmlPage refresh = button.click();
+									//System.out.println("> Getting USD page");
+									synchronized (refresh) {
+							            refresh.wait(2000); //wait
+							        }
+									assertTrue(true);
+									return refresh;
+								}
+							}
+						} 
 					}
 				}
+				//System.out.println("Cant perform this action");
+				assertTrue(false);
+				return null;
+			} else {
+				//System.out.println("There are no products");
+				assertTrue(false);
+				return page;
 			}
-			//System.out.println("\t | 'Comprar'? "+false);
-			assertTrue(false);
 		} catch (Exception e){ 
-			//System.out.println("! Problems in VerCarro.verifyCompra");
+			//System.out.println("! Problems in VerCarro.getUSDPage");
 			e.printStackTrace();
 			assertTrue(false);
+			return null;
 		}
 	}
-	
+		
 	/** Verifica el contenido de todo VerCarro.do en CLP:
 	 * 		contenedor de datos, totales y moneda,
 	 * 		medios de pago y compra
@@ -496,59 +517,7 @@ public class VerCarro {
 			assertTrue(false);
 		}
 	}
-	
-	/** Selecciona la opcion de precios en dolares
-	 * 
-	 * @param page		contenido de la pagina VerCarro.do
-	 * @param moneyCode "CLP", "USD"
-	 * @return			contenido de la pagina con precios en USD,
-	 * 					null de haber algun error, o la misma pagina
-	 * 					de no haber elementos en el carro
-	 * 
-	 * @see				hasNoProducts(page)
-	 * */
-	private HtmlPage getDivisaPage(HtmlPage page, String moneyCode){
-		try{
-			if (!this.hasNoProducts(page)){
-				//System.out.print("Searching button ");
-				List<DomElement> divs = page.getElementsByTagName("div");
-				for (DomElement div : divs){
-					if (div.hasAttribute("class")){
-						String classAttr = div.getAttribute("class");
-						//TOTALES y MONEDA
-						if (classAttr.equals("total_final")){
-							//System.out.println(". . .");	
-							List<HtmlElement> buttons = div.getElementsByTagName("button");
-							for (HtmlElement button : buttons){
-								if(button.getAttribute("id").equals(moneyCode+"-button")){
-									HtmlPage refresh = button.click();
-									//System.out.println("> Getting USD page");
-									synchronized (refresh) {
-							            refresh.wait(2000); //wait
-							        }
-									assertTrue(true);
-									return refresh;
-								}
-							}
-						} 
-					}
-				}
-				//System.out.println("Cant perform this action");
-				assertTrue(false);
-				return null;
-			} else {
-				//System.out.println("There are no products");
-				assertTrue(false);
-				return page;
-			}
-		} catch (Exception e){ 
-			//System.out.println("! Problems in VerCarro.getUSDPage");
-			e.printStackTrace();
-			assertTrue(false);
-			return null;
-		}
-	}
-	
+		
 	/** Verifica el contenido de todo VerCarro.do en USD:
 	 * 		contenedor de datos, totales y moneda,
 	 * 		medios de pago y compra
@@ -602,6 +571,96 @@ public class VerCarro {
 		}
 	}
 	
+	/** Verifica el contenido de la seccion compra 
+	 * (al final de VerCarro.do)
+	 * 
+	 * @param div			contenedor de la ultima seccion
+	 * @param medioDePago	"Webpay","Khipu","ServipagOnline","Servipag" para CLP
+	 * 						"Paypal" para USD+
+	 * 
+	 * @see					verifyOutterSale(div,url)
+	 * 						getRedirectUrl(medioDePago)
+	 * */
+	private void verifyCompra(DomElement div, String medioDePago){
+		try {
+			//System.out.println("> Verify 'Compra'");
+			List<HtmlElement> divs = div.getElementsByTagName("div");
+			for (HtmlElement botonera : divs){
+				if(botonera.hasAttribute("id") && botonera.hasAttribute("style")){
+					boolean id = botonera.getAttribute("id").equals("botonera"+medioDePago);
+					if (id){
+						boolean style =botonera.getAttribute("style").contains("display: block");
+						//System.out.println("\t | 'Comprar' por "+medioDePago+"? "+style);
+						this.verifyOutterSale(div, this.getRedirectUrl(medioDePago));
+						assertEquals(true,style);
+						return;
+					}
+				}
+			}
+			//System.out.println("\t | 'Comprar'? "+false);
+			assertTrue(false);
+		} catch (Exception e){ 
+			//System.out.println("! Problems in VerCarro.verifyCompra");
+			e.printStackTrace();
+			assertTrue(false);
+		}
+	}
+	
+	/** Dado un medio de paga, entrega la url que debería redirigir
+	 * al clickear 'Comprar'
+	 * 
+	 * @param medioDePago	"Webpay","Khipu","ServipagOnline","Servipag","Paypal"
+	 * @return				parte de la url correspondiente al medio de pago, 
+	 * 						null si no lo encuentra
+	 * 
+	 * @see					verifyOutterSale(page,medioDePago)*/
+	private String getRedirectUrl(String medioDePago){
+		String[] medios = {"Webpay","Khipu","ServipagOnline","Servipag","Paypal"};
+		String[] urls = {"transbank.cl","khipu.com","servipag.com","generarCupon.do?","paypal.com"};
+		int i = -1;
+		for (String medio: medios){
+			i++;
+			if (medio.equals(medioDePago)){
+				assertTrue(true);
+				return urls[i];
+			}
+		}
+		assertTrue(false);
+		return null;
+	}
+	
+	/** Verifica que, una ves elegidoel medio de pago, el botón de compra
+	 * redirica al sistema externo indicado para realizar la compra
+	 * 
+	 * @param div	contenedor de la botonera correspondiente 
+	 * 				al medio de pago elegido
+	 * @param url	URL a la que debería redirigir la compra
+	 * 
+	 * @see			verifyCompra(div,mediDePago)
+	 * 				getRedirectUrl(medioDePago)
+	 * */
+	private void verifyOutterSale(DomElement div, String url){
+		try{
+			List<HtmlElement> inputs = div.getElementsByTagName("input");
+			for (HtmlElement button : inputs){
+				if (button.getAttribute("type").equals("submit")){
+					HtmlPage page = button.click();
+					synchronized (page) {
+			            page.wait(5000); //wait
+			        }
+					URL lPage = page.getUrl();
+					String pageLink = lPage.toString();
+					assertTrue(!pageLink.contains("VerCarro.do"));
+					return;
+				}
+			}
+			assertTrue(false);
+		} catch (Exception e){
+			assertTrue(false);
+			e.printStackTrace();
+		}
+	}
+	
 	/**Test de VerCarro.do con elementos cargados
 	 * y precios en CLP, para todos los usuarios guardados
 	 * 
@@ -615,8 +674,8 @@ public class VerCarro {
 		System.out.println("<< STARTING VerCarro.compraCLP test");
 		try{
 			int users = new UserAndPass().numberOfAccounts();
-			//for (int user = 0 ; user < users ; user++){
-				HtmlPage loginPage = this.login(1);
+			for (int user = 0 ; user < users ; user++){
+				HtmlPage loginPage = this.login(user);
 				if (loginPage!= null){
 					HtmlPage refresh = this.addToCarro(loginPage);
 					synchronized (refresh) {
@@ -624,7 +683,7 @@ public class VerCarro {
 			        }
 					this.verifyCLP(refresh);
 				}
-			//}
+			}
 		} catch (Exception e){
 			e.printStackTrace();
 		}
@@ -644,8 +703,8 @@ public class VerCarro {
 		System.out.println("<< STARTING VerCarro.compraUSD test");
 		try{
 			int users = new UserAndPass().numberOfAccounts();
-			//for (int user = 0 ; user < users ; user++){
-				HtmlPage loginPage = this.login(1);
+			for (int user = 0 ; user < users ; user++){
+				HtmlPage loginPage = this.login(user);
 				if (loginPage!= null){
 					HtmlPage refresh = this.addToCarro(loginPage);
 					synchronized (refresh) {
@@ -653,7 +712,7 @@ public class VerCarro {
 			        }
 					this.verifyUSD(refresh);
 				}
-			//}
+			}
 		} catch (Exception e){
 			e.printStackTrace();
 		}
@@ -673,12 +732,12 @@ public class VerCarro {
 		System.out.println("<< STARTING VerCarro.carroVacio test");
 		try{
 			int users = new UserAndPass().numberOfAccounts();
-			//for (int user = 0 ; user < users ; user++){
-				HtmlPage loginPage = this.login(1);
+			for (int user = 0 ; user < users ; user++){
+				HtmlPage loginPage = this.login(user);
 				if (loginPage!= null){
 					assertTrue(this.hasNoProducts(this.goToCarro(loginPage)));
 				}
-			//}
+			}
 		} catch (Exception e){
 			e.printStackTrace();
 		}
