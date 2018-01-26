@@ -258,7 +258,7 @@ public class AgregarDominio {
 	private boolean noDisponible(HtmlPage page){
 		try {
 			synchronized (page) {
-	            page.wait(2000); //wait
+	            page.wait(3000); //wait
 	        }
 			HtmlElement seccion = this.getDivInForm(page, "cont_formulario", null);
 			String result = seccion.asText();
@@ -271,6 +271,29 @@ public class AgregarDominio {
 			return false;
 		}
 	}
+	
+	/** Llenar el formulario para agregarDominio
+	 * 
+	 * @param page	contenido de la pagina agregarDominio.do
+	 * @param word	dominio que se desea inscribir
+	 * 
+	 * @see			intentoDominio(page,word)
+	 * 				noDisponible(page)
+	 * */
+	private void fillForm(HtmlPage page, String word){
+		try {
+			HtmlPage intento = this.intentoDominio(page, word);
+			if (this.noDisponible(intento)){
+				System.out.println("Dominio no disponible: "+word+".cl");
+				assertTrue(true);
+			} else {
+				
+			}
+		} catch (Exception e) {
+			assertTrue(false);
+			e.printStackTrace();
+		}
+	}
 
 	@Test
 	public void simpleTest(){
@@ -280,12 +303,8 @@ public class AgregarDominio {
 			HtmlPage login = this.login(1);
 			HtmlPage page = this.goToAgregarDominio(login);
 			for (String word : words){
-				HtmlPage intento = this.intentoDominio(page, word);
-				if (!this.noDisponible(intento)){
-					System.out.println("Inscribiendo: "+word+".cl");
-				}
+				this.fillForm(page, word);
 			}
-			
 		} catch (Exception e){
 			assertTrue(false);
 			e.printStackTrace();
