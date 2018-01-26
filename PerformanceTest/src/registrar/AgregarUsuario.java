@@ -78,8 +78,6 @@ public class AgregarUsuario {
 	      	List<HtmlForm> forms = page.getForms();
 			final HtmlForm form = forms.get(0);
 			
-			System.out.println("c(*.')o-- Filling form...");
-			
 			//Datos de acceso
 			//System.out.println("> Datos de acceso");
 			final HtmlTextInput email = form.getInputByName("username");
@@ -214,7 +212,7 @@ public class AgregarUsuario {
 	 * */
 	private HtmlPage aceptacionDeReglamentacion(HtmlPage page){
 		try{
-			System.out.println("Searching PopUp");
+			//System.out.println("Searching PopUp");
 			DomElement popUp = page.getElementById("panel_reglamentacion_c");
 			//System.out.println(popUp.asXml());
 			List<HtmlElement> inputs = popUp.getElementsByTagName("input");
@@ -222,7 +220,7 @@ public class AgregarUsuario {
 				if (input.getAttribute("id").equals("chkAceptado")){
 					input.click();
 				} else if (input.getAttribute("id").equals("reglamentacionDialogSubmit")){
-					System.out.println("Checking complete");
+					//System.out.println("Checking complete");
 					assertTrue(true);
 					return input.click();
 				}
@@ -250,7 +248,6 @@ public class AgregarUsuario {
 			String pageLink = lPage.toString();
 			if (pageLink.contains("logon.do")){
 				assertTrue(true);
-				
 				//agregar usuario al archivo
 				new UserAndPass().addTuple(username, mailObj.getNicPass());
 			} else {

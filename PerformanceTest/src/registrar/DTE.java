@@ -33,8 +33,6 @@ public class DTE {
 	 * @see		UserAndPass.java
 	 * */
 	private HtmlPage login(int userNumber){
-		//System.out.println("\n\n\t Signing in ...");
-		
 		UserAndPass up = new UserAndPass();
 		up.getTuple(userNumber);
 		String username = up.getUser();
