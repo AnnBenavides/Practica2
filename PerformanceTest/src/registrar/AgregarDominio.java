@@ -282,12 +282,17 @@ public class AgregarDominio {
 	 * */
 	private void fillForm(HtmlPage page, String word){
 		try {
+			// NOMBRE DE DOMINIO
 			HtmlPage intento = this.intentoDominio(page, word);
 			if (this.noDisponible(intento)){
 				System.out.println("Dominio no disponible: "+word+".cl");
 				assertTrue(true);
 			} else {
-				
+			//	DATOS DE TITULAR TODO here
+			//	INFORMACION DE CONTACTOS
+			//	FACTURACION
+			//	SERVIDORES DNS
+			//	CREAR DOMINIO
 			}
 		} catch (Exception e) {
 			assertTrue(false);
