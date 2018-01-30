@@ -168,7 +168,7 @@ public class VerCarro {
 					}
 				}
 			}
-			assertTrue(false);
+			assertTrue(true);
 			//System.out.println("There is no selectable domain");
 			return null;
 		} catch (Exception e){ 
@@ -670,10 +670,13 @@ public class VerCarro {
 				HtmlPage loginPage = this.login(user);
 				if (!this.verifyNoDomains(loginPage)){
 					HtmlPage refresh = this.addToCarro(loginPage);
-					synchronized (refresh) {
-			            refresh.wait(2000); //wait
-			        }
-					this.verifyCLP(refresh);
+					if (refresh != null){
+						synchronized (refresh) {
+				            refresh.wait(2000); //wait
+				        }
+						this.verifyCLP(refresh);
+					}
+					
 				}
 			}
 		} catch (Exception e){
@@ -699,10 +702,12 @@ public class VerCarro {
 				HtmlPage loginPage = this.login(user);
 				if (!this.verifyNoDomains(loginPage)){
 					HtmlPage refresh = this.addToCarro(loginPage);
-					synchronized (refresh) {
-			            refresh.wait(2000); //wait
-			        }
-					this.verifyUSD(refresh);
+					if (refresh != null){
+						synchronized (refresh) {
+				            refresh.wait(2000); //wait
+				        }
+						this.verifyUSD(refresh);
+					}
 				}
 			}
 		} catch (Exception e){

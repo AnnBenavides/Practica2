@@ -12,7 +12,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class RecuperarClave {
 	private void findRecoveryLink(){
-		System.out.print("Searching for 'Olvidó su ocntraseña?' link ... ");
+		//System.out.print("Searching for 'Olvidó su ocntraseña?' link ... ");
 		try (final WebClient webClient = new WebClient()) {
 			String url ="https://clientes.nic.cl/registrar/logon.do";
 	        HtmlPage page = webClient.getPage(url);
@@ -28,17 +28,17 @@ public class RecuperarClave {
 	        		return; 
 	        	}
 	        }
-	        System.out.println(" x Link not found");
+	        //System.out.println(" x Link not found");
 	        assertTrue(false);
 		} catch (Exception e){
 			e.printStackTrace();
 		}
-		System.out.println("Opening /recuperarPassword.do");
+		//System.out.println("Opening /recuperarPassword.do");
 		this.checkRecoverPass();
 	}
 	
 	private void checkRecoverPass(){// TODO
-		System.out.println("Recuperando contraseña... ");
+		//System.out.println("Recuperando contraseña... ");
 		try (final WebClient webClient = new WebClient()) {
 			String url ="https://clientes.nic.cl/registrar/recuperaPassword.do";
 	        HtmlPage page = webClient.getPage(url);

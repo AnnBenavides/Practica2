@@ -149,6 +149,7 @@ public class AgregarDominio {
 	 * @param page	contenido de la pagina AgregarDominio.do
 	 * @return		true si hay mensaje de error, false sino
 	 * */
+	@SuppressWarnings("unused")
 	private boolean hasErrors(HtmlPage page){
 		try{
 			List<DomElement> divs = page.getElementsByTagName("div");

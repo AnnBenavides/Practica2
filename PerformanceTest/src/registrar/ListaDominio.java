@@ -57,7 +57,7 @@ public class ListaDominio {
 		String username = up.getUser();
 		String password = up.getPass();
 		
-		//System.out.println("Starting login with "+username+" account");
+		System.out.println("Starting login with "+username+" account");
 		
 		String url ="https://clientes.nic.cl/registrar/logon.do";
 	    String usernameInputName = "j_username";
@@ -338,7 +338,7 @@ public class ListaDominio {
 							}
 						}
 						//NOMBRE DOMINIO
-						if (classAttr.equals("dominio_mini")){
+						if (classAttr.equals("dominio_mini") && fIndex != 11){
 							String text = div.asText();
 							//System.out.println("\t | Dominio : "+text);
 							assertTrue(text.endsWith(".cl"));
@@ -376,7 +376,7 @@ public class ListaDominio {
 	 * 
 	 * @param page		contenido de la pagina luego de aplicar un filtro
 	 * 
-	 * @return			true si hay dominios en la lista de resultados, false sino
+	 * @return			true si no dominios en la lista de resultados, false si los hay
 	 * */
 	private boolean isEmptyBeforeFilter(HtmlPage page){
 		try {
